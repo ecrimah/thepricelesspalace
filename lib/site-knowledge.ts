@@ -1,0 +1,205 @@
+/**
+ * Site Knowledge Base — curated facts used by the AI chat assistant.
+ */
+
+export interface SiteKnowledgeEntry {
+  id: string;
+  title: string;
+  path: string;
+  category: string;
+  content: string;
+  keywords: string[];
+}
+
+export const SITE_KNOWLEDGE: SiteKnowledgeEntry[] = [
+  {
+    id: "business-overview",
+    title: "About Wholesale Queen",
+    path: "/about",
+    category: "company",
+    content: `Wholesale Queen brings China wholesale straight to Ghana. We specialise in Shein bales (wholesale clothing), mannequins and home appliances, all at unbeatable wholesale prices.
+
+We make bulk buying simple and affordable — perfect for resellers, boutique owners, and anyone who wants quality goods without paying retail markups.
+
+Whether you're stocking a shop, starting a clothing business, or buying for yourself, Wholesale Queen exists to make wholesale sourcing easy, reliable and accessible.
+
+Vision: To make quality goods affordable for every Ghanaian hustler and reseller.
+Mission: To be Ghana's most trusted China-wholesale partner — delivering Shein bales, mannequins and appliances at the best prices, one order at a time.
+
+Location: Ashongman Estate, Accra. Delivery available across Ghana.`,
+    keywords: ["wholesale queen", "china wholesale", "shein bale", "mannequin", "appliances", "ghana", "accra", "ashongman", "reseller", "bulk", "about"],
+  },
+  {
+    id: "contact-info",
+    title: "Contact Information",
+    path: "/contact",
+    category: "contact",
+    content: `Contact Wholesale Queen:
+
+Phone/WhatsApp: 054 284 9341
+Email: hello@wholesalequeen.com
+TikTok/Instagram: @chinawholesalequeen
+Address: Ashongman Estate, Accra, Ghana
+Support Hours: Monday to Saturday, 9 AM - 6 PM GMT`,
+    keywords: ["contact", "phone", "whatsapp", "email", "address", "support", "0542849341", "accra", "ghana", "ashongman", "instagram", "tiktok", "chinawholesalequeen"],
+  },
+  {
+    id: "shipping-policy",
+    title: "Shipping & Delivery Policy",
+    path: "/shipping",
+    category: "shipping",
+    content: `Wholesale Queen is based at Ashongman Estate, Accra, and delivers across Ghana.
+
+Shipping fees and delivery timelines depend on destination and are shown at checkout. Pickup is available at our Accra location.
+
+Customers receive order updates and can track orders using order number and email.`,
+    keywords: ["shipping", "delivery", "ghana", "accra", "pickup", "timeline", "tracking", "ashongman", "wholesale queen"],
+  },
+  {
+    id: "returns-policy",
+    title: "Returns & Refunds Policy",
+    path: "/returns",
+    category: "returns",
+    content: `Returns are accepted for eligible unused items in original condition within 30 days of delivery.
+
+Custom or altered items may not be returnable unless there is a quality issue.
+
+Refunds are processed after item inspection.`,
+    keywords: ["returns", "refund", "exchange", "worn", "condition", "30 days"],
+  },
+  {
+    id: "payment-methods",
+    title: "Payment Methods",
+    path: "/checkout",
+    category: "payment",
+    content: `Secure payments are processed by Paystack. Customers can pay with mobile money (MTN, Telecel, AirtelTigo), debit/credit cards, or bank transfer at checkout.
+
+Cash on Delivery is available for eligible orders within Accra.
+All prices are shown in ₵ (GHS) unless otherwise stated.`,
+    keywords: ["payment", "paystack", "card", "bank transfer", "mobile money", "momo", "mtn", "checkout", "secure", "ghs", "cedi", "ghana"],
+  },
+  {
+    id: "order-tracking-guide",
+    title: "How to Track Your Order",
+    path: "/order-tracking",
+    category: "orders",
+    content: `To track an order, go to /order-tracking and provide your order number and email address.
+
+Typical status flow:
+Order Placed -> Payment -> Processing -> Packaged -> Dispatched -> Delivered.`,
+    keywords: ["track", "order", "status", "order number", "email", "dispatched"],
+  },
+  {
+    id: "faq-summary",
+    title: "Frequently Asked Questions",
+    path: "/faqs",
+    category: "faq",
+    content: `FAQs cover orders, shipping, returns, payment, and account support.
+
+Customers can contact support via WhatsApp, email, or support ticket for unresolved issues.`,
+    keywords: ["faq", "questions", "support", "orders", "shipping", "returns"],
+  },
+  {
+    id: "legal-summary",
+    title: "Privacy & Terms",
+    path: "/privacy",
+    category: "legal",
+    content: `Privacy Policy and Terms explain data handling, order conditions, returns, and user responsibilities.
+
+For legal questions, contact hello@wholesalequeen.com.`,
+    keywords: ["privacy", "terms", "legal", "data", "policy"],
+  },
+  {
+    id: "checkout-guide",
+    title: "Checkout Process",
+    path: "/checkout",
+    category: "shopping",
+    content: `Checkout steps:
+1. Add products to cart
+2. Enter shipping details
+3. Choose delivery method
+4. Complete payment
+5. Receive confirmation and tracking updates`,
+    keywords: ["checkout", "cart", "payment", "delivery", "order"],
+  },
+];
+
+/**
+ * Search the site knowledge base for relevant entries
+ */
+export function searchSiteKnowledge(query: string, maxResults = 3): SiteKnowledgeEntry[] {
+  const lower = query.toLowerCase();
+  const words = lower.split(/\s+/).filter(w => w.length > 2);
+
+  const scored = SITE_KNOWLEDGE.map(entry => {
+    let score = 0;
+
+    // Exact keyword matches (highest priority)
+    for (const kw of entry.keywords) {
+      if (lower.includes(kw)) score += 10;
+      for (const word of words) {
+        if (kw.includes(word) || word.includes(kw)) score += 3;
+      }
+    }
+
+    // Title match
+    if (entry.title.toLowerCase().includes(lower)) score += 15;
+    for (const word of words) {
+      if (entry.title.toLowerCase().includes(word)) score += 5;
+    }
+
+    // Content match
+    const contentLower = entry.content.toLowerCase();
+    for (const word of words) {
+      if (contentLower.includes(word)) score += 2;
+    }
+
+    // Boost FAQ entries slightly (they cover common questions)
+    if (entry.category === 'faq') score += 1;
+
+    return { entry, score };
+  });
+
+  return scored
+    .filter(s => s.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, maxResults)
+    .map(s => s.entry);
+}
+
+/**
+ * Get all knowledge entries for a specific category
+ */
+export function getKnowledgeByCategory(category: string): SiteKnowledgeEntry[] {
+  return SITE_KNOWLEDGE.filter(e => e.category === category);
+}
+
+/**
+ * Build a condensed site map for the system prompt
+ */
+export function getSiteMapSummary(): string {
+  return `WEBSITE PAGES (you can reference these to help customers navigate):
+- / — Homepage with featured products, categories, and store info
+- /shop — Browse all products with filters (category, price, rating, sort)
+- /categories — Shop by category
+- /product/[slug] — Individual product pages with details, reviews, variants
+- /cart — Shopping cart with coupon support
+- /checkout — Checkout flow (shipping → delivery → payment)
+- /order-tracking — Track orders by order number + email
+- /returns — Start a return request (30-day policy)
+- /account — Profile, order history, addresses, security settings
+- /wishlist — Saved products
+- /about — Wholesale Queen story and mission
+- /contact — Phone numbers, email, WhatsApp, visit info
+- /faqs — 25+ frequently asked questions
+- /help — Help center with 50+ articles across 6 categories
+- /blog — Wholesale tips, reseller guides, and product insights
+- /shipping — Detailed shipping & delivery policy
+- /privacy — Privacy policy
+- /terms — Terms & conditions
+- /support/ticket — Create a support ticket
+- /support/tickets — View your tickets
+- /auth/login — Sign in
+- /auth/signup — Create account
+- /auth/forgot-password — Reset password`;
+}

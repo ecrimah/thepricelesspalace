@@ -13,7 +13,7 @@ import { useRecaptcha } from '@/hooks/useRecaptcha';
 export default function CheckoutPage() {
   usePageTitle('Checkout');
   const router = useRouter();
-  const { cart, subtotal: cartSubtotal, clearCart } = useCart();
+  const { cart, subtotal: cartSubtotal, clearCart, appliedCoupon, discount } = useCart();
 
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
@@ -90,7 +90,8 @@ export default function CheckoutPage() {
   const subtotal = cartSubtotal;
   const shippingCost = 0; // Delivery options temporarily disabled
   const tax = 0; // No Tax
-  const total = subtotal + shippingCost + tax;
+  const couponDiscount = Math.min(discount || 0, subtotal);
+  const total = Math.max(0, subtotal - couponDiscount + shippingCost + tax);
 
   const validateShipping = () => {
     const newErrors: any = {};
@@ -156,7 +157,7 @@ export default function CheckoutPage() {
           subtotal: subtotal,
           tax_total: tax,
           shipping_total: shippingCost,
-          discount_total: 0,
+          discount_total: couponDiscount,
           total: total,
           shipping_method: deliveryMethod,
           payment_method: paymentMethod,
@@ -166,7 +167,9 @@ export default function CheckoutPage() {
             guest_checkout: !user,
             first_name: shippingData.firstName,
             last_name: shippingData.lastName,
-            tracking_number: trackingNumber
+            tracking_number: trackingNumber,
+            coupon_code: appliedCoupon?.code || null,
+            coupon_discount: couponDiscount || null
           }
         }])
         .select()
@@ -230,6 +233,15 @@ export default function CheckoutPage() {
         .insert(orderItems);
 
       if (itemsError) throw itemsError;
+
+      // Record coupon usage (best-effort, server-side via service role)
+      if (appliedCoupon?.code) {
+        fetch('/api/storefront/coupons/redeem', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code: appliedCoupon.code }),
+        }).catch((e) => console.error('Coupon redeem trigger error:', e));
+      }
 
       // Note: Stock reduction happens in mark_order_paid when payment is confirmed
 
@@ -646,6 +658,8 @@ export default function CheckoutPage() {
               shipping={shippingCost}
               tax={tax}
               total={total}
+              discount={couponDiscount}
+              couponCode={appliedCoupon?.code}
             />
           </div>
         </div>

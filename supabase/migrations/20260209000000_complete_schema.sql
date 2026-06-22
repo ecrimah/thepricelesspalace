@@ -1270,6 +1270,20 @@ CREATE INDEX idx_blog_posts_author ON public.blog_posts USING btree (author_id);
 CREATE INDEX idx_coupons_code ON public.coupons USING btree (code);
 CREATE INDEX idx_coupons_active ON public.coupons USING btree (is_active);
 
+-- Atomically increment a coupon's usage_count (called server-side after a successful order)
+CREATE OR REPLACE FUNCTION public.increment_coupon_usage(p_code text)
+RETURNS void
+LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  UPDATE public.coupons
+  SET usage_count = COALESCE(usage_count, 0) + 1,
+      updated_at = now()
+  WHERE lower(code) = lower(p_code);
+$$;
+GRANT EXECUTE ON FUNCTION public.increment_coupon_usage(text) TO service_role;
+
 -- Orders
 CREATE INDEX idx_orders_number ON public.orders USING btree (order_number);
 CREATE INDEX idx_orders_status ON public.orders USING btree (status);

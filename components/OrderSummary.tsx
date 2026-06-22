@@ -13,9 +13,11 @@ interface OrderSummaryProps {
   shipping: number;
   tax: number;
   total: number;
+  discount?: number;
+  couponCode?: string | null;
 }
 
-export default function OrderSummary({ items, subtotal, shipping, tax, total }: OrderSummaryProps) {
+export default function OrderSummary({ items, subtotal, shipping, tax, total, discount = 0, couponCode }: OrderSummaryProps) {
   return (
     <div className="bg-white rounded-2xl shadow-sm ring-1 ring-[#141414]/[0.06] p-6 sticky top-4">
       <h2 className="text-xl font-bold text-[#141414] mb-6">Order Summary</h2>
@@ -47,6 +49,12 @@ export default function OrderSummary({ items, subtotal, shipping, tax, total }: 
           <span>Subtotal</span>
           <span className="font-semibold">₵ {subtotal.toFixed(2)}</span>
         </div>
+        {discount > 0 && (
+          <div className="flex justify-between text-[#1a7f37]">
+            <span>Discount{couponCode ? ` (${couponCode})` : ''}</span>
+            <span className="font-semibold">-₵ {discount.toFixed(2)}</span>
+          </div>
+        )}
         <div className="flex justify-between text-gray-700">
           <span>Shipping</span>
           <span className="font-semibold">

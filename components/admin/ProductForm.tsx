@@ -11,6 +11,57 @@ interface ProductFormProps {
     isEditMode?: boolean;
 }
 
+/**
+ * Compress/resize an image File in the browser before upload.
+ * Downscales to a max dimension and re-encodes as JPEG to keep uploads small
+ * (well under the server body-size limit) regardless of original camera resolution.
+ * Falls back to the original file if anything goes wrong (e.g. unsupported format).
+ */
+async function compressImageFile(file: File, maxDimension = 2000, quality = 0.85): Promise<File> {
+    if (!file.type.startsWith('image/') || file.type === 'image/gif') return file;
+
+    try {
+        const dataUrl: string = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = () => reject(new Error('read failed'));
+            reader.readAsDataURL(file);
+        });
+
+        const img: HTMLImageElement = await new Promise((resolve, reject) => {
+            const image = new Image();
+            image.onload = () => resolve(image);
+            image.onerror = () => reject(new Error('decode failed'));
+            image.src = dataUrl;
+        });
+
+        const { width, height } = img;
+        const scale = Math.min(1, maxDimension / Math.max(width, height));
+        const targetW = Math.round(width * scale);
+        const targetH = Math.round(height * scale);
+
+        const canvas = document.createElement('canvas');
+        canvas.width = targetW;
+        canvas.height = targetH;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return file;
+        ctx.drawImage(img, 0, 0, targetW, targetH);
+
+        const blob: Blob | null = await new Promise((resolve) =>
+            canvas.toBlob((b) => resolve(b), 'image/jpeg', quality)
+        );
+        if (!blob) return file;
+
+        // Only use the compressed version if it is actually smaller.
+        if (blob.size >= file.size) return file;
+
+        const newName = file.name.replace(/\.[^.]+$/, '') + '.jpg';
+        return new File([blob], newName, { type: 'image/jpeg', lastModified: Date.now() });
+    } catch {
+        return file;
+    }
+}
+
 export default function ProductForm({ initialData, isEditMode = false }: ProductFormProps) {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
@@ -337,13 +388,17 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
             const newImages: any[] = [];
 
             for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                const fileExt = file.name.split('.').pop()?.toLowerCase() || '';
+                const original = files[i];
+                const fileExt = original.name.split('.').pop()?.toLowerCase() || '';
                 const isVideo = ['mp4', 'mov', 'webm'].includes(fileExt);
 
-                const maxSize = isVideo ? 100 * 1024 * 1024 : 5 * 1024 * 1024;
+                // Compress/resize images in the browser so large camera photos
+                // upload reliably and stay under the server body-size limit.
+                const file = isVideo ? original : await compressImageFile(original);
+
+                const maxSize = isVideo ? 100 * 1024 * 1024 : 8 * 1024 * 1024;
                 if (file.size > maxSize) {
-                    alert(`"${file.name}" is too large. Max: ${isVideo ? '100MB for videos' : '5MB for images'}`);
+                    alert(`"${original.name}" is too large. Max: ${isVideo ? '100MB for videos' : '8MB for images after compression'}`);
                     setUploadProgress(prev => prev.map((p, idx) => idx === i ? { ...p, done: true } : p));
                     continue;
                 }

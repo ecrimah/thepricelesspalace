@@ -18,6 +18,16 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'api.chinawholesalequeen.com',
+        pathname: '/storage/v1/object/public/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'wholesalequeen-api.89-116-30-71.nip.io',
+        pathname: '/storage/v1/object/public/**',
+      },
+      {
+        protocol: 'https',
         hostname: 'images.unsplash.com',
       },
       {

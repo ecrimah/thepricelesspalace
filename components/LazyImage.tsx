@@ -47,8 +47,6 @@ export default function LazyImage({
     );
   }
 
-  // Use unoptimized for external URLs (Supabase storage, placeholders) so they always load
-  const isExternal = /^https?:\/\//.test(src);
   return (
     <div className={`relative overflow-hidden ${className}`} style={{ width, height }}>
       {!isLoaded && (
@@ -64,7 +62,6 @@ export default function LazyImage({
         onError={handleError}
         priority={priority}
         quality={75}
-        unoptimized={isExternal}
       />
     </div>
   );

@@ -161,8 +161,7 @@ export default function Home() {
                 alt=""
                 fill
                 priority={index === 0}
-                quality={100}
-                unoptimized
+                quality={90}
                 sizes="100vw"
                 className="object-cover"
                 style={{

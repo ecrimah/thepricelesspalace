@@ -7,7 +7,7 @@ const nextConfig: NextConfig = {
     },
   },
   images: {
-    unoptimized: true,
+    formats: ['image/webp'],
     minimumCacheTTL: 2592000,
     qualities: [75, 90, 100],
     remotePatterns: [

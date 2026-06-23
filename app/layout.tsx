@@ -52,16 +52,16 @@ export const metadata: Metadata = {
     },
   },
   icons: {
-    shortcut: [{ url: '/favicon.ico' }],
+    shortcut: [{ url: '/favicon.ico?v=2' }],
     icon: [
-      { url: '/favicon.ico', sizes: 'any' },
-      { url: '/favicon.png', sizes: '64x64', type: 'image/png' },
+      { url: '/favicon.ico?v=2', sizes: 'any' },
+      { url: '/favicon.png?v=2', sizes: '512x512', type: 'image/png' },
       { url: '/icons/icon-96x96.png', sizes: '96x96', type: 'image/png' },
       { url: '/icons/icon-192x192.png', sizes: '192x192', type: 'image/png' },
       { url: '/icons/icon-512x512.png', sizes: '512x512', type: 'image/png' },
     ],
     apple: [
-      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+      { url: '/apple-touch-icon.png?v=2', sizes: '180x180', type: 'image/png' },
       { url: '/icons/icon-152x152.png', sizes: '152x152', type: 'image/png' },
       { url: '/icons/icon-192x192.png', sizes: '192x192', type: 'image/png' },
     ],
@@ -88,7 +88,7 @@ export const metadata: Metadata = {
     siteName: "Wholesale Queen",
     images: [
       {
-        url: "/og-image.png",
+        url: "/og-image.png?v=2",
         width: 1200,
         height: 630,
         alt: "Wholesale Queen logo and brand preview",
@@ -100,7 +100,7 @@ export const metadata: Metadata = {
     title: "Wholesale Queen | China Wholesale — Shein Bales, Mannequins & Appliances",
     description:
       "China wholesale at unbeatable prices — Shein bales, mannequins, and home appliances delivered across Ghana.",
-    images: ["/twitter-image.png"],
+    images: ["/twitter-image.png?v=2"],
   },
   alternates: {
     canonical: siteUrl,
@@ -130,7 +130,7 @@ export default function RootLayout({
         <meta name="msapplication-tap-highlight" content="no" />
 
         {/* Apple Touch Icons */}
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2" />
         <link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192x192.png" />
         <link rel="apple-touch-icon" sizes="384x384" href="/icons/icon-384x384.png" />
         <link rel="apple-touch-icon" sizes="512x512" href="/icons/icon-512x512.png" />
@@ -151,7 +151,7 @@ export default function RootLayout({
                   "name": "Wholesale Queen",
                   "url": siteUrl,
                   "logo": `${siteUrl}/wholesalequeen-logo.png`,
-                  "image": `${siteUrl}/og-image.png`,
+                  "image": `${siteUrl}/og-image.png?v=2`,
                   "description": "China wholesale at unbeatable prices — Shein bales, mannequins, and home appliances delivered across Ghana.",
                   "sameAs": ["https://www.instagram.com/chinawholesalequeen", "https://wa.me/233542849341", "https://www.tiktok.com/@chinawholesalequeen"],
                   "contactPoint": {

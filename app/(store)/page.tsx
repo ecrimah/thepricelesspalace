@@ -32,6 +32,7 @@ export default function Home() {
             .from('products')
             .select('*, product_variants(*), product_images(*)')
             .eq('status', 'active')
+            .eq('featured', true)
             .order('created_at', { ascending: false }),
           supabase
             .from('categories')
@@ -97,7 +98,11 @@ export default function Home() {
     );
   };
 
-  const popularProducts = featuredProducts;
+  // Only show featured products that actually have at least one image.
+  // Imageless products stay off the home page until photos are uploaded.
+  const popularProducts = featuredProducts.filter(
+    (p) => (p.product_images?.length || 0) > 0
+  );
   const defaultCategoryStyles = [
     {
       chip: 'Everyday comfort',

@@ -290,8 +290,8 @@ const LLM_TOOLS = [
           },
           payment_method: {
             type: 'string',
-            enum: ['paystack', 'cod'],
-            description: 'Payment method. paystack = online payment (Mobile Money, card, bank transfer), cod = Cash on Delivery (Accra only)',
+            enum: ['moolre', 'cod'],
+            description: 'Payment method. moolre = online payment (Mobile Money, card, bank transfer), cod = Cash on Delivery (Accra only)',
           },
         },
         required: ['items', 'shipping', 'delivery_method', 'payment_method'],
@@ -1157,7 +1157,7 @@ async function executeToolCall(
         items: args.items || [],
         shipping: args.shipping || {},
         deliveryMethod: args.delivery_method || 'standard',
-        paymentMethod: args.payment_method || 'paystack',
+        paymentMethod: args.payment_method || 'moolre',
         userId,
       });
 

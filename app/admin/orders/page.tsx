@@ -453,7 +453,7 @@ export default function AdminOrdersPage() {
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Payment Method</label>
                 <select className="w-full px-3 py-2 pr-8 border-2 border-gray-300 rounded-lg text-sm cursor-pointer">
                   <option>All Methods</option>
-                  <option>Paystack</option>
+                  <option>Moolre</option>
                   <option>Mobile Money</option>
                   <option>Card</option>
                   <option>Cash on Delivery</option>

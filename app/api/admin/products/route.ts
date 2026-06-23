@@ -48,7 +48,7 @@ async function requireAdmin(request: Request): Promise<NextResponse | null> {
   return null;
 }
 
-const PLACEHOLDER_IMAGE = 'https://via.placeholder.com/300?text=No+Image';
+const PLACEHOLDER_IMAGE = '/placeholder-product.png';
 
 /**
  * GET /api/admin/products

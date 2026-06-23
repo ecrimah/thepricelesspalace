@@ -73,6 +73,7 @@ export default function AdminCouponsPage() {
 
   useEffect(() => {
     fetchCoupons();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const authHeaders = async (): Promise<Record<string, string>> => {

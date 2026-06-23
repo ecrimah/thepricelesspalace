@@ -355,7 +355,7 @@ export default function Home() {
                     originalPrice={product.compare_at_price}
                     image={
                       product.product_images?.[0]?.url ||
-                      'https://via.placeholder.com/400x500'
+                      '/placeholder-product.png'
                     }
                     rating={product.rating_avg || 5}
                     reviewCount={product.review_count || 0}

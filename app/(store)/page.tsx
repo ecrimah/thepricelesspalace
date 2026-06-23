@@ -32,8 +32,7 @@ export default function Home() {
             .from('products')
             .select('*, product_variants(*), product_images(*)')
             .eq('status', 'active')
-            .order('created_at', { ascending: false })
-            .limit(12),
+            .order('created_at', { ascending: false }),
           supabase
             .from('categories')
             .select('id, name, slug, parent_id, position, metadata, image_url')
@@ -98,7 +97,7 @@ export default function Home() {
     );
   };
 
-  const popularProducts = featuredProducts.slice(0, 6);
+  const popularProducts = featuredProducts;
   const defaultCategoryStyles = [
     {
       chip: 'Everyday comfort',

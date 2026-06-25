@@ -117,6 +117,9 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
     ];
     // Common beauty / cosmetics sizes & options (you can still add any custom ones)
     const sizePresets = ['10ml', '20ml', '30ml', '50ml', '100ml', '150ml', '200ml'];
+    // Wholesale quantity tiers — quick-add buttons for bulk/wholesale pricing.
+    // Each tier becomes its own variant so it can carry a dedicated wholesale price & stock.
+    const wholesaleQtyPresets = ['30 pieces', '50 pieces', '100 pieces', '200 pieces'];
 
     // Parse existing variants to extract unique colors, sizes, and variant image
     const existingVariants = (initialData?.product_variants || []).map((v: any) => ({
@@ -1072,6 +1075,40 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                                     Click options to add/remove. Use custom for things like volumes (10ml, 50ml),
                                     lash lengths (12mm, 16mm), wig lengths (14&quot;, 20&quot;), bundle counts, etc.
                                 </p>
+
+                                {/* Wholesale quantity tiers — quick add for bulk pricing */}
+                                <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50/60 p-3">
+                                    <p className="text-xs font-bold text-amber-800 mb-2 flex items-center">
+                                        <i className="ri-stack-line mr-1.5 text-base"></i>
+                                        Wholesale quantities
+                                        <span className="ml-2 font-normal text-amber-700/80">
+                                            add bulk tiers, then set a wholesale price for each
+                                        </span>
+                                    </p>
+                                    <div className="flex flex-wrap gap-2">
+                                        {wholesaleQtyPresets.map(qty => {
+                                            const isSelected = selectedSizes.includes(qty);
+                                            return (
+                                                <button
+                                                    key={qty}
+                                                    type="button"
+                                                    onClick={() => toggleSize(qty)}
+                                                    className={`px-4 py-2 rounded-lg border-2 font-semibold text-sm transition-all ${
+                                                        isSelected
+                                                            ? 'border-amber-600 bg-amber-100 text-amber-900 ring-1 ring-amber-600'
+                                                            : 'border-amber-200 hover:border-amber-400 bg-white text-amber-800'
+                                                    }`}
+                                                >
+                                                    {qty}
+                                                    {isSelected && <i className="ri-check-line ml-1.5 text-amber-700"></i>}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                    <p className="text-[11px] text-amber-700/80 mt-2">
+                                        Need a different amount? Use the custom box below (e.g. &quot;500 pieces&quot;).
+                                    </p>
+                                </div>
 
                                 <div className="flex flex-wrap gap-2 mb-4">
                                     {sizePresets.map(size => {

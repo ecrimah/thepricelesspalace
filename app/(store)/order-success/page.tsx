@@ -62,9 +62,9 @@ function OrderSuccessContent() {
       }
     }
 
-    // Webhook never fired — call our verify endpoint which queries Moolre directly
+    // Webhook never fired — call our verify endpoint which queries Hubtel directly
     try {
-      const res = await fetch('/api/payment/moolre/verify', {
+      const res = await fetch('/api/payment/hubtel/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ orderNumber: orderNum })

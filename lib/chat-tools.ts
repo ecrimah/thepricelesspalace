@@ -1,4 +1,8 @@
-import { getMoolreConfig, generatePaymentLink } from '@/lib/moolre';
+import {
+  initiateHubtelCheckout,
+  makeHubtelClientReference,
+  normalizeGhPhone,
+} from '@/lib/hubtel';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -491,7 +495,7 @@ export async function createChatOrder(
   if (!['standard', 'express', 'pickup'].includes(deliveryMethod)) {
     return { success: false, message: 'Invalid delivery method.' };
   }
-  if (!['moolre', 'cod'].includes(paymentMethod)) {
+  if (!['hubtel', 'cod'].includes(paymentMethod)) {
     return { success: false, message: 'Invalid payment method.' };
   }
 
@@ -644,12 +648,15 @@ export async function createChatOrder(
     }
 
     // Handle payment
-    if (paymentMethod === 'moolre') {
+    if (paymentMethod === 'hubtel') {
       try {
-        const cfg = getMoolreConfig();
         const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || '').replace(/\/+$/, '');
+        const hasHubtel =
+          !!process.env.HUBTEL_API_ID &&
+          !!process.env.HUBTEL_API_KEY &&
+          !!process.env.HUBTEL_MERCHANT_ACCOUNT_NUMBER;
 
-        if (!cfg) {
+        if (!hasHubtel || !baseUrl) {
           return {
             success: true,
             orderNumber,
@@ -658,45 +665,51 @@ export async function createChatOrder(
           };
         }
 
-        const uniqueRef = `${orderNumber}-R${Date.now()}`;
-        const callbackSecret = process.env.MOOLRE_CALLBACK_SECRET || '';
-        const callbackUrl = `${baseUrl}/api/payment/moolre/callback${callbackSecret ? `?s=${encodeURIComponent(callbackSecret)}` : ''}`;
+        const clientReference = makeHubtelClientReference(orderNumber);
+        const customerPhone = normalizeGhPhone(sanitizedShipping.phone || '');
+        const customerName =
+          [sanitizedShipping.firstName, sanitizedShipping.lastName].filter(Boolean).join(' ').trim() ||
+          sanitizedShipping.email ||
+          'Customer';
 
-        // Save Moolre reference on the order so verify/callback can find it later
+        // Save Hubtel reference on the order so verify/callback can find it later
         try {
           await supabaseAdmin
             .from('orders')
             .update({
+              payment_method: 'hubtel',
               metadata: {
                 ...(order.metadata || {}),
-                moolre_reference: uniqueRef,
-                moolre_init_at: new Date().toISOString(),
+                payment_gateway: 'hubtel',
+                hubtel_client_reference: clientReference,
+                hubtel_initiated_at: new Date().toISOString(),
+                source: 'chat',
               },
             })
             .eq('id', order.id);
         } catch {}
 
-        const result = await generatePaymentLink({
-          cfg,
-          amount: total,
-          email: sanitizedShipping.email,
-          externalRef: uniqueRef,
-          callbackUrl,
-          redirectUrl: `${baseUrl}/order-success?order=${orderNumber}&payment_success=true`,
-          metadata: {
-            order_number: orderNumber,
-            order_id: order.id,
-            customer_email: sanitizedShipping.email,
-            source: 'chat',
-          },
+        const result = await initiateHubtelCheckout({
+          totalAmount: Math.round(total * 100) / 100,
+          description: `Order ${orderNumber}`,
+          callbackUrl: `${baseUrl}/api/payment/hubtel/callback`,
+          returnUrl: `${baseUrl}/order-success?order=${orderNumber}&payment_success=true`,
+          cancellationUrl: `${baseUrl}/pay/${orderNumber}?cancelled=true`,
+          merchantAccountNumber: process.env.HUBTEL_MERCHANT_ACCOUNT_NUMBER!,
+          clientReference,
+          payeeName: customerName,
+          ...(customerPhone ? { payeeMobileNumber: customerPhone } : {}),
+          payeeEmail: sanitizedShipping.email,
         });
 
-        if (result.ok && result.url) {
+        const checkoutUrl = result?.data?.checkoutUrl || result?.data?.checkoutDirectUrl;
+
+        if (checkoutUrl) {
           return {
             success: true,
             orderNumber,
             total,
-            paymentUrl: result.url,
+            paymentUrl: checkoutUrl,
             message: `Order ${orderNumber} created successfully! Total: ₵${total.toFixed(2)} (including ₵${shippingCost.toFixed(2)} delivery). Please complete your payment using the link below.`,
           };
         } else {
@@ -708,7 +721,7 @@ export async function createChatOrder(
           };
         }
       } catch (payErr: any) {
-        console.error('[ChatTools] Moolre payment error:', payErr);
+        console.error('[ChatTools] Hubtel payment error:', payErr);
         return {
           success: true,
           orderNumber,

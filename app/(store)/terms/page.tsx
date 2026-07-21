@@ -143,7 +143,7 @@ export default function TermsPage() {
                 </li>
                 <li className="flex items-center gap-2">
                   <i className="ri-bank-card-line text-gray-900"></i>
-                  <span>Credit/Debit Cards (Visa, Mastercard) via Moolre</span>
+                  <span>Credit/Debit Cards (Visa, Mastercard) via Hubtel</span>
                 </li>
               </ul>
             </div>

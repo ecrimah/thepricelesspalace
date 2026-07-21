@@ -54,7 +54,7 @@ export default function CheckoutPage() {
   ];
 
   const [deliveryMethod, setDeliveryMethod] = useState('pickup');
-  const [paymentMethod, setPaymentMethod] = useState('moolre');
+  const [paymentMethod, setPaymentMethod] = useState('hubtel');
   const [errors, setErrors] = useState<any>({});
 
 
@@ -115,7 +115,7 @@ export default function CheckoutPage() {
   };
 
   const handleContinueToPayment = async () => {
-    // Skip step 3 and directly initiate payment with default method (Moolre)
+    // Skip step 3 and directly initiate payment with default method (Hubtel)
     await handlePlaceOrder();
   };
 
@@ -258,11 +258,11 @@ export default function CheckoutPage() {
       });
 
       // 4. Handle Payment Redirects or Completion
-      if (paymentMethod === 'moolre') {
+      if (paymentMethod === 'hubtel') {
         try {
           // Payment link reminder will be sent automatically after 15 mins if unpaid (via cron)
 
-          const paymentRes = await fetch('/api/payment/moolre', {
+          const paymentRes = await fetch('/api/payment/hubtel', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -281,7 +281,7 @@ export default function CheckoutPage() {
           // Clear cart before redirecting
           clearCart();
 
-          // Redirect to Moolre
+          // Redirect to Hubtel
           window.location.href = paymentResult.url;
           return;
 

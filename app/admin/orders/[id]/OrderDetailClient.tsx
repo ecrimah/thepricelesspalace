@@ -145,7 +145,7 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
     setReverifying(true);
     setReverifyResult(null);
     try {
-      const res = await fetch('/api/payment/moolre/verify', {
+      const res = await fetch('/api/payment/hubtel/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ orderNumber: order.order_number }),
@@ -155,7 +155,7 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
         setReverifyResult('✅ Payment verified! Order has been marked as paid.');
         fetchOrderDetails();
       } else {
-        setReverifyResult(`⚠️ Moolre could not confirm this payment automatically. Use "Mark as Paid" below to manually confirm it.`);
+        setReverifyResult(`⚠️ Hubtel could not confirm this payment automatically. Use "Mark as Paid" below to manually confirm it.`);
       }
     } catch (err) {
       setReverifyResult('❌ Network error. Please try again.');
@@ -582,7 +582,7 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
                 <div className="flex justify-between">
                   <span className="text-gray-600">Transaction</span>
                   <span className="text-sm text-gray-900 font-mono truncate max-w-[150px]">
-                    {order.metadata?.moolre_reference || order.metadata?.paystack_reference || order.payment_transaction_id || 'N/A'}
+                    {order.metadata?.hubtel_client_reference || order.metadata?.moolre_reference || order.metadata?.paystack_reference || order.payment_transaction_id || 'N/A'}
                   </span>
                 </div>
               </div>
@@ -599,7 +599,7 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
                   )}
                 </button>
               )}
-              {/* Re-verify with Moolre API */}
+              {/* Re-verify with Hubtel API */}
               {order.payment_status !== 'paid' && (
                 <div className="mt-3">
                   <button
@@ -608,9 +608,9 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
                     className="w-full bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 py-2.5 rounded-lg font-semibold transition-colors disabled:opacity-50 flex items-center justify-center gap-2 text-sm"
                   >
                     {reverifying ? (
-                      <><i className="ri-loader-4-line animate-spin"></i> Checking with Moolre...</>
+                      <><i className="ri-loader-4-line animate-spin"></i> Checking with Hubtel...</>
                     ) : (
-                      <><i className="ri-refresh-line"></i> Re-verify Payment with Moolre</>
+                      <><i className="ri-refresh-line"></i> Re-verify Payment with Hubtel</>
                     )}
                   </button>
                   {reverifyResult && (

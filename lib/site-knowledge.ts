@@ -72,11 +72,11 @@ Refunds are processed after item inspection.`,
     title: "Payment Methods",
     path: "/checkout",
     category: "payment",
-    content: `Secure payments are processed by Moolre. Customers can pay with mobile money (MTN, Telecel, AirtelTigo), debit/credit cards, or bank transfer at checkout.
+    content: `Secure payments are processed by Hubtel. Customers can pay with mobile money (MTN, Telecel, AirtelTigo), debit/credit cards, or bank transfer at checkout.
 
 Cash on Delivery is available for eligible orders within Accra.
 All prices are shown in ₵ (GHS) unless otherwise stated.`,
-    keywords: ["payment", "moolre", "card", "bank transfer", "mobile money", "momo", "mtn", "checkout", "secure", "ghs", "cedi", "ghana"],
+    keywords: ["payment", "hubtel", "moolre", "card", "bank transfer", "mobile money", "momo", "mtn", "checkout", "secure", "ghs", "cedi", "ghana"],
   },
   {
     id: "order-tracking-guide",

@@ -3,6 +3,7 @@ import {
   makeHubtelClientReference,
   normalizeGhPhone,
 } from '@/lib/hubtel';
+import { getMoolreConfig, generatePaymentLink } from '@/lib/moolre';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -495,7 +496,7 @@ export async function createChatOrder(
   if (!['standard', 'express', 'pickup'].includes(deliveryMethod)) {
     return { success: false, message: 'Invalid delivery method.' };
   }
-  if (!['hubtel', 'cod'].includes(paymentMethod)) {
+  if (!['hubtel', 'moolre', 'cod'].includes(paymentMethod)) {
     return { success: false, message: 'Invalid payment method.' };
   }
 
@@ -722,6 +723,82 @@ export async function createChatOrder(
         }
       } catch (payErr: any) {
         console.error('[ChatTools] Hubtel payment error:', payErr);
+        return {
+          success: true,
+          orderNumber,
+          total,
+          message: `Order ${orderNumber} created (₵${total.toFixed(2)}), but payment initiation failed. Please visit the website to complete payment.`,
+        };
+      }
+    }
+
+    if (paymentMethod === 'moolre') {
+      try {
+        const cfg = getMoolreConfig();
+        const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || '').replace(/\/+$/, '');
+
+        if (!cfg || !baseUrl) {
+          return {
+            success: true,
+            orderNumber,
+            total,
+            message: `Order ${orderNumber} created (₵${total.toFixed(2)}), but payment gateway is not configured. Please complete payment through the website.`,
+          };
+        }
+
+        const uniqueRef = `${orderNumber}-R${Date.now()}`;
+        const callbackSecret = process.env.MOOLRE_CALLBACK_SECRET || '';
+        const callbackUrl = `${baseUrl}/api/payment/moolre/callback${callbackSecret ? `?s=${encodeURIComponent(callbackSecret)}` : ''}`;
+
+        try {
+          await supabaseAdmin
+            .from('orders')
+            .update({
+              payment_method: 'moolre',
+              metadata: {
+                ...(order.metadata || {}),
+                payment_gateway: 'moolre',
+                moolre_reference: uniqueRef,
+                moolre_init_at: new Date().toISOString(),
+                source: 'chat',
+              },
+            })
+            .eq('id', order.id);
+        } catch {}
+
+        const result = await generatePaymentLink({
+          cfg,
+          amount: total,
+          email: sanitizedShipping.email,
+          externalRef: uniqueRef,
+          callbackUrl,
+          redirectUrl: `${baseUrl}/order-success?order=${orderNumber}&payment_success=true`,
+          metadata: {
+            order_number: orderNumber,
+            order_id: order.id,
+            customer_email: sanitizedShipping.email,
+            source: 'chat',
+          },
+        });
+
+        if (result.ok && result.url) {
+          return {
+            success: true,
+            orderNumber,
+            total,
+            paymentUrl: result.url,
+            message: `Order ${orderNumber} created successfully! Total: ₵${total.toFixed(2)} (including ₵${shippingCost.toFixed(2)} delivery). Please complete your payment using the link below.`,
+          };
+        }
+
+        return {
+          success: true,
+          orderNumber,
+          total,
+          message: `Order ${orderNumber} created (₵${total.toFixed(2)}), but we couldn't generate a payment link. Please visit your order page to complete payment.`,
+        };
+      } catch (payErr: any) {
+        console.error('[ChatTools] Moolre payment error:', payErr);
         return {
           success: true,
           orderNumber,

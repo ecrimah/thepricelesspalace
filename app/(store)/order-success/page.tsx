@@ -62,18 +62,28 @@ function OrderSuccessContent() {
       }
     }
 
-    // Webhook never fired — call our verify endpoint which queries Hubtel directly
+    // Webhook never fired — re-query the gateway used for this order
     try {
-      const res = await fetch('/api/payment/hubtel/verify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ orderNumber: orderNum })
-      });
-      const result = await res.json();
-      console.log('[Success] Verify result:', result);
-      if (result.success && result.payment_status === 'paid') {
-        const updated = await refreshOrder().catch(() => null);
-        if (updated) setOrder(updated);
+      const current = await refreshOrder().catch(() => null);
+      const method = current?.payment_method || _initialOrder?.payment_method || 'hubtel';
+      const endpoints =
+        method === 'moolre'
+          ? ['/api/payment/moolre/verify', '/api/payment/hubtel/verify']
+          : ['/api/payment/hubtel/verify', '/api/payment/moolre/verify'];
+
+      for (const endpoint of endpoints) {
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ orderNumber: orderNum })
+        });
+        const result = await res.json();
+        console.log('[Success] Verify result from', endpoint, ':', result);
+        if (result.success && result.payment_status === 'paid') {
+          const updated = await refreshOrder().catch(() => null);
+          if (updated) setOrder(updated);
+          break;
+        }
       }
     } catch (err) {
       console.error('[Success] Payment verification failed:', err);

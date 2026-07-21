@@ -290,8 +290,8 @@ const LLM_TOOLS = [
           },
           payment_method: {
             type: 'string',
-            enum: ['hubtel', 'cod'],
-            description: 'Payment method. hubtel = online payment (Mobile Money, card, bank transfer), cod = Cash on Delivery (Accra only)',
+            enum: ['hubtel', 'moolre', 'cod'],
+            description: 'Payment method. hubtel or moolre = online payment (Mobile Money, card, bank transfer), cod = Cash on Delivery (Accra only)',
           },
         },
         required: ['items', 'shipping', 'delivery_method', 'payment_method'],

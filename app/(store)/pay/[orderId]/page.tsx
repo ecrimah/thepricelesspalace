@@ -16,6 +16,7 @@ export default function PaymentPage() {
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [outOfStockItems, setOutOfStockItems] = useState<string[]>([]);
+  const [paymentMethod, setPaymentMethod] = useState<'hubtel' | 'moolre'>('hubtel');
 
   useEffect(() => {
     async function fetchOrder() {
@@ -30,6 +31,11 @@ export default function PaymentPage() {
         }
 
         setOrder(data.order);
+        if (data.order.payment_method === 'moolre') {
+          setPaymentMethod('moolre');
+        } else {
+          setPaymentMethod('hubtel');
+        }
 
         // If already paid, redirect to success page
         if (data.order.payment_status === 'paid') {
@@ -69,7 +75,10 @@ export default function PaymentPage() {
         return;
       }
 
-      const paymentRes = await fetch('/api/payment/hubtel', {
+      const paymentEndpoint =
+        paymentMethod === 'hubtel' ? '/api/payment/hubtel' : '/api/payment/moolre';
+
+      const paymentRes = await fetch(paymentEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -247,6 +256,53 @@ export default function PaymentPage() {
           </div>
         )}
 
+        {/* Gateway choice */}
+        {!hasStockIssue && (
+          <div className="mb-6 space-y-3">
+            <p className="text-sm font-semibold text-gray-900">Choose payment method</p>
+            <label
+              className={`flex items-start gap-3 p-4 border-2 rounded-xl cursor-pointer transition-colors ${
+                paymentMethod === 'hubtel'
+                  ? 'border-[#C9A24E] bg-[#C9A24E]/[0.07]'
+                  : 'border-gray-200 hover:border-[#C9A24E]/40'
+              }`}
+            >
+              <input
+                type="radio"
+                name="payGateway"
+                value="hubtel"
+                checked={paymentMethod === 'hubtel'}
+                onChange={() => setPaymentMethod('hubtel')}
+                className="w-5 h-5 accent-[#C9A24E] mt-0.5"
+              />
+              <div>
+                <p className="font-semibold text-gray-900">Hubtel</p>
+                <p className="text-sm text-gray-600">Mobile Money, card, or bank</p>
+              </div>
+            </label>
+            <label
+              className={`flex items-start gap-3 p-4 border-2 rounded-xl cursor-pointer transition-colors ${
+                paymentMethod === 'moolre'
+                  ? 'border-[#C9A24E] bg-[#C9A24E]/[0.07]'
+                  : 'border-gray-200 hover:border-[#C9A24E]/40'
+              }`}
+            >
+              <input
+                type="radio"
+                name="payGateway"
+                value="moolre"
+                checked={paymentMethod === 'moolre'}
+                onChange={() => setPaymentMethod('moolre')}
+                className="w-5 h-5 accent-[#C9A24E] mt-0.5"
+              />
+              <div>
+                <p className="font-semibold text-gray-900">Moolre</p>
+                <p className="text-sm text-gray-600">Alternative Mobile Money / card checkout</p>
+              </div>
+            </label>
+          </div>
+        )}
+
         {/* Pay Button — disabled when out of stock */}
         {!hasStockIssue ? (
           <button
@@ -265,7 +321,7 @@ export default function PaymentPage() {
             ) : (
               <>
                 <i className="ri-secure-payment-line mr-2"></i>
-                Pay ₵ {order?.total?.toFixed(2)} Securely
+                Pay ₵ {order?.total?.toFixed(2)} with {paymentMethod === 'hubtel' ? 'Hubtel' : 'Moolre'}
               </>
             )}
           </button>
@@ -291,7 +347,7 @@ export default function PaymentPage() {
         <div className="mt-6 text-center">
           <p className="text-xs text-gray-500 flex items-center justify-center">
             <i className="ri-lock-line mr-1"></i>
-            Secure payment powered by Hubtel
+            Secure payment powered by Hubtel or Moolre
           </p>
         </div>
 

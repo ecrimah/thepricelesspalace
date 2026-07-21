@@ -114,9 +114,8 @@ export default function CheckoutPage() {
     }
   };
 
-  const handleContinueToPayment = async () => {
-    // Skip step 3 and directly initiate payment with default method (Hubtel)
-    await handlePlaceOrder();
+  const handleContinueToPayment = () => {
+    setCurrentStep(3);
   };
 
 
@@ -257,12 +256,13 @@ export default function CheckoutPage() {
         p_address: shippingData
       });
 
-      // 4. Handle Payment Redirects or Completion
-      if (paymentMethod === 'hubtel') {
+      // 4. Handle Payment Redirects or Completion (Hubtel or Moolre)
+      if (paymentMethod === 'hubtel' || paymentMethod === 'moolre') {
         try {
-          // Payment link reminder will be sent automatically after 15 mins if unpaid (via cron)
+          const paymentEndpoint =
+            paymentMethod === 'hubtel' ? '/api/payment/hubtel' : '/api/payment/moolre';
 
-          const paymentRes = await fetch('/api/payment/hubtel', {
+          const paymentRes = await fetch(paymentEndpoint, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -281,7 +281,7 @@ export default function CheckoutPage() {
           // Clear cart before redirecting
           clearCart();
 
-          // Redirect to Hubtel
+          // Redirect to chosen payment gateway
           window.location.href = paymentResult.url;
           return;
 
@@ -629,17 +629,7 @@ export default function CheckoutPage() {
                       disabled={isLoading}
                       className="flex-1 bg-gradient-to-r from-[#C9A24E] to-[#9C7A2E] text-white py-4 rounded-xl font-semibold shadow-[0_14px_30px_-12px_rgba(201,162,78,0.9)] hover:brightness-105 transition-all whitespace-nowrap cursor-pointer disabled:opacity-70 flex items-center justify-center"
                     >
-                      {isLoading ? (
-                        <>
-                          <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                          </svg>
-                          Processing...
-                        </>
-                      ) : (
-                        'Pay Securely'
-                      )}
+                      Continue to Payment
                     </button>
                   </div>
                 </div>
@@ -648,7 +638,96 @@ export default function CheckoutPage() {
               </>
             )}
 
-            {/* Step 3 removed - payment now initiates directly from step 2 */}
+            {currentStep === 3 && (
+              <div className="bg-white rounded-2xl shadow-sm ring-1 ring-[#141414]/[0.06] p-6 mb-6">
+                <h2 className="text-xl font-bold text-[#141414] mb-2">Payment Method</h2>
+                <p className="text-sm text-gray-600 mb-6">Choose how you&apos;d like to pay.</p>
+
+                <div className="space-y-3">
+                  <label
+                    className={`flex items-start gap-3 p-4 border-2 rounded-xl cursor-pointer transition-colors ${
+                      paymentMethod === 'hubtel'
+                        ? 'border-[#C9A24E] bg-[#C9A24E]/[0.07]'
+                        : 'border-gray-200 hover:border-[#C9A24E]/40'
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      value="hubtel"
+                      checked={paymentMethod === 'hubtel'}
+                      onChange={() => setPaymentMethod('hubtel')}
+                      className="w-5 h-5 accent-[#C9A24E] mt-0.5"
+                    />
+                    <div className="flex-1">
+                      <p className="font-semibold text-gray-900 flex items-center gap-2">
+                        Hubtel
+                        <span className="text-[10px] uppercase tracking-wide font-bold bg-[#C9A24E]/15 text-[#9C7A2E] border border-[#C9A24E]/30 rounded-full px-2 py-0.5">
+                          Recommended
+                        </span>
+                      </p>
+                      <p className="text-sm text-gray-600 mt-1">
+                        Pay with Mobile Money (MTN, Telecel, AirtelTigo), card, or bank. Powered by Hubtel.
+                      </p>
+                    </div>
+                    <i className="ri-smartphone-line text-2xl text-[#C9A24E]"></i>
+                  </label>
+
+                  <label
+                    className={`flex items-start gap-3 p-4 border-2 rounded-xl cursor-pointer transition-colors ${
+                      paymentMethod === 'moolre'
+                        ? 'border-[#C9A24E] bg-[#C9A24E]/[0.07]'
+                        : 'border-gray-200 hover:border-[#C9A24E]/40'
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      value="moolre"
+                      checked={paymentMethod === 'moolre'}
+                      onChange={() => setPaymentMethod('moolre')}
+                      className="w-5 h-5 accent-[#C9A24E] mt-0.5"
+                    />
+                    <div className="flex-1">
+                      <p className="font-semibold text-gray-900">Moolre</p>
+                      <p className="text-sm text-gray-600 mt-1">
+                        Alternative Mobile Money / card checkout. Use this if Hubtel is unavailable.
+                      </p>
+                    </div>
+                    <i className="ri-wallet-3-line text-2xl text-[#C9A24E]"></i>
+                  </label>
+                </div>
+
+                <div className="flex flex-col-reverse md:flex-row gap-4 mt-6">
+                  <button
+                    onClick={() => setCurrentStep(2)}
+                    disabled={isLoading}
+                    className="flex-1 border-2 border-gray-300 hover:border-gray-400 text-gray-700 py-4 rounded-lg font-semibold transition-colors whitespace-nowrap cursor-pointer disabled:opacity-50"
+                  >
+                    Back
+                  </button>
+                  <button
+                    onClick={handlePlaceOrder}
+                    disabled={isLoading}
+                    className="flex-1 bg-gradient-to-r from-[#C9A24E] to-[#9C7A2E] text-white py-4 rounded-xl font-semibold shadow-[0_14px_30px_-12px_rgba(201,162,78,0.9)] hover:brightness-105 transition-all whitespace-nowrap cursor-pointer disabled:opacity-70 flex items-center justify-center"
+                  >
+                    {isLoading ? (
+                      <>
+                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Processing...
+                      </>
+                    ) : paymentMethod === 'hubtel' ? (
+                      'Pay with Hubtel'
+                    ) : (
+                      'Pay with Moolre'
+                    )}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="lg:col-span-1">

@@ -145,17 +145,35 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
     setReverifying(true);
     setReverifyResult(null);
     try {
-      const res = await fetch('/api/payment/hubtel/verify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ orderNumber: order.order_number }),
-      });
-      const json = await res.json();
-      if (json.success) {
+      const method = order.payment_method || 'hubtel';
+      const endpoints =
+        method === 'moolre'
+          ? ['/api/payment/moolre/verify', '/api/payment/hubtel/verify']
+          : ['/api/payment/hubtel/verify', '/api/payment/moolre/verify'];
+
+      let verified = false;
+      let lastMessage = '';
+      for (const endpoint of endpoints) {
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ orderNumber: order.order_number }),
+        });
+        const json = await res.json();
+        if (json.success) {
+          verified = true;
+          break;
+        }
+        lastMessage = json.message || lastMessage;
+      }
+
+      if (verified) {
         setReverifyResult('✅ Payment verified! Order has been marked as paid.');
         fetchOrderDetails();
       } else {
-        setReverifyResult(`⚠️ Hubtel could not confirm this payment automatically. Use "Mark as Paid" below to manually confirm it.`);
+        setReverifyResult(
+          `⚠️ Could not confirm this payment automatically${lastMessage ? ` (${lastMessage})` : ''}. Use "Mark as Paid" below to manually confirm it.`
+        );
       }
     } catch (err) {
       setReverifyResult('❌ Network error. Please try again.');
@@ -599,7 +617,7 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
                   )}
                 </button>
               )}
-              {/* Re-verify with Hubtel API */}
+              {/* Re-verify with payment gateway APIs */}
               {order.payment_status !== 'paid' && (
                 <div className="mt-3">
                   <button
@@ -608,9 +626,9 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
                     className="w-full bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 py-2.5 rounded-lg font-semibold transition-colors disabled:opacity-50 flex items-center justify-center gap-2 text-sm"
                   >
                     {reverifying ? (
-                      <><i className="ri-loader-4-line animate-spin"></i> Checking with Hubtel...</>
+                      <><i className="ri-loader-4-line animate-spin"></i> Checking payment provider...</>
                     ) : (
-                      <><i className="ri-refresh-line"></i> Re-verify Payment with Hubtel</>
+                      <><i className="ri-refresh-line"></i> Re-verify Payment</>
                     )}
                   </button>
                   {reverifyResult && (

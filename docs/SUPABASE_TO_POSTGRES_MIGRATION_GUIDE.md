@@ -39,15 +39,30 @@ Also required:
 ## Verify after deploy
 
 ```bash
-BASE=http://localhost:3001   # or production origin
+BASE=https://thepricelesspalace.com
 git rev-parse --short HEAD
 
 curl -s -o /dev/null -w "%{http_code}\n" "$BASE/"
 curl -s -o /dev/null -w "%{http_code}\n" "$BASE/shop"
-curl -s "$BASE/service-worker.js" | head -n 3
-curl -s "$BASE/rest/v1/store_settings?select=key&limit=1" \
-  -H "apikey: x" -H "Authorization: Bearer x" | head -c 200
+curl -s "$BASE/api/payment/moolre/callback"   # expect ready JSON
+curl -s "$BASE/rest/v1/products?select=name&limit=3" \
+  -H "apikey: x" -H "Authorization: Bearer x"
 ```
+
+### Production verification (2026-07-28)
+
+| Check | Result |
+|-------|--------|
+| `https://thepricelesspalace.com/` | 200 |
+| `/shop`, `/admin/login` | 200 |
+| DB `store_palace` | schema + 8 seeded products + admin |
+| Admin login `admin@palace.com` | OK (`/auth/v1` + `/api/admin/me`) |
+| Moolre callback GET | ready |
+| Moolre callback POST without `?s=` | 401 (secret enforced) |
+| Product images `/products/*.png` | 200 |
+
+Payment callback URL (app builds this from `NEXT_PUBLIC_APP_URL`):  
+`https://thepricelesspalace.com/api/payment/moolre/callback?s=<MOOLRE_CALLBACK_SECRET>`
 
 ## Notes
 
@@ -56,4 +71,4 @@ curl -s "$BASE/rest/v1/store_settings?select=key&limit=1" \
 - Server uses `lib/db/supabase-compat.ts` via `lib/supabase-admin.ts` when `DATABASE_URL` is set.
 - Storage serves from disk under `STORAGE_ROOT` via `/storage/v1/object/...`.
 - After every dump/restore: UUID `id` defaults (§1a in hardening playbook).
-- No live secrets in this doc. Wait for real `.env` / Coolify env before VPS cutover.
+- Coolify env secrets live in Coolify UI / `/data/fleet/secrets/palace-app.env` — not in git.

@@ -158,7 +158,7 @@ export default function ContactPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <PageHero title={heroTitle} subtitle={heroSubtitle} image="/hero-contact.png" />
+      <PageHero title={heroTitle} subtitle={heroSubtitle} image="/hero-contact.webp" />
 
       <section className="relative -mt-10 z-10 mb-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

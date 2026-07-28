@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 
-const PLACEHOLDER_IMAGE = '/placeholder-product.png';
+const PLACEHOLDER_IMAGE = '/placeholder-product.webp';
 
 export default function ProductsPage() {
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');

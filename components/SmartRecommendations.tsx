@@ -28,7 +28,7 @@ export default function SmartRecommendations({ productId, type, title }: SmartRe
       name: 'Premium Wireless Headphones',
       price: 450,
       originalPrice: 599,
-      image: '/placeholder-product.png',
+      image: '/placeholder-product.webp',
       rating: 4.8,
       reviews: 234
     },
@@ -36,7 +36,7 @@ export default function SmartRecommendations({ productId, type, title }: SmartRe
       id: '2',
       name: 'Smart Fitness Watch',
       price: 320,
-      image: '/placeholder-product.png',
+      image: '/placeholder-product.webp',
       rating: 4.6,
       reviews: 189
     },
@@ -45,7 +45,7 @@ export default function SmartRecommendations({ productId, type, title }: SmartRe
       name: 'Leather Crossbody Bag',
       price: 289,
       originalPrice: 399,
-      image: '/placeholder-product.png',
+      image: '/placeholder-product.webp',
       rating: 4.9,
       reviews: 312
     },
@@ -53,7 +53,7 @@ export default function SmartRecommendations({ productId, type, title }: SmartRe
       id: '4',
       name: 'Minimalist Ceramic Vase Set',
       price: 159,
-      image: '/placeholder-product.png',
+      image: '/placeholder-product.webp',
       rating: 4.7,
       reviews: 156
     }

@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 
 interface PageHeroProps {
   title: string;
@@ -8,13 +9,17 @@ interface PageHeroProps {
 
 export default function PageHero({ title, subtitle, image }: PageHeroProps) {
   return (
-    <div className="relative overflow-hidden bg-[#1e40af]">
+    <div className="relative overflow-hidden bg-[#1e40af] min-h-[280px]">
       {image ? (
         <>
-          <img
+          <Image
             src={image}
             alt={title}
-            className="absolute inset-0 h-full w-full object-cover"
+            fill
+            sizes="100vw"
+            quality={75}
+            className="object-cover"
+            priority={false}
           />
           <div className="absolute inset-0 bg-[#1e40af]/70" />
         </>

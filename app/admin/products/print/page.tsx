@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 
-const PLACEHOLDER_IMAGE = '/placeholder-product.png';
+const PLACEHOLDER_IMAGE = '/placeholder-product.webp';
 
 export default function PrintInventoryPage() {
     const [products, setProducts] = useState<any[]>([]);

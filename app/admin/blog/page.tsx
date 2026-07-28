@@ -13,7 +13,7 @@ export default function AdminBlogPage() {
       slug: 'placeholder-blog-post',
       author: 'Admin',
       category: 'General',
-      image: '/placeholder-product.png',
+      image: '/placeholder-product.webp',
       excerpt: 'Starter demo post. Replace with real content from the blog editor.',
       status: 'Draft',
       views: 0,

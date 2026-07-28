@@ -7,11 +7,11 @@ const nextConfig: NextConfig = {
     },
   },
   images: {
-    // Playbook: unoptimized until sharp + .next/cache are healthy on Coolify
-    unoptimized: true,
-    formats: ['image/webp'],
-    minimumCacheTTL: 2592000,
-    qualities: [50, 60, 70, 75, 80, 90, 100],
+    formats: ['image/webp', 'image/avif'],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    minimumCacheTTL: 31536000,
+    qualities: [60, 70, 75, 80],
     remotePatterns: [
       {
         protocol: 'http',
@@ -85,6 +85,30 @@ const nextConfig: NextConfig = {
         source: '/_next/static/:path*',
         headers: [
           { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }
+        ]
+      },
+      {
+        source: '/products/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }
+        ]
+      },
+      {
+        source: '/:path*.webp',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }
+        ]
+      },
+      {
+        source: '/logo.png',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=604800, stale-while-revalidate=86400' }
+        ]
+      },
+      {
+        source: '/logo-white.png',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=604800, stale-while-revalidate=86400' }
         ]
       },
     ];

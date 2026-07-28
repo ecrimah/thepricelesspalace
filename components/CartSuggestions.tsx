@@ -18,7 +18,7 @@ export default function CartSuggestions() {
       name: 'Premium Wireless Headphones',
       price: 129.99,
       originalPrice: 179.99,
-      image: '/placeholder-product.png',
+      image: '/placeholder-product.webp',
       rating: 4.8
     },
     {
@@ -26,14 +26,14 @@ export default function CartSuggestions() {
       name: 'Leather Card Holder Wallet',
       price: 34.99,
       originalPrice: 49.99,
-      image: '/placeholder-product.png',
+      image: '/placeholder-product.webp',
       rating: 4.7
     },
     {
       id: '23',
       name: 'Smart Watch Band',
       price: 24.99,
-      image: '/placeholder-product.png',
+      image: '/placeholder-product.webp',
       rating: 4.6
     },
     {
@@ -41,7 +41,7 @@ export default function CartSuggestions() {
       name: 'Phone Stand Holder',
       price: 19.99,
       originalPrice: 29.99,
-      image: '/placeholder-product.png',
+      image: '/placeholder-product.webp',
       rating: 4.5
     }
   ];

@@ -1,10 +1,10 @@
 BEGIN;
 
 INSERT INTO categories (name, slug, position, status, image_url) VALUES
-  ('Dresses', 'dresses', 1, 'active', 'https://thepricelesspalace.com/products/product-blue-midi-dress.png'),
-  ('Bags', 'bags', 2, 'active', 'https://thepricelesspalace.com/products/product-white-quilted-bag.png'),
-  ('Slippers', 'slippers', 3, 'active', 'https://thepricelesspalace.com/products/product-blue-white-slippers.png'),
-  ('Wigs', 'wigs', 4, 'active', 'https://thepricelesspalace.com/products/product-black-wave-wig.png')
+  ('Dresses', 'dresses', 1, 'active', 'https://thepricelesspalace.com/products/product-blue-midi-dress.webp'),
+  ('Bags', 'bags', 2, 'active', 'https://thepricelesspalace.com/products/product-white-quilted-bag.webp'),
+  ('Slippers', 'slippers', 3, 'active', 'https://thepricelesspalace.com/products/product-blue-white-slippers.webp'),
+  ('Wigs', 'wigs', 4, 'active', 'https://thepricelesspalace.com/products/product-black-wave-wig.webp')
 ON CONFLICT (slug) DO UPDATE SET name = EXCLUDED.name, position = EXCLUDED.position, status = 'active', image_url = EXCLUDED.image_url;
 
 INSERT INTO products (name, slug, description, short_description, price, compare_at_price, sku, quantity, track_quantity, category_id, brand, status, featured, tags)
@@ -68,14 +68,14 @@ DELETE FROM product_images WHERE product_id IN (SELECT id FROM products WHERE sk
 INSERT INTO product_images (product_id, url, alt_text, position, media_type)
 SELECT p.id,
   'https://thepricelesspalace.com/products/' || CASE p.slug
-    WHEN 'royal-blue-midi-dress' THEN 'product-blue-midi-dress.png'
-    WHEN 'white-satin-evening-gown' THEN 'product-white-satin-gown.png'
-    WHEN 'white-quilted-handbag' THEN 'product-white-quilted-bag.png'
-    WHEN 'royal-blue-tote-bag' THEN 'product-blue-tote-bag.png'
-    WHEN 'blue-white-slide-slippers' THEN 'product-blue-white-slippers.png'
-    WHEN 'pearl-white-flat-mules' THEN 'product-pearl-mules.png'
-    WHEN 'black-wave-lace-front-wig' THEN 'product-black-wave-wig.png'
-    WHEN 'honey-blonde-straight-wig' THEN 'product-blonde-straight-wig.png'
+    WHEN 'royal-blue-midi-dress' THEN 'product-blue-midi-dress.webp'
+    WHEN 'white-satin-evening-gown' THEN 'product-white-satin-gown.webp'
+    WHEN 'white-quilted-handbag' THEN 'product-white-quilted-bag.webp'
+    WHEN 'royal-blue-tote-bag' THEN 'product-blue-tote-bag.webp'
+    WHEN 'blue-white-slide-slippers' THEN 'product-blue-white-slippers.webp'
+    WHEN 'pearl-white-flat-mules' THEN 'product-pearl-mules.webp'
+    WHEN 'black-wave-lace-front-wig' THEN 'product-black-wave-wig.webp'
+    WHEN 'honey-blonde-straight-wig' THEN 'product-blonde-straight-wig.webp'
   END,
   p.name, 0, 'image'
 FROM products p

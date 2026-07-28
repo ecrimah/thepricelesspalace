@@ -61,7 +61,7 @@ export default function LazyImage({
         onLoad={handleLoad}
         onError={handleError}
         priority={priority}
-        quality={75}
+        quality={70}
       />
     </div>
   );

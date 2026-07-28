@@ -39,8 +39,8 @@ type CategoryRow = {
 };
 
 const HERO_SLIDES = [
-  { src: '/hero-home-1.png', position: '50% 40%' },
-  { src: '/hero-home-2.png', position: '50% 35%' },
+  { src: '/hero-home-1.webp', position: '50% 40%' },
+  { src: '/hero-home-2.webp', position: '50% 35%' },
 ];
 
 export default function Home() {
@@ -171,8 +171,8 @@ export default function Home() {
                 fill
                 priority={index === 0}
                 sizes="100vw"
+                quality={75}
                 className="object-cover"
-                unoptimized
                 style={{
                   objectPosition: slide.position,
                   filter: 'contrast(1.06) saturate(1.05)',
@@ -253,10 +253,13 @@ export default function Home() {
                 className="group relative block aspect-[3/4] overflow-hidden rounded-3xl bg-[#1e40af]"
               >
                 {item.image ? (
-                  <img
+                  <Image
                     src={item.image}
                     alt={item.name}
-                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    fill
+                    sizes="(max-width: 640px) 50vw, 25vw"
+                    quality={70}
+                    className="object-cover transition-transform duration-700 group-hover:scale-105"
                   />
                 ) : (
                   <span className={`absolute inset-0 bg-gradient-to-br ${item.color}`} />
@@ -352,7 +355,7 @@ export default function Home() {
                     name={product.name}
                     price={product.price}
                     originalPrice={product.compare_at_price}
-                    image={product.product_images?.[0]?.url || '/placeholder-product.png'}
+                    image={product.product_images?.[0]?.url || '/placeholder-product.webp'}
                     rating={product.rating_avg || 5}
                     reviewCount={product.review_count || 0}
                     badge={product.featured ? 'Featured' : 'Trending'}
@@ -456,12 +459,12 @@ export default function Home() {
             <div className="flex flex-col sm:flex-row items-stretch rounded-3xl bg-[#e0f2fe] overflow-hidden min-h-[280px] sm:min-h-[300px]">
               <div className="relative w-full sm:w-[42%] min-h-[200px] sm:min-h-0 shrink-0">
                 <Image
-                  src="/hero-about-1.png"
+                  src="/hero-about-1.webp"
                   alt="Elegant dresses"
                   fill
                   className="object-cover object-center"
                   sizes="(max-width: 640px) 100vw, 20vw"
-                  unoptimized
+                  quality={75}
                 />
               </div>
               <div className="flex flex-1 flex-col justify-center px-8 py-10 sm:py-12 sm:pl-6 sm:pr-10">
@@ -499,12 +502,12 @@ export default function Home() {
               </div>
               <div className="relative w-full sm:w-[42%] min-h-[200px] sm:min-h-0 shrink-0 order-1 sm:order-2">
                 <Image
-                  src="/hero-about-2.png"
+                  src="/hero-about-2.webp"
                   alt="Bags and accessories"
                   fill
                   className="object-cover object-center"
                   sizes="(max-width: 640px) 100vw, 20vw"
-                  unoptimized
+                  quality={75}
                 />
               </div>
             </div>

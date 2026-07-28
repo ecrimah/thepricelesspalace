@@ -161,7 +161,7 @@ function ShopContent() {
               name: p.name,
               price: p.price,
               originalPrice: p.compare_at_price,
-              image: p.product_images?.[0]?.url || '/placeholder-product.png',
+              image: p.product_images?.[0]?.url || '/placeholder-product.webp',
               rating: p.rating_avg || 0,
               reviewCount: 0, // Need to implement reviews relation
               badge: p.compare_at_price > p.price ? 'Sale' : undefined,
@@ -221,7 +221,7 @@ function ShopContent() {
       <PageHero
         title="Browse Our Collections"
         subtitle="Explore carefully curated products sourced from trusted global suppliers — quality you can count on, delivered to your doorstep."
-        image="/hero-shop.png"
+        image="/hero-shop.webp"
       />
 
       {/* Mobile Filter Toggle */}

@@ -124,7 +124,7 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
 
         // Ensure at least one image/placeholder
         if (transformedProduct.images.length === 0) {
-          transformedProduct.images = ['/placeholder-product.png'];
+          transformedProduct.images = ['/placeholder-product.webp'];
         }
 
         setProduct(transformedProduct);
@@ -165,7 +165,7 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                 slug: p.slug,
                 name: p.name,
                 price: p.price,
-                image: p.product_images?.[0]?.url || '/placeholder-product.png',
+                image: p.product_images?.[0]?.url || '/placeholder-product.webp',
                 rating: p.rating_avg || 0,
                 reviewCount: 0,
                 inStock: effectiveStock > 0,

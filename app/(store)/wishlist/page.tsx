@@ -33,7 +33,7 @@ export default function WishlistPage() {
 
   return (
     <main className="min-h-screen bg-white">
-      <PageHero title="My Wishlist" image="/hero-wishlist.png" />
+      <PageHero title="My Wishlist" image="/hero-wishlist.webp" />
 
       {/* Toolbar */}
       <section className="bg-white border-b border-[#1e40af]/[0.07]">

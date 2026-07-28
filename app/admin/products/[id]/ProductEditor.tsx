@@ -23,10 +23,10 @@ export default function ProductEditor({ productId }: { productId: string }) {
   ];
 
   const images = [
-    '/placeholder-product.png',
-    '/placeholder-product.png',
-    '/placeholder-product.png',
-    '/placeholder-product.png'
+    '/placeholder-product.webp',
+    '/placeholder-product.webp',
+    '/placeholder-product.webp',
+    '/placeholder-product.webp'
   ];
 
   const tabs = [

@@ -39,7 +39,7 @@ export default async function CategoriesPage() {
     const style = palette[i % palette.length];
     return {
       ...c,
-      image: c.image_url || '/placeholder-product.png',
+      image: c.image_url || '/placeholder-product.webp',
       color: style.color,
       icon: style.icon,
       productCount: 'Browse',
@@ -51,7 +51,7 @@ export default async function CategoriesPage() {
       <PageHero
         title="Shop by Category"
         subtitle="Explore our curated collections and find exactly what you're looking for"
-        image="/hero-categories.png"
+        image="/hero-categories.webp"
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">

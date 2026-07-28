@@ -41,6 +41,7 @@
     "db:seed-products": "node scripts/seed-products.mjs",
     "assets:deploy": "node scripts/deploy-brand-assets.mjs",
     "logo:deploy": "node scripts/deploy-tpp-logo.mjs",
+    "images:optimize": "node scripts/optimize-public-images.mjs",
     "theme:blue": "node scripts/retheme-blue-white.mjs"
   },
   "version": "0.1.0"

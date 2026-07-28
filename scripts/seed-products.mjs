@@ -47,7 +47,7 @@ const products = [
     featured: true,
     short: 'Elegant royal blue midi with soft drape.',
     description: 'A refined royal blue midi dress for dinners, events, and everyday elegance. Comfortable fit with a polished finish.',
-    image: 'product-blue-midi-dress.png',
+    image: 'product-blue-midi-dress.webp',
   },
   {
     name: 'White Satin Evening Gown',
@@ -60,7 +60,7 @@ const products = [
     featured: true,
     short: 'Luxurious white satin gown for special nights.',
     description: 'Floor-length white satin evening gown with a clean silhouette. Perfect for weddings, dinners, and formal occasions.',
-    image: 'product-white-satin-gown.png',
+    image: 'product-white-satin-gown.webp',
   },
   {
     name: 'White Quilted Handbag',
@@ -73,7 +73,7 @@ const products = [
     featured: true,
     short: 'Structured white quilted bag with gold accents.',
     description: 'Compact quilted handbag in crisp white with gold-tone hardware. Everyday luxury that elevates any outfit.',
-    image: 'product-white-quilted-bag.png',
+    image: 'product-white-quilted-bag.webp',
   },
   {
     name: 'Royal Blue Tote Bag',
@@ -86,7 +86,7 @@ const products = [
     featured: false,
     short: 'Roomy royal blue tote for work and weekends.',
     description: 'Structured royal blue tote with clean lines and generous capacity. Ideal for workdays and travel.',
-    image: 'product-blue-tote-bag.png',
+    image: 'product-blue-tote-bag.webp',
   },
   {
     name: 'Blue & White Slide Slippers',
@@ -99,7 +99,7 @@ const products = [
     featured: true,
     short: 'Comfortable blue and white slide slippers.',
     description: 'Easy slide slippers in blue and white for home and casual outings. Soft footbed with a clean finish.',
-    image: 'product-blue-white-slippers.png',
+    image: 'product-blue-white-slippers.webp',
   },
   {
     name: 'Pearl White Flat Mules',
@@ -112,7 +112,7 @@ const products = [
     featured: false,
     short: 'Elegant pearl-white flat mules.',
     description: 'Minimal pearl-white mules that pair with dresses and everyday looks. Lightweight and easy to wear.',
-    image: 'product-pearl-mules.png',
+    image: 'product-pearl-mules.webp',
   },
   {
     name: 'Black Wave Lace-Front Wig',
@@ -125,7 +125,7 @@ const products = [
     featured: true,
     short: 'Long wavy black lace-front wig.',
     description: 'Natural-looking black wavy lace-front wig with soft movement and easy styling. Glam and versatile.',
-    image: 'product-black-wave-wig.png',
+    image: 'product-black-wave-wig.webp',
   },
   {
     name: 'Honey Blonde Straight Wig',
@@ -138,7 +138,7 @@ const products = [
     featured: true,
     short: 'Straight honey blonde lace-front wig.',
     description: 'Sleek honey blonde straight lace-front wig for a bright, polished look. Soft texture and clean parting.',
-    image: 'product-blonde-straight-wig.png',
+    image: 'product-blonde-straight-wig.webp',
   },
 ];
 
@@ -156,7 +156,7 @@ async function main() {
          VALUES ($1, $2, $3, 'active', $4)
          ON CONFLICT (slug) DO UPDATE SET name = EXCLUDED.name, position = EXCLUDED.position, status = 'active'
          RETURNING id`,
-        [c.name, c.slug, c.position, `${baseUrl}/products/${products.find((p) => p.category === c.slug)?.image || 'product-blue-midi-dress.png'}`]
+        [c.name, c.slug, c.position, `${baseUrl}/products/${products.find((p) => p.category === c.slug)?.image || 'product-blue-midi-dress.webp'}`]
       );
       catIds[c.slug] = rows[0].id;
       console.log('category', c.slug, rows[0].id);

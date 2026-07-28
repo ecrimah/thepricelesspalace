@@ -40,7 +40,7 @@ export default function AdminReviewsPage() {
           },
           product: {
             name: r.products?.name || 'Unknown Product',
-            image: r.products?.product_images?.[0]?.url || '/placeholder-product.png'
+            image: r.products?.product_images?.[0]?.url || '/placeholder-product.webp'
           },
           rating: r.rating,
           title: r.title,

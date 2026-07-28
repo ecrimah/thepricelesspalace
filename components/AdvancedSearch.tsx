@@ -26,42 +26,42 @@ export default function AdvancedSearch() {
       name: 'Premium Wireless Headphones',
       category: 'Electronics',
       price: 450,
-      image: '/placeholder-product.png'
+      image: '/placeholder-product.webp'
     },
     {
       id: '2',
       name: 'Smart Fitness Watch',
       category: 'Wearables',
       price: 320,
-      image: '/placeholder-product.png'
+      image: '/placeholder-product.webp'
     },
     {
       id: '3',
       name: 'Leather Crossbody Bag',
       category: 'Fashion',
       price: 289,
-      image: '/placeholder-product.png'
+      image: '/placeholder-product.webp'
     },
     {
       id: '4',
       name: 'Minimalist Ceramic Vase Set',
       category: 'Home Decor',
       price: 159,
-      image: '/placeholder-product.png'
+      image: '/placeholder-product.webp'
     },
     {
       id: '5',
       name: 'Organic Cotton T-Shirt',
       category: 'Clothing',
       price: 45,
-      image: '/placeholder-product.png'
+      image: '/placeholder-product.webp'
     },
     {
       id: '6',
       name: 'Bamboo Desk Organizer',
       category: 'Office',
       price: 68,
-      image: '/placeholder-product.png'
+      image: '/placeholder-product.webp'
     }
   ];
 

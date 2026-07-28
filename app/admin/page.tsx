@@ -185,7 +185,7 @@ export default function AdminDashboard() {
           setTopProducts(productData.map((p: any) => ({
             id: p.slug, // Use slug for link
             name: p.name,
-            image: p.product_images?.[0]?.url || '/placeholder-product.png',
+            image: p.product_images?.[0]?.url || '/placeholder-product.webp',
             sales: 0, // Mocked for now
             revenue: 0, // Mocked for now
             stock: p.quantity

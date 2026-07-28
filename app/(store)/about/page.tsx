@@ -13,28 +13,28 @@ const offerings = [
     title: 'Dresses',
     body: 'Everyday and occasion-ready styles',
     href: '/shop?search=dress',
-    image: '/hero-about-1.png',
+    image: '/hero-about-1.webp',
     fallback: 'from-[#1e40af] via-[#2a2a2a] to-[#2563eb]',
   },
   {
     title: 'Bags',
     body: 'Handbags & accessories',
     href: '/shop?search=bag',
-    image: '/hero-about-2.png',
+    image: '/hero-about-2.webp',
     fallback: 'from-[#1d4ed8] via-[#2563eb] to-[#1e40af]',
   },
   {
     title: 'Slippers',
     body: 'Comfort for home & outings',
     href: '/shop?search=slipper',
-    image: '/hero-shop.png',
+    image: '/hero-shop.webp',
     fallback: 'from-[#1e40af] via-[#5c4a2a] to-[#3b82f6]',
   },
   {
     title: 'Wigs',
     body: 'Fresh styles & quality hair',
     href: '/shop?search=wig',
-    image: '/hero-home-2.png',
+    image: '/hero-home-2.webp',
     fallback: 'from-[#3b82f6] via-[#2563eb] to-[#1e40af]',
   },
 ];
@@ -67,7 +67,7 @@ export default function AboutPage() {
       <PageHero
         title="About Us"
         subtitle={`${siteName} — ${BRAND.tagline.toLowerCase()}.`}
-        image="/hero-about-1.png"
+        image="/hero-about-1.webp"
       />
 
       {/* Story */}
@@ -76,12 +76,12 @@ export default function AboutPage() {
           <div className="grid gap-10 lg:grid-cols-2 lg:gap-16 lg:items-center">
             <div className="relative aspect-[4/5] sm:aspect-[5/6] lg:aspect-auto lg:min-h-[32rem] overflow-hidden rounded-3xl ring-1 ring-[#2563eb]/20 shadow-[0_24px_60px_-28px_rgba(20,20,20,0.45)]">
               <Image
-                src="/hero-about-2.png"
+                src="/hero-about-2.webp"
                 alt={`Inside ${siteName}`}
                 fill
                 className="object-cover transition-transform duration-700 hover:scale-[1.02]"
                 sizes="(max-width: 1024px) 100vw, 50vw"
-                unoptimized
+                quality={75}
               />
               <span aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-[#1e40af]/30 via-transparent to-transparent" />
             </div>
@@ -150,7 +150,7 @@ export default function AboutPage() {
                   fill
                   className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                   sizes="(max-width: 1024px) 50vw, 25vw"
-                  unoptimized
+                  quality={75}
                 />
                 <span
                   aria-hidden="true"

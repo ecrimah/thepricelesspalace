@@ -27,9 +27,9 @@ export default function MobileSearchOverlay({ isOpen, onClose }: MobileSearchOve
   ];
 
   const searchSuggestions = [
-    { name: 'Summer Floral Dress', category: 'Women\'s Clothing', price: '₵289', image: '/placeholder-product.png' },
-    { name: 'Classic Leather Handbag', category: 'Bags', price: '₵459', image: '/placeholder-product.png' },
-    { name: 'Designer Sunglasses', category: 'Accessories', price: '₵199', image: '/placeholder-product.png' }
+    { name: 'Summer Floral Dress', category: 'Women\'s Clothing', price: '₵289', image: '/placeholder-product.webp' },
+    { name: 'Classic Leather Handbag', category: 'Bags', price: '₵459', image: '/placeholder-product.webp' },
+    { name: 'Designer Sunglasses', category: 'Accessories', price: '₵199', image: '/placeholder-product.webp' }
   ];
 
   useEffect(() => {

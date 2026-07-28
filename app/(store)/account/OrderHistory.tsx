@@ -50,7 +50,7 @@ export default function OrderHistory() {
             items: order.order_items.map((item: any) => ({
               id: item.id,
               name: item.product_name,
-              image: item.metadata?.image || '/placeholder-product.png',
+              image: item.metadata?.image || '/placeholder-product.webp',
               quantity: item.quantity,
               price: item.unit_price
             }))

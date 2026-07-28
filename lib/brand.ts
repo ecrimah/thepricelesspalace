@@ -5,8 +5,8 @@ export const BRAND = {
   shortName: 'Priceless Palace',
   tagline: 'Dresses, bags, slippers, wigs & more',
   description:
-    'Shop dresses, bags, slippers, wigs and more at The Priceless Palace — Abavana Down, Queenstar Guest House.',
-  address: 'Abavana Down, Queenstar Guest House',
+    'Shop dresses, bags, slippers, wigs and more at The Priceless Palace — Abavana Down, Victoria Guest House.',
+  address: 'Abavana Down, Victoria Guest House',
   phonePrimary: '+233 20 178 3800',
   phoneSecondary: '054 559 8755',
   /** Digits only for tel:/wa.me links (primary) */

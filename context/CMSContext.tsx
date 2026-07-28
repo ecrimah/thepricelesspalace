@@ -71,7 +71,7 @@ const defaultSettings: SiteSettings = {
     contact_email: 'hello@thepricelesspalace.com',
     contact_phone: '+233 20 178 3800',
     contact_phone_alt: '054 559 8755',
-    contact_address: 'Abavana Down, Queenstar Guest House',
+    contact_address: 'Abavana Down, Victoria Guest House',
     social_facebook: '',
     social_instagram: '',
     social_twitter: '',

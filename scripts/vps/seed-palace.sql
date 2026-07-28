@@ -87,7 +87,7 @@ INSERT INTO store_settings (key, value) VALUES
   ('contact_email', to_jsonb('hello@thepricelesspalace.com'::text)),
   ('contact_phone', to_jsonb('+233 20 178 3800'::text)),
   ('contact_phone_alt', to_jsonb('054 559 8755'::text)),
-  ('contact_address', to_jsonb('Abavana Down, Queenstar Guest House'::text)),
+  ('contact_address', to_jsonb('Abavana Down, Victoria Guest House'::text)),
   ('whatsapp_number', to_jsonb('233201783800'::text))
 ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = now();
 

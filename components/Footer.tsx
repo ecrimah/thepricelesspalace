@@ -34,7 +34,7 @@ export default function Footer() {
   const contactEmail = getSetting('contact_email') || 'hello@thepricelesspalace.com';
   const contactPhone = getSetting("contact_phone") || "+233 20 178 3800";
   const contactPhoneAlt = getSetting("contact_phone_alt") || "054 559 8755";
-  const contactAddress = getSetting("contact_address") || "Abavana Down, Queenstar Guest House";
+  const contactAddress = getSetting("contact_address") || "Abavana Down, Victoria Guest House";
   const whatsappLink = 'https://wa.me/233201783800';
 
   return (

@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     template: "%s | The Priceless Palace",
   },
   description:
-    "Shop dresses, bags, slippers, wigs and more at The Priceless Palace — Abavana Down, Queenstar Guest House.",
+    "Shop dresses, bags, slippers, wigs and more at The Priceless Palace — Abavana Down, Victoria Guest House.",
   keywords: [
     "The Priceless Palace",
     "dresses",
@@ -85,7 +85,7 @@ export const metadata: Metadata = {
     url: siteUrl,
     title: "The Priceless Palace | Dresses, Bags, Slippers, Wigs & More",
     description:
-      "Shop dresses, bags, slippers, wigs and more — Abavana Down, Queenstar Guest House.",
+      "Shop dresses, bags, slippers, wigs and more — Abavana Down, Victoria Guest House.",
     siteName: "The Priceless Palace",
     images: [
       {
@@ -100,7 +100,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "The Priceless Palace",
     description:
-      "Dresses, bags, slippers, wigs & more — Abavana Down, Queenstar Guest House.",
+      "Dresses, bags, slippers, wigs & more — Abavana Down, Victoria Guest House.",
     images: ["/twitter-image.png"],
   },
   alternates: {
@@ -143,10 +143,10 @@ export default function RootLayout({
               url: siteUrl,
               logo: `${siteUrl}/logo.png`,
               description:
-                "Dresses, bags, slippers, wigs and more at Abavana Down, Queenstar Guest House.",
+                "Dresses, bags, slippers, wigs and more at Abavana Down, Victoria Guest House.",
               address: {
                 "@type": "PostalAddress",
-                streetAddress: "Abavana Down, Queenstar Guest House",
+                streetAddress: "Abavana Down, Victoria Guest House",
                 addressCountry: "GH",
               },
               telephone: "+233201783800",

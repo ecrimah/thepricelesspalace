@@ -118,7 +118,7 @@ export default function PaymentPage() {
     return (
       <main className="min-h-screen bg-white flex items-center justify-center px-4">
         <div className="text-center max-w-md">
-          <div className="w-20 h-20 mx-auto mb-6 bg-[#E89DB5] rounded-full flex items-center justify-center">
+          <div className="w-20 h-20 mx-auto mb-6 bg-[#93c5fd] rounded-full flex items-center justify-center">
             <i className="ri-error-warning-line text-4xl text-[#FF6666]"></i>
           </div>
           <h1 className="text-2xl font-bold text-gray-900 mb-3">Order Not Found</h1>
@@ -145,7 +145,7 @@ export default function PaymentPage() {
         {/* Header */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-block mb-6">
-            <span className="text-2xl font-bold text-[#141414]">Wholesale Queen</span>
+            <span className="text-2xl font-bold text-[#1e40af]">New Project</span>
           </Link>
           <h1 className="text-2xl font-bold text-gray-900">Complete Your Payment</h1>
           <p className="text-gray-600 mt-2">Hi {customerName}, your order is waiting for payment.</p>
@@ -153,7 +153,7 @@ export default function PaymentPage() {
 
         {/* Out-of-stock warning */}
         {hasStockIssue && (
-          <div className="bg-[#E89DB5] border border-[#FF6666]/30 rounded-xl p-5 mb-6">
+          <div className="bg-[#93c5fd] border border-[#FF6666]/30 rounded-xl p-5 mb-6">
             <div className="flex items-start space-x-3">
               <i className="ri-error-warning-fill text-2xl text-[#FF6666] mt-0.5 flex-shrink-0"></i>
               <div>
@@ -227,7 +227,7 @@ export default function PaymentPage() {
 
         {/* Payment status banners */}
         {!hasStockIssue && order?.payment_status === 'pending' && (
-          <div className="bg-[#FFFFCC] border border-[#D8B85F]/30 rounded-lg p-4 mb-6">
+          <div className="bg-[#FFFFCC] border border-[#60a5fa]/30 rounded-lg p-4 mb-6">
             <div className="flex items-start space-x-3">
               <i className="ri-time-line text-xl text-[#996633] mt-0.5"></i>
               <div>
@@ -239,7 +239,7 @@ export default function PaymentPage() {
         )}
 
         {!hasStockIssue && order?.payment_status === 'failed' && (
-          <div className="bg-[#E89DB5] border border-[#FF6666]/30 rounded-lg p-4 mb-6">
+          <div className="bg-[#93c5fd] border border-[#FF6666]/30 rounded-lg p-4 mb-6">
             <div className="flex items-start space-x-3">
               <i className="ri-error-warning-line text-xl text-[#FF6666] mt-0.5"></i>
               <div>
@@ -251,7 +251,7 @@ export default function PaymentPage() {
         )}
 
         {error && (
-          <div className="bg-[#E89DB5] border border-[#FF6666]/30 rounded-lg p-4 mb-6">
+          <div className="bg-[#93c5fd] border border-[#FF6666]/30 rounded-lg p-4 mb-6">
             <p className="text-sm text-[#9A1900]">{error}</p>
           </div>
         )}
@@ -263,8 +263,8 @@ export default function PaymentPage() {
             <label
               className={`flex items-start gap-3 p-4 border-2 rounded-xl cursor-pointer transition-colors ${
                 paymentMethod === 'hubtel'
-                  ? 'border-[#C9A24E] bg-[#C9A24E]/[0.07]'
-                  : 'border-gray-200 hover:border-[#C9A24E]/40'
+                  ? 'border-[#2563eb] bg-[#2563eb]/[0.07]'
+                  : 'border-gray-200 hover:border-[#2563eb]/40'
               }`}
             >
               <input
@@ -273,7 +273,7 @@ export default function PaymentPage() {
                 value="hubtel"
                 checked={paymentMethod === 'hubtel'}
                 onChange={() => setPaymentMethod('hubtel')}
-                className="w-5 h-5 accent-[#C9A24E] mt-0.5"
+                className="w-5 h-5 accent-[#2563eb] mt-0.5"
               />
               <div>
                 <p className="font-semibold text-gray-900">Hubtel</p>
@@ -283,8 +283,8 @@ export default function PaymentPage() {
             <label
               className={`flex items-start gap-3 p-4 border-2 rounded-xl cursor-pointer transition-colors ${
                 paymentMethod === 'moolre'
-                  ? 'border-[#C9A24E] bg-[#C9A24E]/[0.07]'
-                  : 'border-gray-200 hover:border-[#C9A24E]/40'
+                  ? 'border-[#2563eb] bg-[#2563eb]/[0.07]'
+                  : 'border-gray-200 hover:border-[#2563eb]/40'
               }`}
             >
               <input
@@ -293,7 +293,7 @@ export default function PaymentPage() {
                 value="moolre"
                 checked={paymentMethod === 'moolre'}
                 onChange={() => setPaymentMethod('moolre')}
-                className="w-5 h-5 accent-[#C9A24E] mt-0.5"
+                className="w-5 h-5 accent-[#2563eb] mt-0.5"
               />
               <div>
                 <p className="font-semibold text-gray-900">Moolre</p>

@@ -61,8 +61,8 @@ export default function AdminDashboard() {
         if (ordersError) throw ordersError;
 
         // Only count PAID orders for revenue & avg order value
-        const paidOrders = allOrdersData?.filter(o => o.payment_status === 'paid') || [];
-        const totalRevenue = paidOrders.reduce((sum, order) => sum + (order.total || 0), 0);
+        const paidOrders = allOrdersData?.filter((o: any) => o.payment_status === 'paid') || [];
+        const totalRevenue = paidOrders.reduce((sum: any, order: any) => sum + (order.total || 0), 0);
         const totalOrders = allOrdersData?.length || 0;
         const paidOrderCount = paidOrders.length;
         const avgOrderValue = paidOrderCount > 0 ? totalRevenue / paidOrderCount : 0;
@@ -71,7 +71,7 @@ export default function AdminDashboard() {
         // Since we can't query auth.users directly from client, we'll estimate active customers via orders or just keep it 0 if we can't.
         // Actually, best to just show "Orders" or "Recent Signups" if we had a public profiles table.
         // We'll use unique emails from orders as a proxy for "Customers"
-        const uniqueCustomers = new Set(allOrdersData?.map(o => o.email)).size;
+        const uniqueCustomers = new Set(allOrdersData?.map((o: any) => o.email)).size;
 
 
         // Process Chart Data (Last 7 Days) - only count PAID orders as revenue
@@ -86,7 +86,7 @@ export default function AdminDashboard() {
           return acc;
         }, {});
 
-        paidOrders.forEach(order => {
+        paidOrders.forEach((order: any) => {
           const date = new Date(order.created_at).toISOString().split('T')[0];
           if (chartMap[date] !== undefined) {
             chartMap[date] += (order.total || 0);

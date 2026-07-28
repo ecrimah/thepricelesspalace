@@ -1,13 +1,12 @@
 'use client';
 
 import { useEffect } from 'react';
-
-const SITE_NAME = "Wholesale Queen";
+import { BRAND } from '@/lib/brand';
 
 export function usePageTitle(title: string) {
   useEffect(() => {
     document.title = title
-      ? `${title} | ${SITE_NAME}`
-      : `${SITE_NAME} | China Wholesale — Shein Bales, Mannequins & Appliances`;
+      ? `${title} | ${BRAND.name}`
+      : `${BRAND.name} | ${BRAND.tagline}`;
   }, [title]);
 }

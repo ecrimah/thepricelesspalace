@@ -3,15 +3,15 @@ import { supabase } from '@/lib/supabase';
 import { escapeHtml } from '@/lib/sanitize';
 
 const resend = new Resend(process.env.RESEND_API_KEY || 'missing_api_key');
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@wholesalequeen.com';
-const EMAIL_FROM = process.env.EMAIL_FROM || 'Wholesale Queen <noreply@wholesalequeen.com>';
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'hello@thepricelesspalace.com';
+const EMAIL_FROM = process.env.EMAIL_FROM || 'The Priceless Palace <noreply@thepricelesspalace.com>';
 const BRAND = {
-    name: 'Wholesale Queen',
-    color: '#171717',
+    name: 'The Priceless Palace',
+    color: '#1e40af',
     colorLight: '#f9fafb',
     colorDark: '#262626',
-    url: (process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) || 'https://wholesalequeen.com').replace(/\/+$/, ''),
-    phone: process.env.CONTACT_PHONE || '0542849341',
+    url: (process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) || 'http://localhost:3001').replace(/\/+$/, ''),
+    phone: process.env.CONTACT_PHONE || '+233 20 178 3800',
 };
 
 // Reusable branded email layout
@@ -30,7 +30,7 @@ ${preheader ? `<span style="display:none;max-height:0;overflow:hidden;">${prehea
 <!-- Header -->
 <tr><td style="background:linear-gradient(135deg,${BRAND.color},${BRAND.colorDark});padding:32px 40px;text-align:center;">
 <h1 style="margin:0;color:#ffffff;font-size:22px;font-weight:700;letter-spacing:0.5px;">${BRAND.name}</h1>
-<p style="margin:6px 0 0;color:rgba(255,255,255,0.8);font-size:12px;letter-spacing:1.5px;text-transform:uppercase;">China Wholesale &middot; Shein Bales &middot; Appliances</p>
+<p style="margin:6px 0 0;color:rgba(255,255,255,0.8);font-size:12px;letter-spacing:1.5px;text-transform:uppercase;">Quality Products &middot; Great Prices</p>
 </td></tr>
 
 <!-- Body -->
@@ -144,7 +144,7 @@ export async function sendSMS({ to, message }: { to: string; message: string }) 
             },
             body: JSON.stringify({
                 type: 1,
-                senderid: process.env.SMS_SENDER_ID || 'WholesaleQ',
+                senderid: process.env.SMS_SENDER_ID || 'NEWPROJ',
                 messages: [
                     {
                         recipient: recipient,
@@ -176,7 +176,7 @@ export async function sendSMS({ to, message }: { to: string; message: string }) 
 export async function sendOrderConfirmation(order: any) {
     const { id, email, phone: orderPhone, shipping_address, total, created_at, order_number, metadata } = order;
 
-    const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) || 'https://wholesalequeen.com').replace(/\/+$/, '');
+    const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) || 'https://example.com').replace(/\/+$/, '');
 
     // Build customer name from available sources
     const getName = () => {
@@ -286,7 +286,7 @@ ${emailButton('View Order in Admin', `${baseUrl}/admin/orders/${id}`)}
     if (phone) {
         const smsMessage = trackingNumber
             ? `Hi ${name}, your order #${order_number || id} is confirmed! Tracking: ${trackingNumber}. Track here: ${trackingUrl}${shippingNotesSms}`
-            : `Hi ${name}, your order #${order_number || id} at Wholesale Queen is confirmed! Track here: ${trackingUrl}${shippingNotesSms}`;
+            : `Hi ${name}, your order #${order_number || id} at New Project is confirmed! Track here: ${trackingUrl}${shippingNotesSms}`;
         
         await sendSMS({
             to: phone,
@@ -298,7 +298,7 @@ ${emailButton('View Order in Admin', `${baseUrl}/admin/orders/${id}`)}
 export async function sendOrderStatusUpdate(order: any, newStatus: string) {
     const { id, email, phone: orderPhone, shipping_address, order_number, metadata } = order;
 
-    const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) || 'https://wholesalequeen.com').replace(/\/+$/, '');
+    const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) || 'https://example.com').replace(/\/+$/, '');
 
     // Build customer name from available sources
     const getName = () => {
@@ -402,25 +402,25 @@ export async function sendWelcomeMessage(user: { email: string, firstName: strin
   <p style="margin:0;color:#6b7280;font-size:15px;">We're so glad you're here.</p>
 </div>
 
-<p style="color:#374151;font-size:14px;line-height:1.7;margin:16px 0;">Thank you for joining the ${BRAND.name} family. We bring China wholesale straight to Ghana — Shein bales, mannequins, and home appliances at unbeatable wholesale prices, delivered to your doorstep.</p>
+<p style="color:#374151;font-size:14px;line-height:1.7;margin:16px 0;">Thank you for joining the ${BRAND.name} family. We offer quality products at great prices, delivered to your doorstep.</p>
 
 <div style="background-color:#f9fafb;border-radius:12px;padding:20px;margin:20px 0;">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
     <tr>
       <td style="text-align:center;padding:8px;width:33%;">
         <p style="font-size:20px;margin:0 0 4px;">&#128717;</p>
-        <p style="color:#374151;font-size:12px;font-weight:600;margin:0;">China Wholesale</p>
-        <p style="color:#9ca3af;font-size:11px;margin:2px 0 0;">Direct from source</p>
+        <p style="color:#374151;font-size:12px;font-weight:600;margin:0;">Curated Products</p>
+        <p style="color:#9ca3af;font-size:11px;margin:2px 0 0;">Quality selection</p>
       </td>
       <td style="text-align:center;padding:8px;width:33%;">
         <p style="font-size:20px;margin:0 0 4px;">&#9989;</p>
-        <p style="color:#374151;font-size:12px;font-weight:600;margin:0;">Wholesale Prices</p>
-        <p style="color:#9ca3af;font-size:11px;margin:2px 0 0;">Unbeatable rates</p>
+        <p style="color:#374151;font-size:12px;font-weight:600;margin:0;">Great Prices</p>
+        <p style="color:#9ca3af;font-size:11px;margin:2px 0 0;">Competitive rates</p>
       </td>
       <td style="text-align:center;padding:8px;width:33%;">
         <p style="font-size:20px;margin:0 0 4px;">&#128176;</p>
         <p style="color:#374151;font-size:12px;font-weight:600;margin:0;">Reliable Delivery</p>
-        <p style="color:#9ca3af;font-size:11px;margin:2px 0 0;">Across Ghana</p>
+        <p style="color:#9ca3af;font-size:11px;margin:2px 0 0;">Supported regions</p>
       </td>
     </tr>
   </table>
@@ -434,7 +434,7 @@ ${emailButton('Start Shopping', `${BRAND.url}/shop`)}
     if (phone) {
         await sendSMS({
             to: phone,
-            message: `Welcome ${firstName}! Thanks for joining Wholesale Queen.`
+            message: `Welcome ${firstName}! Thanks for joining New Project.`
         });
     }
 }
@@ -442,7 +442,7 @@ ${emailButton('Start Shopping', `${BRAND.url}/shop`)}
 export async function sendPaymentLink(order: any) {
     const { id, email, phone: orderPhone, shipping_address, total, order_number, metadata } = order;
 
-    const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) || 'https://wholesalequeen.com').replace(/\/+$/, '');
+    const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) || 'https://example.com').replace(/\/+$/, '');
     const paymentUrl = `${baseUrl}/pay/${id}`;
 
     // Build customer name from available sources

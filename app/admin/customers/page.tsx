@@ -91,11 +91,11 @@ export default function AdminCustomersPage() {
 
       // Process registered users
       const registeredCustomers = (profiles || []).map((profile: any) => {
-        const userOrders = orders?.filter(o => o.user_id === profile.id && o.status !== 'cancelled') || [];
-        const totalSpent = userOrders.reduce((sum, o) => sum + Number(o.total || 0), 0);
+        const userOrders = orders?.filter((o: any) => o.user_id === profile.id && o.status !== 'cancelled') || [];
+        const totalSpent = userOrders.reduce((sum: any, o: any) => sum + Number(o.total || 0), 0);
         let lastOrderDate: Date | null = null;
         if (userOrders.length > 0) {
-          const dates = userOrders.map(o => new Date(o.created_at).getTime());
+          const dates = userOrders.map((o: any) => new Date(o.created_at).getTime());
           lastOrderDate = new Date(Math.max(...dates));
         }
 
@@ -121,10 +121,10 @@ export default function AdminCustomersPage() {
       });
 
       // Process guest orders (no user_id)
-      const guestOrders = orders?.filter(o => !o.user_id && o.email) || [];
+      const guestOrders = orders?.filter((o: any) => !o.user_id && o.email) || [];
       const guestMap = new Map<string, any>();
 
-      guestOrders.forEach(order => {
+      guestOrders.forEach((order: any) => {
         const existing = guestMap.get(order.email);
         const orderTotal = Number(order.total) || 0;
         const orderDate = new Date(order.created_at);

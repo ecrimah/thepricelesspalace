@@ -23,10 +23,10 @@ export default function ProductEditor({ productId }: { productId: string }) {
   ];
 
   const images = [
-    'https://readdy.ai/api/search-image?query=elegant%20premium%20leather%20crossbody%20bag%20in%20deep%20forest%20green%20color%20front%20view%20on%20clean%20white%20studio%20background&width=400&height=400&seq=editprod1&orientation=squarish',
-    'https://readdy.ai/api/search-image?query=elegant%20premium%20leather%20crossbody%20bag%20side%20detail%20view%20showing%20texture%20on%20white%20background&width=400&height=400&seq=editprod2&orientation=squarish',
-    'https://readdy.ai/api/search-image?query=elegant%20premium%20leather%20crossbody%20bag%20interior%20compartment%20view%20on%20white%20background&width=400&height=400&seq=editprod3&orientation=squarish',
-    'https://readdy.ai/api/search-image?query=elegant%20premium%20leather%20crossbody%20bag%20lifestyle%20shot%20with%20model%20on%20white%20background&width=400&height=400&seq=editprod4&orientation=squarish'
+    '/placeholder-product.png',
+    '/placeholder-product.png',
+    '/placeholder-product.png',
+    '/placeholder-product.png'
   ];
 
   const tabs = [

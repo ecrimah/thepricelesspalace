@@ -155,8 +155,8 @@ export default function VerifyPhonePage() {
           </div>
 
           <div className="mt-6">
-            <div className="bg-[#C9A24E]/5 border border-[#C9A24E]/20 rounded-lg p-3">
-              <p className="text-xs text-[#141414]">
+            <div className="bg-[#2563eb]/5 border border-[#2563eb]/20 rounded-lg p-3">
+              <p className="text-xs text-[#1e40af]">
                 <i className="ri-information-line mr-1"></i>
                 Standard SMS rates may apply. Code expires in 10 minutes.
               </p>

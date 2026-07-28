@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { BRAND } from '@/lib/brand';
 import { usePWAInstall } from './PWAInstaller';
 
 function isIOS(): boolean {
@@ -112,8 +113,8 @@ export default function PWAPrompt() {
                 <div className="flex items-center gap-4 mb-5">
                   <div className="w-12 h-12 rounded-2xl overflow-hidden shadow-lg flex-shrink-0 bg-gray-100 flex items-center justify-center">
                     <img
-                      src="/wholesalequeen-logo.png"
-                      alt="Wholesale Queen"
+                      src="/logo.png"
+                      alt={BRAND.name}
                       className="w-10 h-10 object-contain"
                     />
                   </div>
@@ -138,7 +139,7 @@ export default function PWAPrompt() {
                         <p className="text-xs text-gray-500 mt-0.5">
                           Tap the{' '}
                           <span className="inline-flex items-center bg-white border border-gray-200 rounded px-1.5 py-0.5 mx-0.5">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#C9A24E]">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#2563eb]">
                               <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
                               <polyline points="16 6 12 2 8 6" />
                               <line x1="12" y1="2" x2="12" y2="15" />
@@ -174,7 +175,7 @@ export default function PWAPrompt() {
                       <div className="flex-1">
                         <p className="text-sm font-semibold text-gray-800">Tap &quot;Add&quot;</p>
                         <p className="text-xs text-gray-500 mt-0.5">
-                          Confirm by tapping <span className="font-semibold text-[#C9A24E]">Add</span> in the top right corner
+                          Confirm by tapping <span className="font-semibold text-[#2563eb]">Add</span> in the top right corner
                         </p>
                       </div>
                     </div>
@@ -206,17 +207,17 @@ export default function PWAPrompt() {
                 <div className="flex items-center gap-4 mb-6">
                   <div className="w-12 h-12 rounded-2xl overflow-hidden shadow-lg flex-shrink-0 bg-gray-100 flex items-center justify-center">
                     <img
-                      src="/wholesalequeen-logo.png"
-                      alt="Wholesale Queen"
+                      src="/logo.png"
+                      alt={BRAND.name}
                       className="w-10 h-10 object-contain"
                     />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-gray-900 text-lg truncate">Wholesale Queen</h3>
-                    <p className="text-sm text-gray-500">wholesalequeen.com</p>
+                    <h3 className="font-bold text-gray-900 text-lg truncate">{BRAND.name}</h3>
+                    <p className="text-sm text-gray-500">{BRAND.tagline}</p>
                     <div className="flex items-center gap-1 mt-1">
                       {[1, 2, 3, 4, 5].map((star) => (
-                        <i key={star} className="ri-star-fill text-[#D8B85F] text-xs" />
+                        <i key={star} className="ri-star-fill text-[#60a5fa] text-xs" />
                       ))}
                       <span className="text-xs text-gray-400 ml-1">Shopping</span>
                     </div>

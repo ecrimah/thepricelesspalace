@@ -16,20 +16,20 @@ export default function CheckoutSteps({ currentStep }: CheckoutStepsProps) {
           <div className="flex flex-col items-center flex-1">
             <div className={`w-12 h-12 flex items-center justify-center rounded-full font-bold transition-all duration-300 ${
               currentStep >= step.number
-                ? 'bg-gradient-to-br from-[#C9A24E] to-[#9C7A2E] text-white shadow-[0_10px_22px_-10px_rgba(201,162,78,0.95)]'
-                : 'bg-[#141414]/[0.06] text-[#141414]/40'
+                ? 'bg-gradient-to-br from-[#2563eb] to-[#1d4ed8] text-white shadow-[0_10px_22px_-10px_rgba(37,99,235,0.95)]'
+                : 'bg-[#1e40af]/[0.06] text-[#1e40af]/40'
             }`}>
               <i className={`${step.icon} text-xl`}></i>
             </div>
             <p className={`mt-2 text-sm font-semibold ${
-              currentStep >= step.number ? 'text-[#141414]' : 'text-[#141414]/40'
+              currentStep >= step.number ? 'text-[#1e40af]' : 'text-[#1e40af]/40'
             }`}>
               {step.title}
             </p>
           </div>
           {index < steps.length - 1 && (
             <div className={`h-0.5 flex-1 mx-4 rounded-full transition-colors ${
-              currentStep > step.number ? 'bg-gradient-to-r from-[#C9A24E] to-[#9C7A2E]' : 'bg-[#141414]/10'
+              currentStep > step.number ? 'bg-gradient-to-r from-[#2563eb] to-[#1d4ed8]' : 'bg-[#1e40af]/10'
             }`}></div>
           )}
         </div>

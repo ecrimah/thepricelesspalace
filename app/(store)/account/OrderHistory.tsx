@@ -72,13 +72,13 @@ export default function OrderHistory() {
       case 'delivered':
         return 'bg-gray-100 text-gray-700';
       case 'dispatched_to_rider':
-        return 'bg-[#C9A24E]/10 text-[#C9A24E]';
+        return 'bg-[#2563eb]/10 text-[#2563eb]';
       case 'shipped':
-        return 'bg-[#C9A24E]/10 text-[#C9A24E]';
+        return 'bg-[#2563eb]/10 text-[#2563eb]';
       case 'processing':
         return 'bg-[#FFFFCC] text-[#996633]';
       case 'cancelled':
-        return 'bg-[#E89DB5] text-[#9A1900]';
+        return 'bg-[#93c5fd] text-[#9A1900]';
       default: // pending
         return 'bg-gray-100 text-gray-700';
     }

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { BRAND } from '@/lib/brand';
 
 function pad(n: number) {
   return String(n).padStart(2, '0');
@@ -49,24 +50,24 @@ export default function MaintenancePage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#F3F3F3] via-white to-[#C9A24E]/10 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-gradient-to-br from-[#F3F3F3] via-white to-[#2563eb]/10 flex items-center justify-center px-4">
       <div className="max-w-2xl mx-auto text-center">
         <div className="mb-8">
-          <div className="w-32 h-32 bg-[#C9A24E]/15 rounded-full flex items-center justify-center mx-auto mb-6">
-            <i className="ri-tools-line text-6xl text-[#141414]"></i>
+          <div className="w-32 h-32 bg-[#2563eb]/15 rounded-full flex items-center justify-center mx-auto mb-6">
+            <i className="ri-tools-line text-6xl text-[#1e40af]"></i>
           </div>
-          <h1 className="text-4xl sm:text-5xl font-bold text-[#141414] mb-6">
+          <h1 className="text-4xl sm:text-5xl font-bold text-[#1e40af] mb-6">
             We&apos;ll Be Right Back
           </h1>
           <p className="text-lg sm:text-xl text-gray-600 mb-8 leading-relaxed">
-            We&apos;re currently performing scheduled maintenance to improve your Wholesale Queen experience. Thank you for your patience.
+            We&apos;re currently performing scheduled maintenance to improve your {BRAND.name} experience. Thank you for your patience.
           </p>
         </div>
 
-        <div className="bg-white border border-[#C9A24E]/20 rounded-2xl p-8 mb-8 shadow-sm">
-          <h2 className="text-xl sm:text-2xl font-bold text-[#141414] mb-4">Expected Downtime</h2>
+        <div className="bg-white border border-[#2563eb]/20 rounded-2xl p-8 mb-8 shadow-sm">
+          <h2 className="text-xl sm:text-2xl font-bold text-[#1e40af] mb-4">Expected Downtime</h2>
           {timeLeft !== null && !ended ? (
-            <div className="flex items-center justify-center gap-4 sm:gap-6 text-[#141414]">
+            <div className="flex items-center justify-center gap-4 sm:gap-6 text-[#1e40af]">
               <div className="flex flex-col items-center">
                 <span className="text-3xl sm:text-4xl font-bold tabular-nums">{pad(timeLeft.h)}</span>
                 <span className="text-xs sm:text-sm text-gray-500 uppercase tracking-wider">Hours</span>
@@ -90,52 +91,52 @@ export default function MaintenancePage() {
         </div>
 
         <div className="grid sm:grid-cols-3 gap-4 sm:gap-6 mb-8">
-          <div className="bg-white border border-[#C9A24E]/20 rounded-xl p-6">
-            <div className="w-12 h-12 bg-[#C9A24E]/15 rounded-full flex items-center justify-center mx-auto mb-4">
-              <i className="ri-rocket-line text-2xl text-[#141414]"></i>
+          <div className="bg-white border border-[#2563eb]/20 rounded-xl p-6">
+            <div className="w-12 h-12 bg-[#2563eb]/15 rounded-full flex items-center justify-center mx-auto mb-4">
+              <i className="ri-rocket-line text-2xl text-[#1e40af]"></i>
             </div>
-            <h3 className="font-bold text-[#141414] mb-2">Performance</h3>
+            <h3 className="font-bold text-[#1e40af] mb-2">Performance</h3>
             <p className="text-gray-600 text-sm">Faster loading times and smoother navigation</p>
           </div>
-          <div className="bg-white border border-[#C9A24E]/20 rounded-xl p-6">
-            <div className="w-12 h-12 bg-[#C9A24E]/15 rounded-full flex items-center justify-center mx-auto mb-4">
-              <i className="ri-shield-check-line text-2xl text-[#141414]"></i>
+          <div className="bg-white border border-[#2563eb]/20 rounded-xl p-6">
+            <div className="w-12 h-12 bg-[#2563eb]/15 rounded-full flex items-center justify-center mx-auto mb-4">
+              <i className="ri-shield-check-line text-2xl text-[#1e40af]"></i>
             </div>
-            <h3 className="font-bold text-[#141414] mb-2">Security</h3>
+            <h3 className="font-bold text-[#1e40af] mb-2">Security</h3>
             <p className="text-gray-600 text-sm">Enhanced protection for your data and transactions</p>
           </div>
-          <div className="bg-white border border-[#C9A24E]/20 rounded-xl p-6">
-            <div className="w-12 h-12 bg-[#C9A24E]/15 rounded-full flex items-center justify-center mx-auto mb-4">
-              <i className="ri-sparkle-line text-2xl text-[#141414]"></i>
+          <div className="bg-white border border-[#2563eb]/20 rounded-xl p-6">
+            <div className="w-12 h-12 bg-[#2563eb]/15 rounded-full flex items-center justify-center mx-auto mb-4">
+              <i className="ri-sparkle-line text-2xl text-[#1e40af]"></i>
             </div>
-            <h3 className="font-bold text-[#141414] mb-2">Features</h3>
+            <h3 className="font-bold text-[#1e40af] mb-2">Features</h3>
             <p className="text-gray-600 text-sm">New functionality to enhance your experience</p>
           </div>
         </div>
 
-        <div className="bg-[#C9A24E]/10 border border-[#C9A24E]/20 rounded-2xl p-6 sm:p-8">
-          <h3 className="text-lg sm:text-xl font-bold text-[#141414] mb-4">Need Immediate Assistance?</h3>
+        <div className="bg-[#2563eb]/10 border border-[#2563eb]/20 rounded-2xl p-6 sm:p-8">
+          <h3 className="text-lg sm:text-xl font-bold text-[#1e40af] mb-4">Need Immediate Assistance?</h3>
           <p className="text-gray-600 mb-6 text-sm sm:text-base">Our customer service team is still available to help you.</p>
           <div className="flex flex-wrap gap-3 sm:gap-4 justify-center">
             <a
-              href="mailto:hello@wholesalequeen.com"
-              className="inline-flex items-center gap-2 bg-white text-[#141414] px-5 py-2.5 rounded-full font-medium hover:bg-[#F3F3F3] transition-colors border border-[#C9A24E]/30 text-sm"
+              href={`mailto:${BRAND.email}`}
+              className="inline-flex items-center gap-2 bg-white text-[#1e40af] px-5 py-2.5 rounded-full font-medium hover:bg-[#F3F3F3] transition-colors border border-[#2563eb]/30 text-sm"
             >
               <i className="ri-mail-line"></i>
               Email Us
             </a>
             <a
-              href="https://wa.me/233542849341"
+              href={BRAND.whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 bg-[#141414] text-white px-5 py-2.5 rounded-full font-medium hover:bg-[#3D2A00] transition-colors text-sm"
+              className="inline-flex items-center gap-2 bg-[#1e40af] text-white px-5 py-2.5 rounded-full font-medium hover:bg-[#1d4ed8] transition-colors text-sm"
             >
               <i className="ri-whatsapp-line"></i>
               WhatsApp
             </a>
             <a
-              href="tel:+233542849341"
-              className="inline-flex items-center gap-2 bg-white text-[#141414] px-5 py-2.5 rounded-full font-medium hover:bg-[#F3F3F3] transition-colors border border-[#C9A24E]/30 text-sm"
+              href={`tel:${BRAND.phonePrimaryDigits}`}
+              className="inline-flex items-center gap-2 bg-white text-[#1e40af] px-5 py-2.5 rounded-full font-medium hover:bg-[#F3F3F3] transition-colors border border-[#2563eb]/30 text-sm"
             >
               <i className="ri-phone-line"></i>
               Call Us

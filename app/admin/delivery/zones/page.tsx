@@ -239,14 +239,14 @@ export default function ZonesPage() {
                                 <label className="block text-sm font-semibold text-gray-900 mb-1.5">Zone Name *</label>
                                 <input type="text" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
                                     className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-600 focus:border-gray-600"
-                                    placeholder="Accra Metro" />
+                                    placeholder="Metro Area" />
                             </div>
 
                             <div>
                                 <label className="block text-sm font-semibold text-gray-900 mb-1.5">Description</label>
                                 <input type="text" value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
                                     className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-gray-600 focus:border-gray-600"
-                                    placeholder="Covers central Accra and suburbs" />
+                                    placeholder="Covers central city and suburbs" />
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">

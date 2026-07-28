@@ -2,6 +2,7 @@
  * Site Knowledge Base — curated facts used by the AI chat assistant.
  */
 
+import { BRAND, brandPhoneList } from '@/lib/brand';
 export interface SiteKnowledgeEntry {
   id: string;
   title: string;
@@ -14,46 +15,45 @@ export interface SiteKnowledgeEntry {
 export const SITE_KNOWLEDGE: SiteKnowledgeEntry[] = [
   {
     id: "business-overview",
-    title: "About Wholesale Queen",
+    title: `About ${BRAND.name}`,
     path: "/about",
     category: "company",
-    content: `Wholesale Queen brings China wholesale straight to Ghana. We specialise in Shein bales (wholesale clothing), mannequins and home appliances, all at unbeatable wholesale prices.
+    content: `${BRAND.name} is a fashion store offering ${BRAND.tagline.toLowerCase()}.
 
-We make bulk buying simple and affordable — perfect for resellers, boutique owners, and anyone who wants quality goods without paying retail markups.
+We make shopping simple and affordable — whether you are buying for yourself or stocking up for resale.
 
-Whether you're stocking a shop, starting a clothing business, or buying for yourself, Wholesale Queen exists to make wholesale sourcing easy, reliable and accessible.
+Whether you are restocking, starting a side hustle, or buying for personal use, ${BRAND.name} exists to make online shopping easy, reliable, and accessible.
 
-Vision: To make quality goods affordable for every Ghanaian hustler and reseller.
-Mission: To be Ghana's most trusted China-wholesale partner — delivering Shein bales, mannequins and appliances at the best prices, one order at a time.
+Vision: To make quality fashion affordable for every customer.
+Mission: To be a trusted shopping partner — delivering great products at fair prices, one order at a time.
 
-Location: Ashongman Estate, Accra. Delivery available across Ghana.`,
-    keywords: ["wholesale queen", "china wholesale", "shein bale", "mannequin", "appliances", "ghana", "accra", "ashongman", "reseller", "bulk", "about"],
+Location: ${BRAND.address}. Delivery available to supported regions.`,
+    keywords: [BRAND.shortName.toLowerCase(), "the priceless palace", "online store", "about", "company", "shop", "dresses", "bags", "slippers", "wigs", "affordable"],
   },
   {
     id: "contact-info",
     title: "Contact Information",
     path: "/contact",
     category: "contact",
-    content: `Contact Wholesale Queen:
+    content: `Contact ${BRAND.name}:
 
-Phone/WhatsApp: 054 284 9341
-Email: hello@wholesalequeen.com
-TikTok/Instagram: @chinawholesalequeen
-Address: Ashongman Estate, Accra, Ghana
+Phone/WhatsApp: ${brandPhoneList()}
+Email: ${BRAND.email}
+Address: ${BRAND.address}
 Support Hours: Monday to Saturday, 9 AM - 6 PM GMT`,
-    keywords: ["contact", "phone", "whatsapp", "email", "address", "support", "0542849341", "accra", "ghana", "ashongman", "instagram", "tiktok", "chinawholesalequeen"],
+    keywords: ["contact", "phone", "whatsapp", "email", "address", "support", BRAND.email],
   },
   {
     id: "shipping-policy",
     title: "Shipping & Delivery Policy",
     path: "/shipping",
     category: "shipping",
-    content: `Wholesale Queen is based at Ashongman Estate, Accra, and delivers across Ghana.
+    content: `${BRAND.name} is based at ${BRAND.address} and delivers to supported regions.
 
-Shipping fees and delivery timelines depend on destination and are shown at checkout. Pickup is available at our Accra location.
+Shipping fees and delivery timelines depend on destination and are shown at checkout. Pickup may be available at our store location.
 
 Customers receive order updates and can track orders using order number and email.`,
-    keywords: ["shipping", "delivery", "ghana", "accra", "pickup", "timeline", "tracking", "ashongman", "wholesale queen"],
+    keywords: ["shipping", "delivery", "pickup", "timeline", "tracking", BRAND.shortName.toLowerCase()],
   },
   {
     id: "returns-policy",
@@ -72,11 +72,11 @@ Refunds are processed after item inspection.`,
     title: "Payment Methods",
     path: "/checkout",
     category: "payment",
-    content: `Secure payments are processed by Hubtel or Moolre — customers choose either at checkout. Both support mobile money (MTN, Telecel, AirtelTigo), debit/credit cards, and bank transfer.
+    content: `Secure payments are processed by Hubtel or Moolre — customers choose either at checkout. Both support mobile money, debit/credit cards, and bank transfer.
 
-Cash on Delivery is available for eligible orders within Accra.
+Cash on Delivery may be available for eligible orders in supported areas.
 All prices are shown in ₵ (GHS) unless otherwise stated.`,
-    keywords: ["payment", "hubtel", "moolre", "card", "bank transfer", "mobile money", "momo", "mtn", "checkout", "secure", "ghs", "cedi", "ghana"],
+    keywords: ["payment", "hubtel", "moolre", "card", "bank transfer", "mobile money", "momo", "checkout", "secure", "ghs", "cedi"],
   },
   {
     id: "order-tracking-guide",
@@ -106,7 +106,7 @@ Customers can contact support via WhatsApp, email, or support ticket for unresol
     category: "legal",
     content: `Privacy Policy and Terms explain data handling, order conditions, returns, and user responsibilities.
 
-For legal questions, contact hello@wholesalequeen.com.`,
+For legal questions, contact ${BRAND.email}.`,
     keywords: ["privacy", "terms", "legal", "data", "policy"],
   },
   {
@@ -189,11 +189,11 @@ export function getSiteMapSummary(): string {
 - /returns — Start a return request (30-day policy)
 - /account — Profile, order history, addresses, security settings
 - /wishlist — Saved products
-- /about — Wholesale Queen story and mission
+- /about — ${BRAND.name} story and mission
 - /contact — Phone numbers, email, WhatsApp, visit info
 - /faqs — 25+ frequently asked questions
 - /help — Help center with 50+ articles across 6 categories
-- /blog — Wholesale tips, reseller guides, and product insights
+- /blog — Shopping tips, product guides, and store updates
 - /shipping — Detailed shipping & delivery policy
 - /privacy — Privacy policy
 - /terms — Terms & conditions

@@ -12,7 +12,7 @@
  *
  * NOTE: This store charges the full order amount in a single payment (no
  * deposit / balance plans), so this is a trimmed version of the integration
- * used on the Sarah Lawson store — initiate + status + a couple of helpers.
+ * used on a previous store — initiate + status + a couple of helpers.
  */
 
 const INITIATE_URL = 'https://payproxyapi.hubtel.com/items/initiate';

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { supabaseAdmin } from '@/lib/supabase-admin';
 import {
   searchProducts,
   getProductForCart,
@@ -24,9 +24,6 @@ import { searchSiteKnowledge, getSiteMapSummary } from '@/lib/site-knowledge';
 
 // ─── Env ────────────────────────────────────────────────────────────────────
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const groqKey = process.env.GROQ_API_KEY;
 
 // ─── Types ──────────────────────────────────────────────────────────────────
@@ -239,7 +236,7 @@ const LLM_TOOLS = [
     type: 'function' as const,
     function: {
       name: 'get_website_info',
-      description: 'Search the website\'s pages and content for information. Use this to answer ANY question about the business, policies, how things work, FAQs, contact info, shipping, returns, payment methods, account management, checkout process, blog content, or anything else about Wholesale Queen. This searches all public pages of the website. ALWAYS use this tool when a customer asks about the business, policies, processes, or anything non-product related.',
+      description: 'Search the website\'s pages and content for information. Use this to answer ANY question about the business, policies, how things work, FAQs, contact info, shipping, returns, payment methods, account management, checkout process, blog content, or anything else about New Project. This searches all public pages of the website. ALWAYS use this tool when a customer asks about the business, policies, processes, or anything non-product related.',
       parameters: {
         type: 'object',
         properties: {
@@ -291,7 +288,7 @@ const LLM_TOOLS = [
           payment_method: {
             type: 'string',
             enum: ['hubtel', 'moolre', 'cod'],
-            description: 'Payment method. hubtel or moolre = online payment (Mobile Money, card, bank transfer), cod = Cash on Delivery (Accra only)',
+            description: 'Payment method. hubtel or moolre = online payment (Mobile Money, card, bank transfer), cod = Cash on Delivery (where available)',
           },
         },
         required: ['items', 'shipping', 'delivery_method', 'payment_method'],
@@ -305,7 +302,7 @@ const LLM_TOOLS = [
 function buildSystemPrompt(profile: ChatCustomerProfile | null, pagePath?: string): string {
   const now = new Date().toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
-  let prompt = `You are the AI shopping assistant for Wholesale Queen — a China-wholesale business based at Ashongman Estate, Accra, Ghana. We specialise in Shein bales (wholesale clothing), mannequins, and home appliances at unbeatable wholesale prices, perfect for resellers, boutiques, and bulk buyers. We deliver across Ghana and offer pickup in Accra. Today is ${now}.
+  let prompt = `You are the AI shopping assistant for New Project — an online store based at Address TBD. We offer quality products at competitive prices for individual shoppers and bulk buyers. We deliver to supported regions and may offer pickup at Address TBD. Today is ${now}.
 
 ABSOLUTE RULES — NEVER BREAK THESE:
 - NEVER show your internal reasoning, thinking steps, chain-of-thought, or planning process. NEVER output anything like "Step 1:", "## Step", "Let me think", or similar. Only output the final customer-facing response.
@@ -343,9 +340,9 @@ WHEN CREATING SUPPORT TICKETS:
 - Always include a clear subject and description based on the full conversation context.
 
 STORE POLICIES (quick reference):
-- Delivery: Delivery across Ghana plus pickup in Accra (timing depends on destination)
+- Delivery: Delivery to supported regions plus pickup at Address TBD where available (timing depends on destination)
 - Returns: Within 30 days of delivery, unused items in original packaging
-- Payment: Mobile Money, bank transfer, card payment, Cash on Delivery (Accra only)
+- Payment: Mobile Money, bank transfer, card payment, Cash on Delivery where available
 - Support hours: Mon-Sat, 9 AM - 6 PM GMT
 
 CAPABILITIES (what you CAN do):
@@ -372,12 +369,12 @@ You can help customers place orders directly in this chat. Here is how:
    - Phone number
    - Delivery address, city, and region
 3. Ask them to choose a delivery method:
-   - **Standard** — ₵20 (1-3 business days in Accra, 3-7 days outside)
-   - **Express** — ₵40 (same-day/next-day in Accra)
-   - **Pickup** — Free (collect from our Ashongman Estate location)
+   - **Standard** — ₵20 (1-3 business days locally, 3-7 days to other regions)
+   - **Express** — ₵40 (same-day/next-day in supported local areas)
+   - **Pickup** — Free (collect from Address TBD)
 4. Ask them to choose a payment method:
    - **Online payment** (Mobile Money, card, or bank transfer via checkout) — default
-   - **Cash on Delivery** — Accra only
+   - **Cash on Delivery** — where available
 5. Summarize the order (items, subtotal, delivery fee, total) and ask the customer to confirm.
 6. Once confirmed, call the create_order tool with the cart items (product IDs and quantities from the cart context), shipping info, delivery method, and payment method.
 7. The tool will return a payment link (for online payment) — present it to the customer. For COD, just confirm the order is placed.
@@ -393,7 +390,7 @@ LIMITATIONS (what you CANNOT do directly):
 WHEN YOU CANNOT HELP OR ANSWER A QUESTION:
 If you genuinely cannot answer a question or resolve an issue (whether it's beyond your capabilities, the customer is frustrated, or anything else), you MUST do TWO things:
 1. AUTOMATICALLY create a support ticket using the create_support_ticket tool — don't just offer to, actually do it. Use whatever info the customer already provided (email, name, issue details).
-2. ALWAYS provide the customer with direct contact information for faster help. Share: Phone/WhatsApp 054 284 9341 (https://wa.me/233542849341), email hello@wholesalequeen.com, TikTok/Instagram @chinawholesalequeen, or visit Ashongman Estate, Accra, Ghana. Say something like: "I've created a support ticket for you. For a faster response, you can also reach us at 054 284 9341 (call or WhatsApp) or hello@wholesalequeen.com."
+2. ALWAYS provide the customer with direct contact information for faster help. Share: Phone/WhatsApp +1 000 000 0000 (https://example.com), email hello@example.com, or visit Address TBD. Say something like: "I've created a support ticket for you. For a faster response, you can also reach us at +1 000 000 0000 (call or WhatsApp) or hello@example.com."
 Never leave a customer stuck without a path forward.
 
 ${getSiteMapSummary()}`;
@@ -450,11 +447,7 @@ async function detectAuth(request: Request): Promise<{ userId: string | null; em
     const accessToken = typeof tokenData === 'string' ? tokenData : tokenData?.[0] || tokenData?.access_token;
     if (!accessToken) return { userId: null, email: null };
 
-    const supabase = createClient(supabaseUrl, supabaseKey, {
-      global: { headers: { Authorization: `Bearer ${accessToken}` } },
-    });
-
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await supabaseAdmin.auth.getUser(accessToken);
     if (user) {
       return { userId: user.id, email: user.email || null };
     }
@@ -486,9 +479,7 @@ export async function POST(request: Request) {
 
     const { userId, email: userEmail } = await detectAuth(request);
 
-    const supabase = supabaseServiceKey
-      ? createClient(supabaseUrl, supabaseServiceKey)
-      : createClient(supabaseUrl, supabaseKey);
+    const supabase = supabaseAdmin;
 
     let profile: ChatCustomerProfile | null = null;
     if (userId) {
@@ -797,7 +788,7 @@ async function handleWithoutAI(supabase: any, userText: string, profile: ChatCus
   }
 
   return {
-    message: "I'm not quite sure what you're looking for. I can help with:\n- Finding and buying products\n- Tracking orders\n- Checking coupons\n- Store policies and info\n- Creating support tickets\n\nFor immediate assistance, call or WhatsApp 054 284 9341 or email hello@wholesalequeen.com.",
+    message: "I'm not quite sure what you're looking for. I can help with:\n- Finding and buying products\n- Tracking orders\n- Checking coupons\n- Store policies and info\n- Creating support tickets\n\nFor immediate assistance, call or WhatsApp +1 000 000 0000 or email hello@example.com.",
     quickReplies: ['Find a product', 'Track my order', 'What do you recommend?', 'Call us'],
   };
 }
@@ -955,7 +946,7 @@ async function handleWithAI(
       } else if (couponCard) {
         assistantContent = `Here's the coupon information:`;
       } else {
-        assistantContent = `I'm sorry, I wasn't able to process that properly. You can try rephrasing your request, or for immediate help reach us at 054 284 9341 (call or WhatsApp) or hello@wholesalequeen.com. Our team is available Mon-Sat, 9am-6pm GMT.`;
+        assistantContent = `I'm sorry, I wasn't able to process that properly. You can try rephrasing your request, or for immediate help reach us at +1 000 000 0000 (call or WhatsApp) or hello@example.com. Our team is available Mon-Sat, 9am-6pm GMT.`;
       }
     }
 

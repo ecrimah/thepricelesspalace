@@ -31,7 +31,7 @@ export function getAccessToken(request: Request): string | null {
  * Returns a NextResponse error to return early, or null if authorized.
  */
 export async function requireAdmin(request: Request): Promise<NextResponse | null> {
-  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+  if (!process.env.DATABASE_URL && !process.env.POSTGRES_URL) {
     return NextResponse.json({ error: 'Server misconfiguration' }, { status: 503 });
   }
   const token = getAccessToken(request);

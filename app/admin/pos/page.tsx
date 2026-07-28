@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
+import { BRAND, brandPhoneList } from '@/lib/brand';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -121,9 +122,9 @@ function printReceipt(order: {
     .footer { font-size: 10px; color: #555; margin-top: 8px; }
 </style></head><body>
     <div class="center">
-        <div class="store-name">SHOPWITHGG</div>
-        <div style="font-size:10px;margin-top:2px;">China Wholesale · Shein Bales · Appliances</div>
-        <div style="font-size:10px;">Tel: 054 284 9341</div>
+        <div class="store-name">${BRAND.name.toUpperCase()}</div>
+        <div style="font-size:10px;margin-top:2px;">${BRAND.tagline}</div>
+        <div style="font-size:10px;">Tel: ${brandPhoneList()}</div>
     </div>
     <div class="divider"></div>
     <div style="display:flex;justify-content:space-between;font-size:10px;">
@@ -159,7 +160,7 @@ function printReceipt(order: {
     <div class="divider"></div>
     <div class="center footer">
         <div>Thank you for shopping with us!</div>
-        <div>www.wholesalequeen.com</div>
+        <div>www.example.com</div>
     </div>
     <div style="margin-top:12px;"></div>
 </body></html>`;
@@ -395,13 +396,13 @@ export default function POSPage() {
                 .eq('metadata->>pos_sale', 'true');
 
             if (data) {
-                const paid = data.filter(o => o.payment_status === 'paid');
+                const paid = data.filter((o: any) => o.payment_status === 'paid');
                 setDailySummary({
-                    totalSales: paid.reduce((s, o) => s + Number(o.total), 0),
+                    totalSales: paid.reduce((s: any, o: any) => s + Number(o.total), 0),
                     orderCount: paid.length,
-                    cashSales: paid.filter(o => o.payment_method === 'cash').reduce((s, o) => s + Number(o.total), 0),
-                    cardSales: paid.filter(o => o.payment_method === 'card').reduce((s, o) => s + Number(o.total), 0),
-                    momoSales: paid.filter(o => o.payment_method === 'hubtel' || o.payment_method === 'paystack' || o.payment_method === 'moolre').reduce((s, o) => s + Number(o.total), 0),
+                    cashSales: paid.filter((o: any) => o.payment_method === 'cash').reduce((s: any, o: any) => s + Number(o.total), 0),
+                    cardSales: paid.filter((o: any) => o.payment_method === 'card').reduce((s: any, o: any) => s + Number(o.total), 0),
+                    momoSales: paid.filter((o: any) => o.payment_method === 'hubtel' || o.payment_method === 'paystack' || o.payment_method === 'moolre').reduce((s: any, o: any) => s + Number(o.total), 0),
                 });
             }
         } catch {}

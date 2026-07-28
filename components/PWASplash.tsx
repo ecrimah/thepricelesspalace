@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { BRAND } from '@/lib/brand';
 
 export default function PWASplash() {
   const [showSplash, setShowSplash] = useState(false);
@@ -29,13 +30,13 @@ export default function PWASplash() {
     <div className="pwa-splash" aria-hidden="true">
       <div className="pwa-splash-logo mb-6">
         <img
-          src="/wholesalequeen-logo.png"
-          alt="Wholesale Queen"
+          src="/logo.png"
+          alt={BRAND.name}
           className="w-20 h-20 object-contain"
         />
       </div>
-      <h1 className="text-white text-xl font-bold mb-2">Wholesale Queen</h1>
-      <p className="text-[#C9A24E] text-sm font-medium mb-8">China Wholesale · Shein Bales · Appliances</p>
+      <h1 className="text-white text-xl font-bold mb-2">{BRAND.name}</h1>
+      <p className="text-[#2563eb] text-sm font-medium mb-8">{BRAND.tagline}</p>
       <div className="pwa-splash-dots flex gap-1.5">
         <span className="w-2 h-2 bg-white rounded-full" />
         <span className="w-2 h-2 bg-white rounded-full" />

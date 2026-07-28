@@ -52,7 +52,7 @@ export default function OfflinePage() {
               <div className="relative">
                 <i className="ri-wifi-off-line text-5xl text-gray-700" />
                 {/* Animated dots */}
-                <div className="absolute -top-1 -right-1 w-4 h-4 bg-[#D8B85F] rounded-full animate-bounce" style={{ animationDelay: '0s' }} />
+                <div className="absolute -top-1 -right-1 w-4 h-4 bg-[#60a5fa] rounded-full animate-bounce" style={{ animationDelay: '0s' }} />
               </div>
             </div>
           </div>
@@ -99,7 +99,7 @@ export default function OfflinePage() {
         {/* Tips */}
         <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
           <h3 className="font-semibold text-gray-900 text-sm mb-3 flex items-center gap-2 justify-center">
-            <i className="ri-lightbulb-line text-[#D8B85F]" />
+            <i className="ri-lightbulb-line text-[#60a5fa]" />
             While offline you can:
           </h3>
           <div className="grid grid-cols-2 gap-3">

@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { useRecaptcha } from '@/hooks/useRecaptcha';
+import { BRAND } from '@/lib/brand';
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -73,27 +74,27 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center p-4 overflow-hidden bg-[#141414]">
+    <div className="relative min-h-screen flex items-center justify-center p-4 overflow-hidden bg-[#1e40af]">
       {/* Ambient brand glows */}
-      <span aria-hidden="true" className="pointer-events-none absolute -top-32 -left-24 h-96 w-96 rounded-full bg-[#C9A24E]/20 blur-[120px]" />
-      <span aria-hidden="true" className="pointer-events-none absolute -bottom-32 -right-24 h-96 w-96 rounded-full bg-[#E89DB5]/15 blur-[120px]" />
+      <span aria-hidden="true" className="pointer-events-none absolute -top-32 -left-24 h-96 w-96 rounded-full bg-[#2563eb]/20 blur-[120px]" />
+      <span aria-hidden="true" className="pointer-events-none absolute -bottom-32 -right-24 h-96 w-96 rounded-full bg-[#93c5fd]/15 blur-[120px]" />
 
       <div className="relative w-full max-w-md">
-        <div className="overflow-hidden rounded-[26px] bg-white shadow-[0_30px_80px_-30px_rgba(0,0,0,0.8)] ring-1 ring-[#C9A24E]/30">
+        <div className="overflow-hidden rounded-[26px] bg-white shadow-[0_30px_80px_-30px_rgba(0,0,0,0.8)] ring-1 ring-[#2563eb]/30">
           {/* Gold top accent */}
-          <span aria-hidden="true" className="block h-1 w-full bg-gradient-to-r from-[#C9A24E] via-[#D8B85F] to-[#C9A24E]" />
+          <span aria-hidden="true" className="block h-1 w-full bg-gradient-to-r from-[#2563eb] via-[#60a5fa] to-[#2563eb]" />
 
           <div className="p-8">
             <div className="text-center mb-7">
               <Link href="/" className="inline-block">
                 <img
-                  src="/wholesalequeen-logo.png"
-                  alt="Wholesale Queen"
+                  src="/logo.png"
+                  alt={BRAND.name}
                   className="h-16 sm:h-20 w-auto object-contain mx-auto"
                 />
               </Link>
-              <h1 className="text-2xl font-bold text-[#141414] mt-5 mb-1.5">Admin Login</h1>
-              <p className="text-sm text-gray-500">Sign in to manage Wholesale Queen</p>
+              <h1 className="text-2xl font-bold text-[#1e40af] mt-5 mb-1.5">Admin Login</h1>
+              <p className="text-sm text-gray-500">Sign in to manage {BRAND.name}</p>
             </div>
 
             {error && (
@@ -108,7 +109,7 @@ export default function AdminLoginPage() {
 
             <form onSubmit={handleLogin} className="space-y-5">
               <div>
-                <label className="block text-sm font-semibold text-[#141414] mb-2">
+                <label className="block text-sm font-semibold text-[#1e40af] mb-2">
                   Email Address
                 </label>
                 <div className="relative">
@@ -117,15 +118,15 @@ export default function AdminLoginPage() {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl outline-none transition-colors focus:border-[#C9A24E] focus:ring-2 focus:ring-[#C9A24E]/30"
-                    placeholder="admin@wholesalequeen.com"
+                    className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl outline-none transition-colors focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/30"
+                    placeholder="admin@example.com"
                     required
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-[#141414] mb-2">
+                <label className="block text-sm font-semibold text-[#1e40af] mb-2">
                   Password
                 </label>
                 <div className="relative">
@@ -134,14 +135,14 @@ export default function AdminLoginPage() {
                     type={showPassword ? 'text' : 'password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full pl-12 pr-12 py-3 border-2 border-gray-200 rounded-xl outline-none transition-colors focus:border-[#C9A24E] focus:ring-2 focus:ring-[#C9A24E]/30"
+                    className="w-full pl-12 pr-12 py-3 border-2 border-gray-200 rounded-xl outline-none transition-colors focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/30"
                     placeholder="Enter your password"
                     required
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#C9A24E] w-5 h-5 flex items-center justify-center"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#2563eb] w-5 h-5 flex items-center justify-center"
                   >
                     <i className={`${showPassword ? 'ri-eye-off-line' : 'ri-eye-line'} text-lg`}></i>
                   </button>
@@ -151,7 +152,7 @@ export default function AdminLoginPage() {
               <button
                 type="submit"
                 disabled={isLoading || verifying}
-                className="w-full bg-gradient-to-r from-[#C9A24E] to-[#9C7A2E] text-white py-3 rounded-xl font-semibold shadow-[0_10px_26px_-12px_rgba(201,162,78,0.9)] hover:brightness-105 transition disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                className="w-full bg-gradient-to-r from-[#2563eb] to-[#1d4ed8] text-white py-3 rounded-xl font-semibold shadow-[0_10px_26px_-12px_rgba(37,99,235,0.9)] hover:brightness-105 transition disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
               >
                 {isLoading || verifying ? (
                   <span className="flex items-center justify-center space-x-2">
@@ -167,7 +168,7 @@ export default function AdminLoginPage() {
         </div>
 
         <div className="mt-6 text-center">
-          <Link href="/" className="text-sm text-[#C9A24E]/80 hover:text-[#D8B85F] transition-colors whitespace-nowrap">
+          <Link href="/" className="text-sm text-[#2563eb]/80 hover:text-[#60a5fa] transition-colors whitespace-nowrap">
             <i className="ri-arrow-left-line mr-2"></i>
             Back to Store
           </Link>

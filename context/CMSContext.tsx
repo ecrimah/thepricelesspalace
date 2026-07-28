@@ -13,6 +13,8 @@ interface SiteSettings {
     social_facebook: string;
     social_instagram: string;
     social_twitter: string;
+    social_pinterest: string;
+    social_youtube: string;
     primary_color: string;
     secondary_color: string;
     currency: string;
@@ -63,17 +65,20 @@ interface CMSContextType {
 }
 
 const defaultSettings: SiteSettings = {
-    site_name: 'Wholesale Queen',
-    site_tagline: 'China wholesale — Shein bales, mannequins & home appliances.',
-    site_logo: '/wholesalequeen-logo.png',
-    contact_email: 'hello@wholesalequeen.com',
-    contact_phone: '0542849341',
-    contact_address: 'Ashongman Estate, Accra, Ghana',
+    site_name: 'The Priceless Palace',
+    site_tagline: 'Dresses, bags, slippers, wigs & more',
+    site_logo: '/logo.png',
+    contact_email: 'hello@thepricelesspalace.com',
+    contact_phone: '+233 20 178 3800',
+    contact_phone_alt: '054 559 8755',
+    contact_address: 'Abavana Down, Queenstar Guest House',
     social_facebook: '',
-    social_instagram: 'chinawholesalequeen',
+    social_instagram: '',
     social_twitter: '',
-    primary_color: '#141414',
-    secondary_color: '#C9A24E',
+    social_pinterest: '',
+    social_youtube: '',
+    primary_color: '#1e40af',
+    secondary_color: '#2563eb',
     currency: 'GHS',
     currency_symbol: '₵',
 };
@@ -91,19 +96,7 @@ const CMSContext = createContext<CMSContextType>({
 
 export function CMSProvider({ children }: { children: ReactNode }) {
     const [settings, setSettings] = useState<SiteSettings>({
-        site_name: 'Wholesale Queen',
-        site_tagline: 'China wholesale — Shein bales, mannequins & home appliances.',
-        site_logo: '/wholesalequeen-logo.png',
-        contact_email: 'hello@wholesalequeen.com',
-        contact_phone: '0542849341',
-        contact_address: 'Ashongman Estate, Accra, Ghana',
-        social_facebook: '',
-        social_instagram: 'chinawholesalequeen',
-        social_twitter: '',
-        primary_color: '#FBF6F2',
-        secondary_color: '#A14F57',
-        currency: 'GHS',
-        currency_symbol: '₵',
+        ...defaultSettings,
     });
     const [content, setContent] = useState<CMSContent[]>([]);
     const [banners, setBanners] = useState<Banner[]>([]);

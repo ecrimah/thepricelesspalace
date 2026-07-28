@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { useRecaptcha } from '@/hooks/useRecaptcha';
+import { BRAND } from '@/lib/brand';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -73,7 +74,7 @@ export default function ForgotPasswordPage() {
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
           <Link href="/" className="inline-block mb-5">
-            <img src="/wholesalequeen-logo.png" alt="Wholesale Queen" className="h-10 mx-auto" />
+            <img src="/logo.png" alt={BRAND.name} className="h-10 mx-auto" />
           </Link>
           <h1 className="text-4xl font-bold text-gray-900 mb-2">Reset Password</h1>
           <p className="text-gray-600">Enter your email to receive a reset link</p>

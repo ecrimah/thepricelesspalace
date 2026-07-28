@@ -111,7 +111,7 @@ export default function QuickViewModal({ product, isOpen, onClose }: QuickViewMo
                         key={i}
                         className={`${
                           i < Math.floor(product.rating)
-                            ? 'ri-star-fill text-[#D8B85F]'
+                            ? 'ri-star-fill text-[#60a5fa]'
                             : 'ri-star-line text-gray-300'
                         }`}
                       ></i>
@@ -125,7 +125,7 @@ export default function QuickViewModal({ product, isOpen, onClose }: QuickViewMo
                   {product.originalPrice && (
                     <>
                       <span className="text-lg text-gray-400 line-through">₵{product.originalPrice.toFixed(2)}</span>
-                      <span className="px-2 py-1 bg-[#E89DB5] text-[#9A1900] text-sm font-semibold rounded whitespace-nowrap">
+                      <span className="px-2 py-1 bg-[#93c5fd] text-[#9A1900] text-sm font-semibold rounded whitespace-nowrap">
                         Save {Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}%
                       </span>
                     </>

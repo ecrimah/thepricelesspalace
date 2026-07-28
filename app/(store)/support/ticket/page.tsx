@@ -166,7 +166,7 @@ export default function SupportTicketPage() {
                   value={formData.orderNumber}
                   onChange={(e) => setFormData({ ...formData, orderNumber: e.target.value })}
                   className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900"
-                  placeholder="ORD-2024-001"
+                  placeholder="ORD-XXXXXXXX"
                 />
               </div>
 
@@ -218,7 +218,7 @@ export default function SupportTicketPage() {
                     </div>
                   </label>
                   <label className={`flex-1 p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                    formData.priority === 'normal' ? 'border-[#C9A24E] bg-[#C9A24E]/5' : 'border-gray-300'
+                    formData.priority === 'normal' ? 'border-[#2563eb] bg-[#2563eb]/5' : 'border-gray-300'
                   }`}>
                     <input
                       type="radio"
@@ -233,7 +233,7 @@ export default function SupportTicketPage() {
                     </div>
                   </label>
                   <label className={`flex-1 p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                    formData.priority === 'high' ? 'border-[#9A1900] bg-[#E89DB5]/50' : 'border-gray-300'
+                    formData.priority === 'high' ? 'border-[#9A1900] bg-[#93c5fd]/50' : 'border-gray-300'
                   }`}>
                     <input
                       type="radio"
@@ -345,13 +345,13 @@ export default function SupportTicketPage() {
             </form>
           </div>
 
-          <div className="mt-8 bg-[#C9A24E]/5 border border-[#C9A24E]/20 rounded-xl p-6">
+          <div className="mt-8 bg-[#2563eb]/5 border border-[#2563eb]/20 rounded-xl p-6">
             <div className="flex items-start space-x-3">
-              <i className="ri-information-line text-2xl text-[#C9A24E] mt-0.5"></i>
+              <i className="ri-information-line text-2xl text-[#2563eb] mt-0.5"></i>
               <div>
-                <p className="font-semibold text-[#141414] mb-2">Before submitting a ticket</p>
-                <ul className="text-sm text-[#C9A24E] space-y-1">
-                  <li>• Check our <Link href="/help" className="underline hover:text-[#141414]">Help Center</Link> for quick answers</li>
+                <p className="font-semibold text-[#1e40af] mb-2">Before submitting a ticket</p>
+                <ul className="text-sm text-[#2563eb] space-y-1">
+                  <li>• Check our <Link href="/help" className="underline hover:text-[#1e40af]">Help Center</Link> for quick answers</li>
                   <li>• Average response time: 24 hours</li>
                   <li>• Include your order number for faster assistance</li>
                   <li>• Attach photos if reporting a product issue</li>

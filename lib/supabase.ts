@@ -1,10 +1,5 @@
-import { createClient } from '@supabase/supabase-js';
+import { createHttpClient } from './db/http-client';
+import type { LegacySupabaseClient } from './legacy-supabase-type';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-
-if (!supabaseUrl || !supabaseKey) {
-    throw new Error('Missing Supabase environment variables');
-}
-
-export const supabase = createClient(supabaseUrl, supabaseKey);
+/** Browser / shared client — talks to this app's /rest /auth /storage shims. */
+export const supabase: LegacySupabaseClient = createHttpClient() as LegacySupabaseClient;

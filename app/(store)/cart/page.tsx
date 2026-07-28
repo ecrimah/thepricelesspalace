@@ -134,7 +134,7 @@ export default function CartPage() {
                                     </button>
                                   </div>
                                   {(item.moq || 1) > 1 && (
-                                    <span className="text-xs text-[#C9A24E] mt-1">
+                                    <span className="text-xs text-[#2563eb] mt-1">
                                       Min. order: {item.moq} units
                                     </span>
                                   )}
@@ -203,7 +203,7 @@ export default function CartPage() {
                       </div>
 
                       {shipping > 0 && (
-                        <p className="text-sm text-[#C9A24E]">
+                        <p className="text-sm text-[#2563eb]">
                           {/* Shipping threshold text removed */}
                         </p>
                       )}

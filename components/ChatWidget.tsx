@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useCart } from '@/context/CartContext';
 import type { CartItem } from '@/context/CartContext';
 import MarkdownMessage from '@/components/MarkdownMessage';
+import { BRAND } from '@/lib/brand';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -85,7 +86,7 @@ type ChatMessage = {
 
 const STORAGE_KEY = 'sl-chat-messages';
 const SESSION_KEY = 'sl-chat-session';
-const WIDGET_TITLE = "Wholesale Queen";
+const WIDGET_TITLE = BRAND.name;
 
 function getSessionId(): string {
   if (typeof window === 'undefined') return '';
@@ -137,18 +138,18 @@ const STATUS_LABELS: Record<string, string> = {
 
 const STATUS_COLORS: Record<string, string> = {
   pending: 'bg-[#FFFFCC] text-[#996633]',
-  processing: 'bg-[#C9A24E]/10 text-[#C9A24E]',
-  shipped: 'bg-[#C9A24E]/10 text-[#C9A24E]',
-  dispatched_to_rider: 'bg-[#C9A24E]/10 text-[#C9A24E]',
+  processing: 'bg-[#2563eb]/10 text-[#2563eb]',
+  shipped: 'bg-[#2563eb]/10 text-[#2563eb]',
+  dispatched_to_rider: 'bg-[#2563eb]/10 text-[#2563eb]',
   delivered: 'bg-gray-100 text-gray-900',
-  cancelled: 'bg-[#E89DB5] text-[#9A1900]',
-  open: 'bg-[#C9A24E]/10 text-[#C9A24E]',
+  cancelled: 'bg-[#93c5fd] text-[#9A1900]',
+  open: 'bg-[#2563eb]/10 text-[#2563eb]',
   in_progress: 'bg-[#FFFFCC] text-[#996633]',
   resolved: 'bg-gray-100 text-gray-900',
   approved: 'bg-gray-100 text-gray-900',
-  rejected: 'bg-[#E89DB5] text-[#9A1900]',
+  rejected: 'bg-[#93c5fd] text-[#9A1900]',
   paid: 'bg-gray-100 text-gray-900',
-  failed: 'bg-[#E89DB5] text-[#9A1900]',
+  failed: 'bg-[#93c5fd] text-[#9A1900]',
 };
 
 function StatusBadge({ status }: { status: string }) {
@@ -653,7 +654,7 @@ export default function ChatWidget() {
               <div className="flex gap-2">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <button key={star} type="button" onClick={() => setFeedbackRating(star)}
-                    className={`text-3xl sm:text-2xl transition-transform hover:scale-110 active:scale-95 ${star <= feedbackRating ? 'text-[#D8B85F]' : 'text-gray-300'}`}>
+                    className={`text-3xl sm:text-2xl transition-transform hover:scale-110 active:scale-95 ${star <= feedbackRating ? 'text-[#60a5fa]' : 'text-gray-300'}`}>
                     <i className={star <= feedbackRating ? 'ri-star-fill' : 'ri-star-line'} />
                   </button>
                 ))}
@@ -997,15 +998,15 @@ function OrderCard({ order }: { order: ChatOrder }) {
 
 function TicketCard({ ticket }: { ticket: ChatTicket }) {
   return (
-    <div className="bg-white rounded-xl border border-[#C9A24E]/20 shadow-sm overflow-hidden">
-      <div className="px-4 py-3 bg-[#C9A24E]/5">
+    <div className="bg-white rounded-xl border border-[#2563eb]/20 shadow-sm overflow-hidden">
+      <div className="px-4 py-3 bg-[#2563eb]/5">
         <div className="flex items-center gap-2 mb-1">
-          <i className="ri-customer-service-2-line text-[#C9A24E]" />
-          <span className="text-xs font-bold text-[#C9A24E]">Support Ticket Created</span>
+          <i className="ri-customer-service-2-line text-[#2563eb]" />
+          <span className="text-xs font-bold text-[#2563eb]">Support Ticket Created</span>
         </div>
         <div className="flex items-center justify-between">
           <p className="text-sm font-medium text-gray-900">{ticket.subject}</p>
-          <span className="text-xs font-mono text-[#C9A24E]">#{ticket.ticket_number}</span>
+          <span className="text-xs font-mono text-[#2563eb]">#{ticket.ticket_number}</span>
         </div>
         <p className="text-xs text-gray-500 mt-1">
           Our team will review your ticket and get back to you. You can also check the status in your account.
@@ -1019,10 +1020,10 @@ function TicketCard({ ticket }: { ticket: ChatTicket }) {
 
 function ReturnCard({ ret }: { ret: ChatReturn }) {
   return (
-    <div className="bg-white rounded-xl border border-[#D8B85F]/30 shadow-sm overflow-hidden">
+    <div className="bg-white rounded-xl border border-[#60a5fa]/30 shadow-sm overflow-hidden">
       <div className="px-4 py-3 bg-[#FFFFCC]/50">
         <div className="flex items-center gap-2 mb-1">
-          <i className="ri-arrow-go-back-line text-[#C9A24E]" />
+          <i className="ri-arrow-go-back-line text-[#2563eb]" />
           <span className="text-xs font-bold text-[#996633]">Return Request Submitted</span>
         </div>
         <div className="space-y-1">
@@ -1043,7 +1044,7 @@ function ReturnCard({ ret }: { ret: ChatReturn }) {
 function CouponCard({ coupon }: { coupon: ChatCoupon }) {
   return (
     <div className={`rounded-xl border shadow-sm overflow-hidden ${coupon.valid ? 'bg-white border-gray-100' : 'bg-white border-[#FF6666]/20'}`}>
-      <div className={`px-4 py-3 ${coupon.valid ? 'bg-gray-100/50' : 'bg-[#E89DB5]/50'}`}>
+      <div className={`px-4 py-3 ${coupon.valid ? 'bg-gray-100/50' : 'bg-[#93c5fd]/50'}`}>
         <div className="flex items-center gap-2 mb-1">
           <i className={`${coupon.valid ? 'ri-coupon-3-line text-gray-600' : 'ri-close-circle-line text-[#FF6666]'}`} />
           <span className={`text-xs font-bold ${coupon.valid ? 'text-gray-900' : 'text-[#9A1900]'}`}>

@@ -65,7 +65,7 @@ export default function AnalyticsPage() {
 
       let validItems: any[] = [];
       if (orders && orders.length > 0) {
-        const orderIds = orders.map(o => o.id);
+        const orderIds = orders.map((o: any) => o.id);
         const { data: fetchedItems, error: itemFetchError } = await supabase
           .from('order_items')
           .select(`
@@ -84,7 +84,7 @@ export default function AnalyticsPage() {
       }
 
       // Process Metrics
-      const totalRevenue = orders?.reduce((sum, o) => sum + (o.total || 0), 0) || 0;
+      const totalRevenue = orders?.reduce((sum: any, o: any) => sum + (o.total || 0), 0) || 0;
       const totalOrders = orders?.length || 0;
       const aov = totalOrders > 0 ? totalRevenue / totalOrders : 0;
 
@@ -116,7 +116,7 @@ export default function AnalyticsPage() {
         d.setDate(d.getDate() + 1);
       }
 
-      orders?.forEach(o => {
+      orders?.forEach((o: any) => {
         const dateKey = new Date(o.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
         if (salesMap[dateKey]) {
           salesMap[dateKey].sales += o.total || 0;

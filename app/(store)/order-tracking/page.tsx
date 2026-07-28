@@ -158,11 +158,11 @@ function OrderTrackingContent() {
     
     const statusMap: Record<string, { label: string; color: string }> = {
       'pending': { label: 'Pending', color: 'bg-[#FFFFCC] text-[#996633]' },
-      'processing': { label: 'Processing', color: 'bg-[#C9A24E]/10 text-[#C9A24E]' },
-      'shipped': { label: 'Packaged', color: 'bg-[#C9A24E]/10 text-[#C9A24E]' },
-      'dispatched_to_rider': { label: 'Dispatched To Rider', color: 'bg-[#C9A24E]/10 text-[#C9A24E]' },
+      'processing': { label: 'Processing', color: 'bg-[#2563eb]/10 text-[#2563eb]' },
+      'shipped': { label: 'Packaged', color: 'bg-[#2563eb]/10 text-[#2563eb]' },
+      'dispatched_to_rider': { label: 'Dispatched To Rider', color: 'bg-[#2563eb]/10 text-[#2563eb]' },
       'delivered': { label: 'Delivered', color: 'bg-gray-100 text-gray-800' },
-      'cancelled': { label: 'Cancelled', color: 'bg-[#E89DB5] text-[#9A1900]' }
+      'cancelled': { label: 'Cancelled', color: 'bg-[#93c5fd] text-[#9A1900]' }
     };
 
     return statusMap[order.status] || { label: order.status, color: 'bg-gray-100 text-gray-800' };
@@ -189,7 +189,7 @@ function OrderTrackingContent() {
                   value={orderNumber}
                   onChange={(e) => setOrderNumber(e.target.value)}
                   className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-gray-600"
-                  placeholder="e.g. ORD-1770328211911-915 or SLI-ABC123"
+                  placeholder="e.g. ORD-1770328211911-915 or ORD-ABC123"
                 />
               </div>
 
@@ -207,7 +207,7 @@ function OrderTrackingContent() {
               </div>
 
               {error && (
-                <div className="p-4 bg-[#E89DB5]/50 border border-[#FF6666]/30 rounded-lg">
+                <div className="p-4 bg-[#93c5fd]/50 border border-[#FF6666]/30 rounded-lg">
                   <p className="text-sm text-[#9A1900]">{error}</p>
                 </div>
               )}
@@ -226,12 +226,12 @@ function OrderTrackingContent() {
               </button>
             </form>
 
-            <div className="mt-8 p-4 bg-[#C9A24E]/5 border border-[#C9A24E]/20 rounded-lg">
+            <div className="mt-8 p-4 bg-[#2563eb]/5 border border-[#2563eb]/20 rounded-lg">
               <div className="flex items-start space-x-3">
-                <i className="ri-information-line text-xl text-[#C9A24E] mt-0.5"></i>
+                <i className="ri-information-line text-xl text-[#2563eb] mt-0.5"></i>
                 <div>
-                  <p className="text-sm font-semibold text-[#141414]">Need Help?</p>
-                  <p className="text-sm text-[#C9A24E] mt-1">
+                  <p className="text-sm font-semibold text-[#1e40af]">Need Help?</p>
+                  <p className="text-sm text-[#2563eb] mt-1">
                     You can find your order number and tracking number in the SMS or email we sent you after your order was confirmed.
                   </p>
                 </div>
@@ -297,7 +297,7 @@ function OrderTrackingContent() {
                 <div>
                   <p className="text-sm text-gray-600">Shipping To</p>
                   <p className="font-semibold text-gray-900">
-                    {shippingAddress.city || shippingAddress.region || 'Ghana'}
+                    {shippingAddress.city || shippingAddress.region || '—'}
                   </p>
                 </div>
               </div>

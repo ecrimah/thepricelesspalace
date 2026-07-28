@@ -5,38 +5,16 @@ import Link from 'next/link';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
-const mockTickets = [
-  {
-    id: 'TKT-2024-0045',
-    subject: 'Wrong item received in my order',
-    category: 'Order Issue',
-    priority: 'high',
-    status: 'open',
-    created: '2024-01-25',
-    lastUpdate: '2024-01-25',
-    messages: 3
-  },
-  {
-    id: 'TKT-2024-0032',
-    subject: 'Delivery delayed for order #ORD-2024-156',
-    category: 'Delivery Problem',
-    priority: 'normal',
-    status: 'in_progress',
-    created: '2024-01-22',
-    lastUpdate: '2024-01-24',
-    messages: 5
-  },
-  {
-    id: 'TKT-2024-0018',
-    subject: 'Question about return policy',
-    category: 'Return Request',
-    priority: 'low',
-    status: 'resolved',
-    created: '2024-01-18',
-    lastUpdate: '2024-01-20',
-    messages: 4
-  }
-];
+const mockTickets: Array<{
+  id: string;
+  subject: string;
+  category: string;
+  priority: string;
+  status: string;
+  created: string;
+  lastUpdate: string;
+  messages: number;
+}> = [];
 
 export default function MyTicketsPage() {
   const [selectedFilter, setSelectedFilter] = useState('all');
@@ -47,7 +25,7 @@ export default function MyTicketsPage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'open': return 'bg-[#C9A24E]/10 text-[#C9A24E]';
+      case 'open': return 'bg-[#2563eb]/10 text-[#2563eb]';
       case 'in_progress': return 'bg-[#FFFFCC] text-[#996633]';
       case 'resolved': return 'bg-gray-100 text-gray-900';
       default: return 'bg-gray-100 text-gray-700';
@@ -57,7 +35,7 @@ export default function MyTicketsPage() {
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case 'high': return 'text-[#9A1900]';
-      case 'normal': return 'text-[#C9A24E]';
+      case 'normal': return 'text-[#2563eb]';
       case 'low': return 'text-gray-700';
       default: return 'text-gray-700';
     }
@@ -188,11 +166,11 @@ export default function MyTicketsPage() {
 
           <div className="mt-8 grid md:grid-cols-3 gap-6">
             <div className="bg-white rounded-xl shadow-sm p-6">
-              <div className="w-12 h-12 flex items-center justify-center bg-[#C9A24E]/10 rounded-lg mb-4">
-                <i className="ri-time-line text-2xl text-[#C9A24E]"></i>
+              <div className="w-12 h-12 flex items-center justify-center bg-[#2563eb]/10 rounded-lg mb-4">
+                <i className="ri-time-line text-2xl text-[#2563eb]"></i>
               </div>
               <h3 className="font-bold text-gray-900 mb-2">Response Time</h3>
-              <p className="text-2xl font-bold text-[#C9A24E] mb-1">24 hours</p>
+              <p className="text-2xl font-bold text-[#2563eb] mb-1">24 hours</p>
               <p className="text-sm text-gray-600">Average response time</p>
             </div>
 
@@ -206,11 +184,11 @@ export default function MyTicketsPage() {
             </div>
 
             <div className="bg-white rounded-xl shadow-sm p-6">
-              <div className="w-12 h-12 flex items-center justify-center bg-[#C9A24E]/10 rounded-lg mb-4">
-                <i className="ri-customer-service-line text-2xl text-[#C9A24E]"></i>
+              <div className="w-12 h-12 flex items-center justify-center bg-[#2563eb]/10 rounded-lg mb-4">
+                <i className="ri-customer-service-line text-2xl text-[#2563eb]"></i>
               </div>
               <h3 className="font-bold text-gray-900 mb-2">Support Hours</h3>
-              <p className="text-2xl font-bold text-[#C9A24E] mb-1">24/7</p>
+              <p className="text-2xl font-bold text-[#2563eb] mb-1">24/7</p>
               <p className="text-sm text-gray-600">Always here to help</p>
             </div>
           </div>

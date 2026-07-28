@@ -138,7 +138,7 @@ function OrderSuccessContent() {
                 animationDuration: `${3 + Math.random() * 2}s`
               }}
             >
-              <i className={`ri-${['heart', 'star', 'gift'][Math.floor(Math.random() * 3)]}-fill ${['text-gray-500', 'text-[#D8B85F]', 'text-[#C9A24E]'][Math.floor(Math.random() * 3)]} text-xl opacity-70`}></i>
+              <i className={`ri-${['heart', 'star', 'gift'][Math.floor(Math.random() * 3)]}-fill ${['text-gray-500', 'text-[#60a5fa]', 'text-[#2563eb]'][Math.floor(Math.random() * 3)]} text-xl opacity-70`}></i>
             </div>
           ))}
         </div>
@@ -190,10 +190,10 @@ function OrderSuccessContent() {
               </Link>
             </div>
 
-            <div className="bg-gradient-to-r from-[#FFFFCC]/50 to-[#F3F3F3] rounded-xl p-6 border-2 border-[#D8B85F]/30">
+            <div className="bg-gradient-to-r from-[#FFFFCC]/50 to-[#F3F3F3] rounded-xl p-6 border-2 border-[#60a5fa]/30">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 flex items-center justify-center bg-[#D8B85F] rounded-full">
+                  <div className="w-12 h-12 flex items-center justify-center bg-[#60a5fa] rounded-full">
                     <i className="ri-star-fill text-white text-2xl"></i>
                   </div>
                   <div className="text-left">
@@ -203,7 +203,7 @@ function OrderSuccessContent() {
                 </div>
                 <Link
                   href="/register"
-                  className="bg-[#D8B85F] hover:bg-[#C9A24E] text-white px-6 py-3 rounded-lg font-semibold transition-colors whitespace-nowrap"
+                  className="bg-[#60a5fa] hover:bg-[#2563eb] text-white px-6 py-3 rounded-lg font-semibold transition-colors whitespace-nowrap"
                 >
                   Join Now
                 </Link>
@@ -231,7 +231,7 @@ function OrderSuccessContent() {
                         <p className="text-xs text-gray-500">{item.variant_name}</p>
                       )}
                       {item.metadata?.preorder_shipping && (
-                        <p className="text-xs text-[#996633] bg-[#FFFFCC]/50 inline-flex items-center gap-1 px-2 py-0.5 rounded mt-1 border border-[#D8B85F]/30">
+                        <p className="text-xs text-[#996633] bg-[#FFFFCC]/50 inline-flex items-center gap-1 px-2 py-0.5 rounded mt-1 border border-[#60a5fa]/30">
                           <i className="ri-time-line"></i> {item.metadata.preorder_shipping}
                         </p>
                       )}

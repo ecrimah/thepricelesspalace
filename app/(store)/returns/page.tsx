@@ -2,28 +2,17 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-const mockOrders = [
-  {
-    id: 'ORD-2024-156',
-    date: '2024-01-20',
-    items: [
-      {
-        id: 1,
-        name: 'Premium Leather Crossbody Bag',
-        price: 289,
-        image: 'https://readdy.ai/api/search-image?query=elegant%20premium%20leather%20crossbody%20bag%20in%20deep%20forest%20green%20color%20on%20clean%20minimal%20white%20studio%20background%20with%20soft%20natural%20lighting%20showcasing%20luxury%20craftsmanship&width=400&height=400&seq=return1&orientation=squarish',
-        returnable: true
-      },
-      {
-        id: 2,
-        name: 'Minimalist Ceramic Vase Set',
-        price: 159,
-        image: 'https://readdy.ai/api/search-image?query=modern%20minimalist%20ceramic%20vase%20set%20in%20matte%20cream%20and%20charcoal%20colors%20on%20pristine%20white%20background%20elegant%20home%20decor%20sophisticated%20styling&width=400&height=400&seq=return2&orientation=squarish',
-        returnable: true
-      }
-    ]
-  }
-];
+const mockOrders: Array<{
+  id: string;
+  date: string;
+  items: Array<{
+    id: number;
+    name: string;
+    price: number;
+    image: string;
+    returnable: boolean;
+  }>;
+}> = [];
 
 export default function ReturnsPortalPage() {
   const router = useRouter();
@@ -116,7 +105,7 @@ export default function ReturnsPortalPage() {
                     value={orderNumber}
                     onChange={(e) => setOrderNumber(e.target.value)}
                     className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900"
-                    placeholder="ORD-2024-156"
+                    placeholder="ORD-XXXXXXXX"
                     required
                   />
                 </div>
@@ -144,16 +133,15 @@ export default function ReturnsPortalPage() {
                 </button>
               </form>
 
-              <div className="mt-8 p-4 bg-[#C9A24E]/5 border border-[#C9A24E]/20 rounded-lg">
+              <div className="mt-8 p-4 bg-[#2563eb]/5 border border-[#2563eb]/20 rounded-lg">
                 <div className="flex items-start space-x-3">
-                  <i className="ri-information-line text-xl text-[#C9A24E] mt-0.5"></i>
-                  <div className="text-sm text-[#C9A24E]">
-                    <p className="font-semibold mb-1">Delivery &amp; Returns</p>
+                  <i className="ri-information-line text-xl text-[#2563eb] mt-0.5"></i>
+                  <div className="text-sm text-[#2563eb]">
+                    <p className="font-semibold mb-1">Returns Policy</p>
                     <ul className="space-y-1">
-                      <li>• Delivers within 24 - 48 hours nationwide</li>
-                      <li>• Pickup available at our Accra location</li>
-                      <li>• Contact us for any issues with your order</li>
-                      <li>• Exchange or replacement for defective items</li>
+                      <li>• Configure your return window in admin before launch</li>
+                      <li>• Contact support if you need help with an order</li>
+                      <li>• Exchanges or replacements may apply for defective items</li>
                     </ul>
                   </div>
                 </div>

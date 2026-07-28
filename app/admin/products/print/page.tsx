@@ -47,11 +47,11 @@ export default function PrintInventoryPage() {
             }
 
             const pdfBlob = pdf.output('blob');
-            const fileName = `Wholesale Queen-Inventory-${new Date().toISOString().slice(0, 10)}.pdf`;
+            const fileName = `New Project-Inventory-${new Date().toISOString().slice(0, 10)}.pdf`;
             const pdfFile = new File([pdfBlob], fileName, { type: 'application/pdf' });
 
             if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
-                await navigator.share({ files: [pdfFile], title: 'Wholesale Queen — Inventory Report' });
+                await navigator.share({ files: [pdfFile], title: 'New Project — Inventory Report' });
             } else {
                 // Fallback: download the PDF
                 const url = URL.createObjectURL(pdfBlob);
@@ -152,7 +152,7 @@ export default function PrintInventoryPage() {
             <div ref={contentRef}>
             <div className="flex items-center justify-between mb-8 border-b-2 border-black pb-4">
                 <div>
-                    <h1 className="text-3xl font-bold">Wholesale Queen</h1>
+                    <h1 className="text-3xl font-bold">New Project</h1>
                     <h2 className="text-xl mt-1 uppercase tracking-wider font-semibold text-gray-800">Inventory Product List</h2>
                 </div>
                 <div className="text-right">
@@ -206,7 +206,7 @@ export default function PrintInventoryPage() {
             </div>
 
             <div className="mt-8 text-center text-sm font-medium border-t-2 border-black pt-4">
-                <p>End of Inventory Report &mdash; Generated from Wholesale Queen Admin Panel</p>
+                <p>End of Inventory Report &mdash; Generated from New Project Admin Panel</p>
             </div>
             </div> {/* end contentRef */}
         </div>

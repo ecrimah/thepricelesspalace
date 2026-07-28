@@ -76,7 +76,7 @@ export default function ProductCard({
   const MAX_SWATCHES = 4;
 
   return (
-    <article className="group h-full w-full overflow-hidden rounded-xl bg-white border border-[#141414]/[0.06] hover:border-[#C9A24E]/40 hover:shadow-[0_10px_28px_-16px_rgba(20, 20, 20,0.45)] transition-all duration-300">
+    <article className="group h-full w-full overflow-hidden rounded-xl bg-white border border-[#1e40af]/[0.06] hover:border-[#2563eb]/40 hover:shadow-[0_10px_28px_-16px_rgba(20, 20, 20,0.45)] transition-all duration-300">
       <Link
         href={`/product/${slug}`}
         className="relative block aspect-square overflow-hidden bg-brand-carton/10"
@@ -88,20 +88,20 @@ export default function ProductCard({
         />
 
         {badge && (
-          <span className="absolute left-2 top-2 rounded-full bg-white/95 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.1em] text-[#141414] shadow-sm">
+          <span className="absolute left-2 top-2 rounded-full bg-white/95 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.1em] text-[#1e40af] shadow-sm">
             {badge}
           </span>
         )}
 
         {discount > 0 && (
-          <span className="absolute right-2 top-2 rounded-full bg-gradient-to-br from-[#D8B85F] to-[#C9A24E] px-2 py-0.5 text-[9px] font-bold text-[#141414] shadow-sm">
+          <span className="absolute right-2 top-2 rounded-full bg-gradient-to-br from-[#60a5fa] to-[#2563eb] px-2 py-0.5 text-[9px] font-bold text-[#1e40af] shadow-sm">
             -{discount}%
           </span>
         )}
 
         {!inStock && (
           <div className="absolute inset-0 flex items-center justify-center bg-white/70 backdrop-blur-[2px]">
-            <span className="rounded-full bg-[#141414] px-3 py-1.5 text-[11px] font-semibold text-white">
+            <span className="rounded-full bg-[#1e40af] px-3 py-1.5 text-[11px] font-semibold text-white">
               Out of Stock
             </span>
           </div>
@@ -111,7 +111,7 @@ export default function ProductCard({
         {inStock && (
           hasVariants ? (
             <span
-              className="absolute bottom-2 right-2 inline-flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-full bg-white/95 text-[#141414] shadow-md translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300"
+              className="absolute bottom-2 right-2 inline-flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-full bg-white/95 text-[#1e40af] shadow-md translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300"
               aria-hidden="true"
             >
               <i className="ri-arrow-right-line text-[13px] sm:text-[15px]" />
@@ -122,7 +122,7 @@ export default function ProductCard({
                 e.preventDefault();
                 addToCart({ id, name, price, image, quantity: moq, slug, maxStock, moq });
               }}
-              className="absolute bottom-2 right-2 inline-flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-full bg-gradient-to-br from-[#D8B85F] to-[#C9A24E] text-[#141414] shadow-md translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 hover:brightness-105 transition-all duration-300"
+              className="absolute bottom-2 right-2 inline-flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-full bg-gradient-to-br from-[#60a5fa] to-[#2563eb] text-[#1e40af] shadow-md translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 hover:brightness-105 transition-all duration-300"
               aria-label={moq > 1 ? `Add ${moq} to cart` : 'Add to cart'}
             >
               <i className="ri-shopping-bag-3-line text-[13px] sm:text-[14px]" />
@@ -140,7 +140,7 @@ export default function ProductCard({
 
         <div className="mt-1 sm:mt-1.5 flex items-center justify-between gap-1.5 sm:gap-2">
           <div className="flex items-baseline gap-1 sm:gap-1.5 min-w-0">
-            <span className="text-[12px] sm:text-[13px] font-bold text-[#141414] truncate">
+            <span className="text-[12px] sm:text-[13px] font-bold text-[#1e40af] truncate">
               {hasVariants && minVariantPrice ? `From ₵${minVariantPrice.toFixed(2)}` : `₵${price.toFixed(2)}`}
             </span>
             {originalPrice && (

@@ -7,24 +7,26 @@ const nextConfig: NextConfig = {
     },
   },
   images: {
+    // Playbook: unoptimized until sharp + .next/cache are healthy on Coolify
+    unoptimized: true,
     formats: ['image/webp'],
     minimumCacheTTL: 2592000,
     qualities: [50, 60, 70, 75, 80, 90, 100],
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: '*.supabase.co',
+        protocol: 'http',
+        hostname: 'localhost',
         pathname: '/storage/v1/object/public/**',
       },
       {
         protocol: 'https',
-        hostname: 'api.chinawholesalequeen.com',
-        pathname: '/storage/v1/object/public/**',
+        hostname: 'thepricelesspalace.com',
+        pathname: '/**',
       },
       {
         protocol: 'https',
-        hostname: 'wholesalequeen-api.89-116-30-71.nip.io',
-        pathname: '/storage/v1/object/public/**',
+        hostname: 'www.thepricelesspalace.com',
+        pathname: '/**',
       },
       {
         protocol: 'https',
@@ -33,15 +35,20 @@ const nextConfig: NextConfig = {
     ],
   },
   eslint: {
-    // ESLint will run during builds - warnings allowed, errors will fail build
-    // Currently only has exhaustive-deps warnings which are acceptable
     ignoreDuringBuilds: false,
   },
   typescript: {
-    // TypeScript checks enabled - type errors will fail build
     ignoreBuildErrors: false,
   },
-  // Security + Caching headers
+  async rewrites() {
+    return [
+      // Fallback: serve disk objects via storage shim (nginx can alias STORAGE_ROOT in prod)
+      {
+        source: '/uploads/:path*',
+        destination: '/storage/v1/object/public/:path*',
+      },
+    ];
+  },
   async headers() {
     return [
       {
@@ -54,7 +61,6 @@ const nextConfig: NextConfig = {
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' }
         ]
       },
-      // Service worker - no cache, always fresh
       {
         source: '/service-worker.js',
         headers: [
@@ -62,7 +68,6 @@ const nextConfig: NextConfig = {
           { key: 'Service-Worker-Allowed', value: '/' }
         ]
       },
-      // Manifest
       {
         source: '/manifest.json',
         headers: [
@@ -70,27 +75,18 @@ const nextConfig: NextConfig = {
           { key: 'Content-Type', value: 'application/manifest+json' }
         ]
       },
-      // Cache storefront API routes aggressively (5 min CDN, revalidate in background)
       {
         source: '/api/storefront/:path*',
         headers: [
           { key: 'Cache-Control', value: 'public, s-maxage=900, stale-while-revalidate=1800' }
         ]
       },
-      // Cache static assets (JS, CSS, fonts) for 1 year (they have content hashes)
       {
         source: '/_next/static/:path*',
         headers: [
           { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }
         ]
       },
-      // Cache optimized images for 30 days
-      {
-        source: '/_next/image',
-        headers: [
-          { key: 'Cache-Control', value: 'public, max-age=2592000, stale-while-revalidate=86400' }
-        ]
-      }
     ];
   }
 };

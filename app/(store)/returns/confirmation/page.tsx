@@ -23,9 +23,9 @@ export default function ReturnConfirmationPage() {
               Return ID: <span className="font-semibold">{returnId}</span>
             </p>
 
-            <div className="mb-8 p-6 bg-[#C9A24E]/5 border border-[#C9A24E]/20 rounded-xl text-left">
+            <div className="mb-8 p-6 bg-[#2563eb]/5 border border-[#2563eb]/20 rounded-xl text-left">
               <h2 className="font-bold text-gray-900 mb-4 flex items-center">
-                <i className="ri-mail-line text-2xl text-[#C9A24E] mr-2"></i>
+                <i className="ri-mail-line text-2xl text-[#2563eb] mr-2"></i>
                 Check Your Email
               </h2>
               <p className="text-sm text-gray-700 mb-3">
@@ -118,11 +118,11 @@ export default function ReturnConfirmationPage() {
             </div>
           </div>
 
-          <div className="mt-8 bg-[#FFFFCC] border border-[#C9A24E]/30 rounded-xl p-6">
+          <div className="mt-8 bg-[#FFFFCC] border border-[#2563eb]/30 rounded-xl p-6">
             <div className="flex items-start space-x-3">
               <i className="ri-alert-line text-2xl text-[#996633] mt-0.5"></i>
               <div>
-                <p className="font-semibold text-[#141414] mb-2">Important Reminders</p>
+                <p className="font-semibold text-[#1e40af] mb-2">Important Reminders</p>
                 <ul className="text-sm text-[#996633] space-y-1">
                   <li>• Return must be shipped within 7 days</li>
                   <li>• Items must be unused with original tags</li>

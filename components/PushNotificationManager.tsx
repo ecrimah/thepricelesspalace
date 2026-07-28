@@ -39,8 +39,8 @@ export default function PushNotificationManager() {
 
         new Notification('Notifications Enabled! 🎉', {
           body: 'You will now receive updates about orders, deals, and more.',
-          icon: '/icon-192x192.png',
-          badge: '/icon-192x192.png',
+          icon: '/icons/icon-192x192.png',
+          badge: '/icons/icon-192x192.png',
           tag: 'welcome-notification'
         });
       }
@@ -89,8 +89,8 @@ export default function PushNotificationManager() {
   return (
     <div className="fixed bottom-4 right-4 w-96 bg-white rounded-xl shadow-2xl p-6 z-50 border border-gray-200 animate-slide-up">
       <div className="flex items-start gap-4">
-        <div className="w-12 h-12 bg-[#C9A24E]/10 rounded-xl flex items-center justify-center flex-shrink-0">
-          <i className="ri-notification-line text-2xl text-[#C9A24E]"></i>
+        <div className="w-12 h-12 bg-[#2563eb]/10 rounded-xl flex items-center justify-center flex-shrink-0">
+          <i className="ri-notification-line text-2xl text-[#2563eb]"></i>
         </div>
         <div className="flex-1">
           <h3 className="font-bold text-gray-900 mb-2">Stay Updated! 🔔</h3>
@@ -114,7 +114,7 @@ export default function PushNotificationManager() {
           <div className="flex gap-3">
             <button
               onClick={requestPermission}
-              className="flex-1 bg-[#141414] hover:bg-[#141414] text-white py-2 px-4 rounded-lg font-medium transition-colors whitespace-nowrap"
+              className="flex-1 bg-[#1e40af] hover:bg-[#1e40af] text-white py-2 px-4 rounded-lg font-medium transition-colors whitespace-nowrap"
             >
               Enable Notifications
             </button>

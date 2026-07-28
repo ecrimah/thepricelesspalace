@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import { BRAND } from '@/lib/brand';
 
 interface SEOProps {
   title?: string;
@@ -16,30 +17,32 @@ interface SEOProps {
 }
 
 export function generateMetadata({
-  title = "China Wholesale — Shein Bales, Mannequins & Appliances",
-  description = "Wholesale Queen brings you China wholesale at unbeatable prices — Shein bales, mannequins, and home appliances delivered across Ghana.",
+  title = BRAND.tagline,
+  description = BRAND.description,
   keywords = [],
-  ogImage = "https://wholesalequeen.com/og-image.png",
+  ogImage = "/og-image.png",
   ogType = "website",
   price,
-  currency = "GHS",
+  currency = BRAND.currency,
   availability,
   category,
   publishedTime,
   author,
   noindex = false
 }: SEOProps): Metadata {
-  const siteName = "Wholesale Queen";
-  const siteUrl = "https://wholesalequeen.com";
+  const siteName = BRAND.name;
+  const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3001";
   const fullTitle = title.includes(siteName) ? title : `${title} | ${siteName}`;
 
   const defaultKeywords = [
-    "China wholesale Ghana",
-    "Shein bale wholesale",
-    "mannequins Ghana",
-    "home appliances Ghana",
-    "wholesale clothing Accra",
-    "bale of clothes Ghana",
+    "online store",
+    BRAND.shortName.toLowerCase(),
+    "dresses",
+    "bags",
+    "slippers",
+    "wigs",
+    "Ghana fashion",
+    "shop online",
   ];
 
   const allKeywords = [...new Set([...keywords, ...defaultKeywords])];
@@ -114,7 +117,7 @@ export function generateProductSchema(product: {
     sku: product.sku,
     brand: {
       "@type": "Brand",
-      name: product.brand || "Wholesale Queen",
+      name: product.brand || BRAND.name,
     },
     offers: {
       "@type": "Offer",
@@ -162,41 +165,41 @@ export function generateBreadcrumbSchema(items: { name: string; url: string }[])
 }
 
 export function generateOrganizationSchema() {
+  const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3001";
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
-    name: "Wholesale Queen",
-    url: "https://wholesalequeen.com",
-    logo: "https://wholesalequeen.com/wholesalequeen-logo.png",
-    email: "hello@wholesalequeen.com",
+    name: BRAND.name,
+    url: siteUrl,
+    logo: `${siteUrl}/logo.png`,
+    email: BRAND.email,
     address: {
       "@type": "PostalAddress",
-      addressLocality: "Accra",
-      streetAddress: "Ashongman Estate",
+      streetAddress: BRAND.address,
       addressCountry: "GH",
     },
     contactPoint: {
       "@type": "ContactPoint",
-      telephone: "+233542849341",
+      telephone: BRAND.phonePrimary,
       contactType: "Customer Service",
       areaServed: "GH",
       availableLanguage: ["English"],
     },
-    sameAs: ["https://wa.me/233542849341"],
   };
 }
 
 export function generateWebsiteSchema() {
+  const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3001";
   return {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: "Wholesale Queen",
-    url: "https://wholesalequeen.com",
+    name: BRAND.name,
+    url: siteUrl,
     potentialAction: {
       "@type": "SearchAction",
       target: {
         "@type": "EntryPoint",
-        urlTemplate: "https://wholesalequeen.com/shop?search={search_term_string}",
+        urlTemplate: `${siteUrl}/shop?search={search_term_string}`,
       },
       "query-input": "required name=search_term_string",
     },

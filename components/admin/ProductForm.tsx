@@ -115,11 +115,11 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
         { name: 'Gold', hex: '#D4AF37' },
         { name: 'Silver', hex: '#C0C0C0' },
     ];
-    // Common beauty / cosmetics sizes & options (you can still add any custom ones)
+    // Common product size presets (custom values can still be added)
     const sizePresets = ['10ml', '20ml', '30ml', '50ml', '100ml', '150ml', '200ml'];
     // Wholesale quantity tiers — quick-add buttons for bulk/wholesale pricing.
     // Each tier becomes its own variant so it can carry a dedicated wholesale price & stock.
-    const wholesaleQtyPresets = ['30 pieces', '50 pieces', '100 pieces', '200 pieces'];
+    const bulkQtyPresets = ['30 pieces', '50 pieces', '100 pieces', '200 pieces'];
 
     // Parse existing variants to extract unique colors, sizes, and variant image
     const existingVariants = (initialData?.product_variants || []).map((v: any) => ({
@@ -306,15 +306,15 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
     const [keywordsEdited, setKeywordsEdited] = useState(!!(initialData?.tags?.length));
 
     const generateSeoFields = (name: string, desc: string) => {
-        const title = name ? `${name} | Wholesale Queen` : '';
+        const title = name ? `${name} | New Project` : '';
         const metaDesc = desc
             ? (desc.length > 160 ? desc.substring(0, 157).trimEnd() + '...' : desc)
-            : name ? `Buy ${name} at Wholesale Queen. China wholesale prices with delivery across Ghana.` : '';
+            : name ? `Buy ${name} at New Project. Great prices with delivery to supported regions.` : '';
         const kw = name
             ? [...new Set([
                 name.toLowerCase(),
                 ...name.toLowerCase().split(/\s+/).filter(w => w.length > 2),
-                'wholesalequeen', 'fashion nigeria', 'online fashion'
+                'newproject', 'online store', 'ecommerce'
               ])].join(', ')
             : '';
         return { title, metaDesc, kw };
@@ -1086,7 +1086,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                                         </span>
                                     </p>
                                     <div className="flex flex-wrap gap-2">
-                                        {wholesaleQtyPresets.map(qty => {
+                                        {bulkQtyPresets.map(qty => {
                                             const isSelected = selectedSizes.includes(qty);
                                             return (
                                                 <button
@@ -1527,7 +1527,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                                 <div className="p-4 bg-white border-2 border-gray-100 rounded-xl">
                                     <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Google Preview</p>
                                     <p className="text-blue-700 text-base font-medium leading-snug truncate">{seoTitle || productName}</p>
-                                    <p className="text-green-700 text-xs mt-0.5">wholesalequeen.com/product/{urlSlug}</p>
+                                    <p className="text-green-700 text-xs mt-0.5">example.com/product/{urlSlug}</p>
                                     <p className="text-gray-600 text-sm mt-1 line-clamp-2">{metaDescription}</p>
                                 </div>
                             )}
@@ -1544,7 +1544,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                                     value={seoTitle}
                                     onChange={(e) => { setSeoTitle(e.target.value); setSeoTitleEdited(true); }}
                                     className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-gray-600"
-                                    placeholder="e.g. Silk Dress | Wholesale Queen"
+                                    placeholder="e.g. Silk Dress | New Project"
                                 />
                             </div>
 
@@ -1560,7 +1560,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                                     value={metaDescription}
                                     onChange={(e) => { setMetaDescription(e.target.value); setMetaDescEdited(true); }}
                                     className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-gray-600 resize-none"
-                                    placeholder="e.g. Buy wholesale at Wholesale Queen. Delivery across Ghana available."
+                                    placeholder="e.g. Buy this product online. Delivery available to supported regions."
                                 />
                             </div>
 
@@ -1592,7 +1592,7 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                                     value={keywords}
                                     onChange={(e) => { setKeywords(e.target.value); setKeywordsEdited(true); }}
                                     className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-gray-600"
-                                    placeholder="e.g. lash bed, beauty tools, nigeria"
+                                    placeholder="e.g. product name, category, brand"
                                 />
                                 <p className="text-xs text-gray-400 mt-1">Separate with commas. Auto-generated from product name.</p>
                             </div>

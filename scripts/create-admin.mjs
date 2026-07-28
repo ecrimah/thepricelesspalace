@@ -1,21 +1,24 @@
 /**
- * Create an admin user in Supabase Auth and set their profile role to admin.
- * Run from project root: node scripts/create-admin.mjs
+ * Create an admin user in plain Postgres (auth.users + profiles).
+ * Run: node scripts/create-admin.mjs
  *
- * Uses .env.local: NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY,
- * and optionally ADMIN_EMAIL, ADMIN_PASSWORD (defaults below if not set).
- *
- * Default credentials: admin@delizbeauty.com / Admin123!
+ * Requires .env.local:
+ *   DATABASE_URL
+ *   ADMIN_PASSWORD
+ * Optional:
+ *   ADMIN_EMAIL (default admin@example.com)
  */
 
-import { createClient } from '@supabase/supabase-js';
 import { readFileSync, existsSync } from 'fs';
 import { resolve } from 'path';
+import { randomUUID } from 'crypto';
+import pg from 'pg';
+import bcrypt from 'bcryptjs';
 
 function loadEnv() {
   const path = resolve(process.cwd(), '.env.local');
   if (!existsSync(path)) {
-    console.error('Missing .env.local. Create it with NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY.');
+    console.error('Missing .env.local. Copy .env.example and set DATABASE_URL + ADMIN_PASSWORD.');
     process.exit(1);
   }
   const content = readFileSync(path, 'utf-8');
@@ -27,87 +30,79 @@ function loadEnv() {
   return env;
 }
 
-function ensureAdminProfile(supabase, userId, email) {
-  return supabase
-    .from('profiles')
-    .upsert(
-      { id: userId, email, role: 'admin' },
-      { onConflict: 'id', ignoreDuplicates: false }
-    );
-}
-
-async function findUserByEmail(supabase, email) {
-  const { data, error } = await supabase.auth.admin.listUsers({ page: 1, perPage: 1000 });
-  if (error) return { userId: null, error };
-  const user = data?.users?.find((u) => (u.email || '').toLowerCase() === email.toLowerCase());
-  return { userId: user?.id ?? null, error: null };
-}
-
 const env = loadEnv();
-const supabaseUrl = env.NEXT_PUBLIC_SUPABASE_URL;
-const serviceRoleKey = env.SUPABASE_SERVICE_ROLE_KEY;
-const adminEmail = env.ADMIN_EMAIL || 'admin@delizbeauty.com';
-const adminPassword = env.ADMIN_PASSWORD || 'Admin123!';
+const databaseUrl = env.DATABASE_URL || env.POSTGRES_URL;
+const adminEmail = (env.ADMIN_EMAIL || 'admin@example.com').toLowerCase().trim();
+const adminPassword = env.ADMIN_PASSWORD;
 
-if (!supabaseUrl || !serviceRoleKey) {
-  console.error('Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY in .env.local');
+if (!databaseUrl) {
+  console.error('Missing DATABASE_URL in .env.local');
+  process.exit(1);
+}
+if (!adminPassword) {
+  console.error('Missing ADMIN_PASSWORD in .env.local');
   process.exit(1);
 }
 
-const supabase = createClient(supabaseUrl, serviceRoleKey, {
-  auth: { autoRefreshToken: false, persistSession: false },
-});
+const pool = new pg.Pool({ connectionString: databaseUrl });
 
 async function main() {
-  console.log('Creating admin user...');
-  console.log('Email:', adminEmail);
+  const client = await pool.connect();
+  try {
+    const existing = await client.query(
+      `SELECT id FROM auth.users WHERE lower(email) = $1 AND deleted_at IS NULL LIMIT 1`,
+      [adminEmail]
+    );
 
-  const { data: user, error: createError } = await supabase.auth.admin.createUser({
-    email: adminEmail,
-    password: adminPassword,
-    email_confirm: true,
-  });
-
-  if (createError) {
-    if (createError.message && createError.message.includes('already been registered')) {
-      console.log('User already exists. Looking up user and ensuring admin profile...');
-      const { userId: existingUserId, error: listErr } = await findUserByEmail(supabase, adminEmail);
-      if (listErr || !existingUserId) {
-        console.error('Could not find existing user by email:', listErr?.message || 'Not found');
-        process.exit(1);
-      }
-      const { error: upsertError } = await ensureAdminProfile(supabase, existingUserId, adminEmail);
-      if (upsertError) {
-        console.error('Failed to set admin profile:', upsertError.message);
-        process.exit(1);
-      }
-      console.log('Done. Existing user is now an admin.');
-      console.log('Email:', adminEmail);
-      console.log('Password: use your existing password, or set ADMIN_PASSWORD in .env.local and reset in Supabase Dashboard (Authentication → Users → user → Send password recovery).');
-      console.log('Log in at: /admin/login');
-      return;
+    let userId;
+    if (existing.rows[0]) {
+      userId = existing.rows[0].id;
+      const hash = bcrypt.hashSync(adminPassword, 10);
+      await client.query(
+        `UPDATE auth.users SET encrypted_password = $1, updated_at = now(), email_confirmed_at = COALESCE(email_confirmed_at, now()) WHERE id = $2`,
+        [hash, userId]
+      );
+      console.log('Updated password for existing user:', adminEmail);
+    } else {
+      userId = randomUUID();
+      const hash = bcrypt.hashSync(adminPassword, 10);
+      await client.query(
+        `INSERT INTO auth.users (
+           id, instance_id, aud, role, email, encrypted_password,
+           email_confirmed_at, raw_app_meta_data, raw_user_meta_data,
+           created_at, updated_at, confirmation_token, recovery_token,
+           email_change_token_new, email_change
+         ) VALUES (
+           $1, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated',
+           $2, $3, now(), '{"provider":"email","providers":["email"]}'::jsonb, '{}'::jsonb,
+           now(), now(), '', '', '', ''
+         )`,
+        [userId, adminEmail, hash]
+      );
+      console.log('Created auth.users row:', adminEmail);
     }
-    console.error('Create user failed:', createError.message);
-    process.exit(1);
-  }
 
-  const userId = user?.user?.id;
-  if (!userId) {
-    console.error('User created but no id returned');
-    process.exit(1);
-  }
+    await client.query(
+      `INSERT INTO profiles (id, email, role, full_name, created_at, updated_at)
+       VALUES ($1, $2, 'admin', $3, now(), now())
+       ON CONFLICT (id) DO UPDATE SET
+         role = 'admin',
+         email = EXCLUDED.email,
+         updated_at = now()`,
+      [userId, adminEmail, adminEmail.split('@')[0]]
+    );
 
-  const { error: upsertError } = await ensureAdminProfile(supabase, userId, adminEmail);
-  if (upsertError) {
-    console.error('User created but failed to set admin profile:', upsertError.message);
-    process.exit(1);
+    console.log('Admin profile ready.');
+    console.log('Email:', adminEmail);
+    console.log('Log in at: /admin/login');
+    console.log('Password is the ADMIN_PASSWORD from .env.local (not printed).');
+  } finally {
+    client.release();
+    await pool.end();
   }
-
-  console.log('Admin user created successfully.');
-  console.log('Email:', adminEmail);
-  console.log('Password:', adminPassword);
-  console.log('Log in at: /admin/login');
-  console.log('Change the password after first login or set ADMIN_PASSWORD in .env.local and re-run this script.');
 }
 
-main();
+main().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});

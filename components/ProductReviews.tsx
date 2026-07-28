@@ -172,7 +172,7 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
                 {[1, 2, 3, 4, 5].map((star) => (
                   <i
                     key={star}
-                    className={`ri-star-${star <= Math.round(averageRating) ? 'fill' : 'line'} text-xl ${star <= Math.round(averageRating) ? 'text-[#D8B85F]' : 'text-gray-300'
+                    className={`ri-star-${star <= Math.round(averageRating) ? 'fill' : 'line'} text-xl ${star <= Math.round(averageRating) ? 'text-[#60a5fa]' : 'text-gray-300'
                       }`}
                   ></i>
                 ))}
@@ -189,11 +189,11 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
                       className="flex items-center space-x-1 hover:text-gray-900 transition-colors"
                     >
                       <span className="text-sm font-medium w-6">{dist.star}</span>
-                      <i className="ri-star-fill text-[#D8B85F] text-sm"></i>
+                      <i className="ri-star-fill text-[#60a5fa] text-sm"></i>
                     </button>
                     <div className="flex-1 h-3 bg-gray-200 rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-[#D8B85F] transition-all duration-300"
+                        className="h-full bg-[#60a5fa] transition-all duration-300"
                         style={{ width: `${dist.percentage}%` }}
                       ></div>
                     </div>
@@ -245,7 +245,7 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
                   className="w-10 h-10 flex items-center justify-center"
                 >
                   <i
-                    className={`ri-star-${star <= reviewForm.rating ? 'fill' : 'line'} text-3xl ${star <= reviewForm.rating ? 'text-[#D8B85F]' : 'text-gray-300'
+                    className={`ri-star-${star <= reviewForm.rating ? 'fill' : 'line'} text-3xl ${star <= reviewForm.rating ? 'text-[#60a5fa]' : 'text-gray-300'
                       }`}
                   ></i>
                 </button>
@@ -254,7 +254,7 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
           </div>
 
           {!user && (
-            <div className="mb-4 p-4 bg-[#FFFFCC]/50 text-[#141414] rounded-lg">
+            <div className="mb-4 p-4 bg-[#FFFFCC]/50 text-[#1e40af] rounded-lg">
               You must be logged in to submit a review.
             </div>
           )}
@@ -330,7 +330,7 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
                 {[1, 2, 3, 4, 5].map((star) => (
                   <i
                     key={star}
-                    className={`ri-star-${star <= review.rating ? 'fill' : 'line'} text-lg ${star <= review.rating ? 'text-[#D8B85F]' : 'text-gray-300'
+                    className={`ri-star-${star <= review.rating ? 'fill' : 'line'} text-lg ${star <= review.rating ? 'text-[#60a5fa]' : 'text-gray-300'
                       }`}
                   ></i>
                 ))}

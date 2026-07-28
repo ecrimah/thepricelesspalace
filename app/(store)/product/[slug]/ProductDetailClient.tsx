@@ -272,10 +272,10 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
   });
 
   const breadcrumbSchema = generateBreadcrumbSchema([
-    { name: 'Home', url: 'https://wholesalequeen.com' },
-    { name: 'Shop', url: 'https://wholesalequeen.com/shop' },
-    { name: product.category, url: `https://wholesalequeen.com/shop?category=${product.category.toLowerCase().replace(/\s+/g, '-')}` },
-    { name: product.name, url: `https://wholesalequeen.com/product/${slug}` }
+    { name: 'Home', url: 'https://example.com' },
+    { name: 'Shop', url: 'https://example.com/shop' },
+    { name: product.category, url: `https://example.com/shop?category=${product.category.toLowerCase().replace(/\s+/g, '-')}` },
+    { name: product.name, url: `https://example.com/product/${slug}` }
   ]);
 
   return (
@@ -396,7 +396,7 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                     {[1, 2, 3, 4, 5].map((star) => (
                       <i
                         key={star}
-                        className={`${star <= Math.round(product.rating) ? 'ri-star-fill text-[#D8B85F]' : 'ri-star-line text-gray-300'} text-lg`}
+                        className={`${star <= Math.round(product.rating) ? 'ri-star-fill text-[#60a5fa]' : 'ri-star-line text-gray-300'} text-lg`}
                       ></i>
                     ))}
                   </div>
@@ -615,7 +615,7 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                         </span>
                       )}
                       {activeStock > 0 ? (
-                        <span className="text-[#C9A24E] font-medium text-sm">
+                        <span className="text-[#2563eb] font-medium text-sm">
                           <i className="ri-checkbox-circle-line mr-1"></i>
                           In Stock
                         </span>

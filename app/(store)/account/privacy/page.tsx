@@ -15,22 +15,17 @@ export default function PrivacySettingsPage() {
     setTimeout(() => {
       const userData = {
         personalInfo: {
-          name: 'John Doe',
-          email: 'john@example.com',
-          phone: '+1234567890',
-          createdAt: '2024-01-15'
+          name: '',
+          email: '',
+          phone: '',
+          createdAt: ''
         },
-        orders: [
-          { id: 'ORD-2024-001', date: '2024-03-15', total: 129.99 },
-          { id: 'ORD-2024-002', date: '2024-03-20', total: 89.99 }
-        ],
-        addresses: [
-          { type: 'Home', street: '123 Main St', city: 'New York', zip: '10001' }
-        ],
+        orders: [] as Array<{ id: string; date: string; total: number }>,
+        addresses: [] as Array<{ type: string; street: string; city: string; zip: string }>,
         preferences: {
-          newsletter: true,
+          newsletter: false,
           smsNotifications: false,
-          marketing: true
+          marketing: false
         }
       };
 
@@ -80,12 +75,12 @@ export default function PrivacySettingsPage() {
       </div>
 
       <div className="max-w-4xl mx-auto p-4 space-y-6">
-        <div className="bg-[#C9A24E]/5 border border-[#C9A24E]/20 rounded-xl p-4">
+        <div className="bg-[#2563eb]/5 border border-[#2563eb]/20 rounded-xl p-4">
           <div className="flex gap-3">
-            <i className="ri-shield-check-line text-xl text-[#C9A24E] flex-shrink-0 mt-0.5"></i>
+            <i className="ri-shield-check-line text-xl text-[#2563eb] flex-shrink-0 mt-0.5"></i>
             <div>
-              <h3 className="font-semibold text-[#141414] mb-1">Your Privacy Matters</h3>
-              <p className="text-sm text-[#C9A24E]">
+              <h3 className="font-semibold text-[#1e40af] mb-1">Your Privacy Matters</h3>
+              <p className="text-sm text-[#2563eb]">
                 We are committed to protecting your personal information in compliance with GDPR, CCPA, and other privacy regulations.
               </p>
             </div>
@@ -151,7 +146,7 @@ export default function PrivacySettingsPage() {
 
           <div className="border-t pt-6">
             <h2 className="text-lg font-bold mb-4 text-[#9A1900]">Danger Zone</h2>
-            <div className="bg-[#E89DB5]/50 border border-[#FF6666]/30 rounded-lg p-4">
+            <div className="bg-[#93c5fd]/50 border border-[#FF6666]/30 rounded-lg p-4">
               <h3 className="font-semibold text-[#9A1900] mb-2 flex items-center gap-2">
                 <i className="ri-delete-bin-line text-lg"></i>
                 Delete Account

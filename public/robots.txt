@@ -1,8 +1,6 @@
+# Starter default: block indexing until the new project is ready.
+# Set NEXT_PUBLIC_ALLOW_INDEXING=true and update app/robots.ts for production.
 User-agent: *
-Allow: /
-Disallow: /admin/
-Disallow: /account/
-Disallow: /checkout/
-Disallow: /api/
+Disallow: /
 
-Sitemap: https://shopwithgg.com/sitemap.xml
+Sitemap: http://localhost:3001/sitemap.xml

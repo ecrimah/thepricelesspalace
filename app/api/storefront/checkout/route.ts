@@ -103,7 +103,7 @@ export async function POST(request: Request) {
         metadata: {
           image: item.image,
           slug: item.slug,
-          preorder_shipping: prodMeta?.preorder_shipping || null,
+          preorder_shipping: (prodMeta as any)?.preorder_shipping || null,
         },
       });
     }

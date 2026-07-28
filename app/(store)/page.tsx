@@ -11,18 +11,47 @@ import ProductCard, {
 } from '@/components/ProductCard';
 import AnimatedSection, { AnimatedGrid } from '@/components/AnimatedSection';
 import { usePageTitle } from '@/hooks/usePageTitle';
+import { BRAND } from '@/lib/brand';
+
+type ProductRow = {
+  id: string;
+  slug: string;
+  name: string;
+  price: number;
+  compare_at_price?: number;
+  quantity?: number;
+  moq?: number;
+  featured?: boolean;
+  rating_avg?: number;
+  review_count?: number;
+  product_variants?: Array<{ price?: number; quantity?: number; option2?: string }>;
+  product_images?: Array<{ url: string }>;
+};
+
+type CategoryRow = {
+  id?: string;
+  name: string;
+  slug: string;
+  parent_id?: string | null;
+  position?: number;
+  metadata?: { chip?: string; icon?: string; color?: string; image?: string; featured?: boolean };
+  image_url?: string;
+};
+
+const HERO_SLIDES = [
+  { src: '/hero-home-1.png', position: '50% 40%' },
+  { src: '/hero-home-2.png', position: '50% 35%' },
+];
 
 export default function Home() {
   usePageTitle('');
   const { getSetting, getActiveBanners } = useCMS();
-  const [featuredProducts, setFeaturedProducts] = useState<any[]>([]);
-  const [featuredCategories, setFeaturedCategories] = useState<any[]>([]);
+  const [featuredProducts, setFeaturedProducts] = useState<ProductRow[]>([]);
+  const [featuredCategories, setFeaturedCategories] = useState<CategoryRow[]>([]);
   const [loading, setLoading] = useState(true);
-  const heroSlides = [
-    { src: '/hero-home-1.png', position: '50% 40%' },
-    { src: '/hero-home-2.png', position: '50% 35%' },
-  ];
   const [currentHeroSlide, setCurrentHeroSlide] = useState(0);
+
+  const siteName = getSetting('site_name') || BRAND.name;
 
   useEffect(() => {
     async function fetchData() {
@@ -44,13 +73,14 @@ export default function Home() {
             .limit(4),
         ]);
 
-        if (productsResult.error) throw productsResult.error;
-        setFeaturedProducts(productsResult.data || []);
-
-        if (categoriesResult.error) throw categoriesResult.error;
-        setFeaturedCategories(categoriesResult.data || []);
+        if (!productsResult.error) {
+          setFeaturedProducts((productsResult.data as ProductRow[]) || []);
+        }
+        if (!categoriesResult.error) {
+          setFeaturedCategories((categoriesResult.data as CategoryRow[]) || []);
+        }
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error('Error fetching homepage data:', error);
       } finally {
         setLoading(false);
       }
@@ -61,22 +91,20 @@ export default function Home() {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentHeroSlide((prev) => (prev + 1) % heroSlides.length);
+      setCurrentHeroSlide((prev) => (prev + 1) % HERO_SLIDES.length);
     }, 5000);
-
     return () => clearInterval(interval);
-  }, [heroSlides.length]);
+  }, []);
 
   const heroHeadline =
-    getSetting('hero_headline') || 'China Wholesale, Straight to Ghana';
+    getSetting('hero_headline') || 'Fashion & Style, Right Here in Accra';
   const heroSubheadline =
     getSetting('hero_subheadline') ||
-    'Shein bales, mannequins and home appliances at unbeatable wholesale prices — perfect for resellers, boutiques and bulk buyers.';
+    `${BRAND.tagline} at ${BRAND.name} — shop online, order on WhatsApp, or visit us at ${BRAND.address}.`;
   const heroPrimaryText = getSetting('hero_primary_btn_text') || 'Shop Now';
   const heroPrimaryLink = getSetting('hero_primary_btn_link') || '/shop';
-  const heroSecondaryText =
-    getSetting('hero_secondary_btn_text') || 'Browse Collections';
-  const heroSecondaryLink = getSetting('hero_secondary_btn_link') || '/shop';
+  const heroSecondaryText = getSetting('hero_secondary_btn_text') || 'Browse Collections';
+  const heroSecondaryLink = getSetting('hero_secondary_btn_link') || '/categories';
 
   const activeBanners = getActiveBanners('top');
 
@@ -86,10 +114,7 @@ export default function Home() {
       <div className="bg-brand-brown text-white py-2 overflow-hidden relative">
         <div className="flex animate-marquee whitespace-nowrap">
           {activeBanners.concat(activeBanners).map((banner, index) => (
-            <span
-              key={index}
-              className="mx-8 text-sm font-medium tracking-wide flex items-center"
-            >
+            <span key={index} className="mx-8 text-sm font-medium tracking-wide flex items-center">
               {banner.title}
             </span>
           ))}
@@ -98,43 +123,23 @@ export default function Home() {
     );
   };
 
-  // Only show featured products that actually have at least one image.
-  // Imageless products stay off the home page until photos are uploaded.
-  const popularProducts = featuredProducts.filter(
-    (p) => (p.product_images?.length || 0) > 0
-  );
+  const popularProducts = featuredProducts.filter((p) => (p.product_images?.length || 0) > 0);
+
   const defaultCategoryStyles = [
-    {
-      chip: 'Everyday comfort',
-      icon: 'ri-shirt-line',
-      color: 'from-brand-carton to-brand-brown',
-    },
-    {
-      chip: 'Premium looks',
-      icon: 'ri-vip-crown-line',
-      color: 'from-[#C9A24E] to-[#141414]',
-    },
-    {
-      chip: 'Event ready',
-      icon: 'ri-t-shirt-air-line',
-      color: 'from-brand-brown to-brand-gold',
-    },
-    {
-      chip: 'Just landed',
-      icon: 'ri-sparkling-line',
-      color: 'from-[#141414]/70 to-[#141414]',
-    },
+    { chip: 'Everyday style', icon: 'ri-t-shirt-line', color: 'from-brand-carton to-brand-brown' },
+    { chip: 'Statement pieces', icon: 'ri-handbag-line', color: 'from-[#2563eb] to-[#1e40af]' },
+    { chip: 'Comfort first', icon: 'ri-footprint-line', color: 'from-brand-brown to-brand-gold' },
+    { chip: 'Just landed', icon: 'ri-sparkling-line', color: 'from-[#1e40af]/70 to-[#1e40af]' },
   ];
-  const fallbackCategories = [
-    { name: 'Shein Bales', slug: 'shein-bales', metadata: {} },
-    { name: 'Mannequins', slug: 'mannequins', metadata: {} },
-    { name: 'Home Appliances', slug: 'appliances', metadata: {} },
-    { name: 'New Arrivals', slug: 'new-arrivals', metadata: {} },
+
+  const fallbackCategories: CategoryRow[] = [
+    { name: 'Dresses', slug: 'dresses', metadata: {} },
+    { name: 'Bags', slug: 'bags', metadata: {} },
+    { name: 'Slippers', slug: 'slippers', metadata: {} },
+    { name: 'Wigs', slug: 'wigs', metadata: {} },
   ];
-  const vibeCategories = (featuredCategories.length > 0
-    ? featuredCategories
-    : fallbackCategories
-  )
+
+  const vibeCategories = (featuredCategories.length > 0 ? featuredCategories : fallbackCategories)
     .slice(0, 4)
     .map((category, index) => {
       const style = defaultCategoryStyles[index % defaultCategoryStyles.length];
@@ -143,7 +148,7 @@ export default function Home() {
         chip: category.metadata?.chip || style.chip,
         icon: category.metadata?.icon || style.icon,
         color: category.metadata?.color || style.color,
-        image: (category as any).image_url || category.metadata?.image || '',
+        image: category.image_url || category.metadata?.image || '',
       };
     });
 
@@ -151,9 +156,10 @@ export default function Home() {
     <main className="flex-col items-center justify-between min-h-screen bg-white">
       {renderBanners()}
 
+      {/* Hero slideshow */}
       <section className="relative w-full min-h-[92vh] sm:min-h-[83vmin] md:min-h-[93vmin] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0">
-          {heroSlides.map((slide, index) => (
+          {HERO_SLIDES.map((slide, index) => (
             <div
               key={slide.src}
               className={`absolute inset-0 transition-opacity duration-1000 ${
@@ -165,9 +171,9 @@ export default function Home() {
                 alt=""
                 fill
                 priority={index === 0}
-                quality={90}
                 sizes="100vw"
                 className="object-cover"
+                unoptimized
                 style={{
                   objectPosition: slide.position,
                   filter: 'contrast(1.06) saturate(1.05)',
@@ -179,7 +185,7 @@ export default function Home() {
         <div className="absolute inset-0 bg-black/30" aria-hidden="true" />
         <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 md:py-20 text-center">
           <span className="inline-flex items-center rounded-full bg-white/15 border border-white/25 px-3 py-1 sm:px-4 sm:py-1.5 text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.2em] sm:tracking-[0.25em] text-white/95 mb-4 sm:mb-5">
-            Wholesale Queen · China Wholesale
+            {siteName}
           </span>
           <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-[3.25rem] font-extrabold leading-tight text-white drop-shadow-sm max-w-3xl mx-auto">
             {heroHeadline}
@@ -190,7 +196,7 @@ export default function Home() {
           <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
             <Link
               href={heroPrimaryLink}
-              className="w-full sm:w-auto inline-flex items-center justify-center rounded-full bg-brand-brown px-6 py-2.5 sm:px-9 sm:py-3 text-sm sm:text-base font-semibold text-white shadow-lg hover:bg-[#3D2A00] transition-colors"
+              className="w-full sm:w-auto inline-flex items-center justify-center rounded-full bg-brand-brown px-6 py-2.5 sm:px-9 sm:py-3 text-sm sm:text-base font-semibold text-white shadow-lg hover:bg-[#1d4ed8] transition-colors"
             >
               {heroPrimaryText}
               <i className="ri-arrow-right-up-line ml-2 text-base" />
@@ -203,9 +209,12 @@ export default function Home() {
             </Link>
           </div>
           <div className="mt-5 flex items-center justify-center gap-2">
-            {heroSlides.map((slide, index) => (
-              <span
+            {HERO_SLIDES.map((slide, index) => (
+              <button
                 key={`dot-${slide.src}`}
+                type="button"
+                aria-label={`Go to slide ${index + 1}`}
+                onClick={() => setCurrentHeroSlide(index)}
                 className={`h-2 rounded-full transition-all ${
                   index === currentHeroSlide ? 'w-6 bg-white' : 'w-2 bg-white/60'
                 }`}
@@ -215,6 +224,7 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Shop by category */}
       <AnimatedSection className="bg-white py-12 sm:py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-7 sm:mb-9">
@@ -226,12 +236,12 @@ export default function Home() {
               <Link
                 href="/categories"
                 aria-label="All Categories"
-                className="group inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#C9A24E]/35 text-brand-brown transition-all duration-300 hover:bg-gradient-to-br hover:from-[#C9A24E] hover:to-[#9C7A2E] hover:border-transparent hover:text-white hover:shadow-[0_12px_26px_-12px_rgba(201,162,78,0.95)]"
+                className="group inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#2563eb]/35 text-brand-brown transition-all duration-300 hover:bg-gradient-to-br hover:from-[#2563eb] hover:to-[#1d4ed8] hover:border-transparent hover:text-white hover:shadow-[0_12px_26px_-12px_rgba(37,99,235,0.95)]"
               >
                 <i className="ri-arrow-right-line text-lg transition-transform duration-300 group-hover:translate-x-0.5" />
               </Link>
             </div>
-            <h2 className="mt-2 font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-[#141414]">
+            <h2 className="mt-2 font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-[#1e40af]">
               Shop by Category
             </h2>
           </div>
@@ -240,8 +250,8 @@ export default function Home() {
             {vibeCategories.map((item) => (
               <Link
                 key={item.slug}
-                href={`/shop?category=${encodeURIComponent(item.slug)}`}
-                className="group relative block aspect-[3/4] overflow-hidden rounded-3xl bg-[#141414]"
+                href={`/shop?search=${encodeURIComponent(item.name.toLowerCase())}`}
+                className="group relative block aspect-[3/4] overflow-hidden rounded-3xl bg-[#1e40af]"
               >
                 {item.image ? (
                   <img
@@ -252,12 +262,8 @@ export default function Home() {
                 ) : (
                   <span className={`absolute inset-0 bg-gradient-to-br ${item.color}`} />
                 )}
-
-                {/* readability gradient */}
                 <span aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
-                {/* gold ring on hover */}
-                <span aria-hidden="true" className="absolute inset-0 rounded-3xl ring-1 ring-inset ring-white/10 transition-all duration-300 group-hover:ring-2 group-hover:ring-[#C9A24E]/70" />
-
+                <span aria-hidden="true" className="absolute inset-0 rounded-3xl ring-1 ring-inset ring-white/10 transition-all duration-300 group-hover:ring-2 group-hover:ring-[#2563eb]/70" />
                 <div className="absolute inset-x-0 bottom-0 p-5">
                   <h3 className="font-serif text-xl sm:text-2xl font-bold leading-tight text-white drop-shadow-sm">
                     {item.name}
@@ -273,6 +279,7 @@ export default function Home() {
         </div>
       </AnimatedSection>
 
+      {/* Trending products */}
       <AnimatedSection className="bg-white py-10 sm:py-14">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
@@ -281,26 +288,24 @@ export default function Home() {
                 <p className="text-xs font-semibold tracking-[0.25em] text-brand-carton uppercase">
                   Trending now
                 </p>
-                {/* mobile arrow — inline with the eyebrow */}
                 <Link
                   href="/shop?sort=bestsellers"
                   aria-label="View bestselling products"
-                  className="group md:hidden inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#C9A24E]/35 text-brand-brown transition-all duration-300 hover:bg-gradient-to-br hover:from-[#C9A24E] hover:to-[#9C7A2E] hover:border-transparent hover:text-white hover:shadow-[0_12px_26px_-12px_rgba(201,162,78,0.95)]"
+                  className="group md:hidden inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#2563eb]/35 text-brand-brown transition-all duration-300 hover:bg-gradient-to-br hover:from-[#2563eb] hover:to-[#1d4ed8] hover:border-transparent hover:text-white"
                 >
-                  <i className="ri-arrow-right-line text-lg transition-transform duration-300 group-hover:translate-x-0.5" />
+                  <i className="ri-arrow-right-line text-lg" />
                 </Link>
               </div>
               <h2 className="mt-1 text-2xl sm:text-3xl font-extrabold text-gray-900">
                 Products customers love most
               </h2>
             </div>
-            {/* desktop arrow */}
             <Link
-              href="/shop?sort=bestsellers"
-              aria-label="View bestselling products"
-              className="group hidden md:inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#C9A24E]/35 text-brand-brown transition-all duration-300 hover:bg-gradient-to-br hover:from-[#C9A24E] hover:to-[#9C7A2E] hover:border-transparent hover:text-white hover:shadow-[0_12px_26px_-12px_rgba(201,162,78,0.95)]"
+              href="/shop"
+              aria-label="View all products"
+              className="group hidden md:inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#2563eb]/35 text-brand-brown transition-all duration-300 hover:bg-gradient-to-br hover:from-[#2563eb] hover:to-[#1d4ed8] hover:border-transparent hover:text-white"
             >
-              <i className="ri-arrow-right-line text-lg transition-transform duration-300 group-hover:translate-x-0.5" />
+              <i className="ri-arrow-right-line text-lg" />
             </Link>
           </div>
 
@@ -314,34 +319,24 @@ export default function Home() {
                 </div>
               ))}
             </div>
-          ) : (
+          ) : popularProducts.length > 0 ? (
             <AnimatedGrid className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
               {popularProducts.map((product) => {
                 const variants = product.product_variants || [];
                 const hasVariants = variants.length > 0;
                 const minVariantPrice = hasVariants
-                  ? Math.min(
-                      ...variants.map((v: any) => v.price || product.price)
-                    )
+                  ? Math.min(...variants.map((v) => v.price || product.price))
                   : undefined;
                 const totalVariantStock = hasVariants
-                  ? variants.reduce(
-                      (sum: number, v: any) => sum + (v.quantity || 0),
-                      0
-                    )
+                  ? variants.reduce((sum, v) => sum + (v.quantity || 0), 0)
                   : 0;
-                const effectiveStock = hasVariants
-                  ? totalVariantStock
-                  : product.quantity;
+                const effectiveStock = hasVariants ? totalVariantStock : product.quantity || 0;
 
                 const colorVariants: ColorVariant[] = [];
                 const seenColors = new Set<string>();
                 for (const v of variants) {
-                  const colorName = (v as any).option2;
-                  if (
-                    colorName &&
-                    !seenColors.has(colorName.toLowerCase().trim())
-                  ) {
+                  const colorName = v.option2;
+                  if (colorName && !seenColors.has(colorName.toLowerCase().trim())) {
                     const hex = getColorHex(colorName);
                     if (hex) {
                       seenColors.add(colorName.toLowerCase().trim());
@@ -358,10 +353,7 @@ export default function Home() {
                     name={product.name}
                     price={product.price}
                     originalPrice={product.compare_at_price}
-                    image={
-                      product.product_images?.[0]?.url ||
-                      '/placeholder-product.png'
-                    }
+                    image={product.product_images?.[0]?.url || '/placeholder-product.png'}
                     rating={product.rating_avg || 5}
                     reviewCount={product.review_count || 0}
                     badge={product.featured ? 'Featured' : 'Trending'}
@@ -375,22 +367,46 @@ export default function Home() {
                 );
               })}
             </AnimatedGrid>
+          ) : (
+            <div className="rounded-3xl border border-brand-carton/20 bg-brand-cream/40 px-6 py-12 text-center">
+              <p className="text-lg font-semibold text-[#1e40af]">Catalog coming soon</p>
+              <p className="mt-2 text-sm text-gray-600 max-w-md mx-auto">
+                Featured products will appear here once the shop is loaded. Call {BRAND.phonePrimary} or chat on WhatsApp to order today.
+              </p>
+              <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+                <Link
+                  href="/shop"
+                  className="inline-flex items-center rounded-full bg-[#1e40af] text-white px-6 py-2.5 text-sm font-semibold hover:bg-brand-carton transition-colors"
+                >
+                  Browse shop
+                </Link>
+                <a
+                  href={BRAND.whatsappUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center rounded-full border border-[#2563eb]/50 px-6 py-2.5 text-sm font-semibold text-[#1e40af] hover:bg-white transition-colors"
+                >
+                  <i className="ri-whatsapp-line mr-2" />
+                  WhatsApp us
+                </a>
+              </div>
+            </div>
           )}
         </div>
       </AnimatedSection>
 
+      {/* Why us */}
       <AnimatedSection className="bg-white py-10 sm:py-14">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-10">
-              <p className="text-xs font-semibold tracking-[0.25em] text-brand-carton uppercase">
+            <p className="text-xs font-semibold tracking-[0.25em] text-brand-carton uppercase">
               Why customers stay with us
             </p>
             <h2 className="mt-2 text-2xl sm:text-3xl font-extrabold text-gray-900">
-              Your trusted wholesale plug
+              Your trusted fashion palace
             </h2>
             <p className="mt-3 text-sm sm:text-base text-gray-600">
-              We bring China wholesale straight to Ghana — Shein bales, mannequins and appliances
-              at prices that let resellers and shop owners make real profit.
+              {BRAND.name} brings you {BRAND.tagline.toLowerCase()} — quality pieces, friendly service, and prices that feel priceless.
             </p>
           </div>
 
@@ -398,40 +414,34 @@ export default function Home() {
             {[
               {
                 icon: 'ri-price-tag-3-line',
-                title: 'Wholesale prices',
-                body: 'Buy bales and bulk stock at true wholesale rates — built for resellers.',
+                title: 'Great value',
+                body: 'Stylish dresses, bags, slippers and wigs at prices that work for everyday shoppers.',
               },
               {
                 icon: 'ri-customer-service-2-line',
                 title: 'Real support',
-                body: 'Chat with us on WhatsApp for help choosing the right bales and stock.',
+                body: 'Chat with us on WhatsApp for sizing help, orders, and style advice.',
               },
               {
                 icon: 'ri-truck-line',
                 title: 'Delivery in Ghana',
-                body: 'Fast delivery across Ghana, plus pickup at our Ashongman Estate shop.',
+                body: `Fast delivery across Ghana, plus pickup at ${BRAND.address}.`,
               },
             ].map((item, i) => (
               <div
                 key={item.title}
-                className="group relative overflow-hidden rounded-2xl border border-[#141414]/[0.07] bg-white p-6 transition-all duration-300 hover:-translate-y-1 hover:border-[#C9A24E]/45 hover:shadow-[0_20px_44px_-24px_rgba(20,20,20,0.55)]"
+                className="group relative overflow-hidden rounded-2xl border border-[#1e40af]/[0.07] bg-white p-6 transition-all duration-300 hover:-translate-y-1 hover:border-[#2563eb]/45 hover:shadow-[0_20px_44px_-24px_rgba(20,20,20,0.55)]"
               >
-                {/* index watermark + hover accent bar */}
-                <span className="pointer-events-none absolute right-5 top-3 select-none text-5xl font-black text-[#C9A24E]/10">
+                <span className="pointer-events-none absolute right-5 top-3 select-none text-5xl font-black text-[#2563eb]/10">
                   0{i + 1}
                 </span>
-                <span className="absolute left-0 top-0 h-full w-1 bg-gradient-to-b from-[#C9A24E] to-[#E89DB5] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-
+                <span className="absolute left-0 top-0 h-full w-1 bg-gradient-to-b from-[#2563eb] to-[#93c5fd] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                 <div className="relative">
-                  <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[#C9A24E] to-[#9C7A2E] text-white shadow-[0_12px_26px_-12px_rgba(201,162,78,0.95)] transition-transform duration-300 group-hover:scale-105">
+                  <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[#2563eb] to-[#1d4ed8] text-white shadow-[0_12px_26px_-12px_rgba(37,99,235,0.95)] transition-transform duration-300 group-hover:scale-105">
                     <i className={`${item.icon} text-2xl`} />
                   </div>
-                  <h3 className="text-lg font-bold text-[#141414] mb-2">
-                    {item.title}
-                  </h3>
-                  <p className="text-sm text-gray-600 leading-relaxed">
-                    {item.body}
-                  </p>
+                  <h3 className="text-lg font-bold text-[#1e40af] mb-2">{item.title}</h3>
+                  <p className="text-sm text-gray-600 leading-relaxed">{item.body}</p>
                 </div>
               </div>
             ))}
@@ -439,59 +449,69 @@ export default function Home() {
         </div>
       </AnimatedSection>
 
-      <section className="pb-12 sm:pb-20">
+      {/* Promo cards */}
+      <AnimatedSection className="pb-12 sm:pb-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="relative overflow-hidden rounded-3xl bg-[#141414] text-white shadow-[0_28px_70px_-34px_rgba(20,20,20,0.95)] ring-1 ring-[#C9A24E]/20">
-            {/* ambient brand glows */}
-            <span aria-hidden="true" className="pointer-events-none absolute -left-24 -top-24 h-80 w-80 rounded-full bg-[#C9A24E]/25 blur-[110px]" />
-            <span aria-hidden="true" className="pointer-events-none absolute -bottom-28 left-1/3 h-80 w-80 rounded-full bg-[#E89DB5]/15 blur-[110px]" />
-
-            <div className="relative flex flex-col md:flex-row items-stretch">
-              <div className="relative z-10 w-full md:w-[55%] px-6 sm:px-10 lg:px-14 py-10 sm:py-14 flex flex-col justify-center text-center md:text-left">
-                <span className="inline-flex items-center gap-2 text-[11px] font-semibold tracking-[0.25em] uppercase text-[#D8B85F] mx-auto md:mx-0">
-                  <span className="h-px w-6 bg-[#D8B85F]/60" />
-                  Start buying with Wholesale Queen
-                </span>
-                <h3 className="mt-4 text-2xl sm:text-3xl lg:text-[2.6rem] lg:leading-[1.1] font-extrabold">
-                  Quality wholesale,<br className="hidden sm:block" /> without breaking the bank.
-                </h3>
-                <span aria-hidden="true" className="mt-4 mx-auto md:mx-0 block h-1 w-16 rounded-full bg-gradient-to-r from-[#C9A24E] to-[#E89DB5]" />
-                <p className="mt-5 text-sm sm:text-base text-white/70 max-w-md mx-auto md:mx-0">
-                  Whether you&apos;re stocking a shop, starting a clothing business, or buying in
-                  bulk — we bring you Shein bales, mannequins and appliances at wholesale prices.
-                </p>
-                <div className="mt-7 flex flex-wrap gap-3 justify-center md:justify-start">
-                  <Link
-                    href="/shop"
-                    className="inline-flex items-center rounded-full bg-gradient-to-r from-[#C9A24E] to-[#9C7A2E] text-white px-8 py-3 text-sm font-semibold shadow-[0_14px_30px_-12px_rgba(201,162,78,0.9)] hover:brightness-105 hover:-translate-y-0.5 transition-all"
-                  >
-                    Start shopping
-                    <i className="ri-arrow-right-up-line ml-2" />
-                  </Link>
-                  <Link
-                    href="/account"
-                    className="inline-flex items-center rounded-full border border-white/25 bg-white/5 px-6 py-3 text-sm font-semibold text-white hover:bg-white/10 hover:border-white/40 transition-colors"
-                  >
-                    Create an account
-                  </Link>
-                </div>
-              </div>
-
-              <div className="relative w-full md:w-[45%] min-h-[15rem] md:min-h-[24rem]">
+          <div className="grid gap-5 md:grid-cols-2">
+            {/* Card 1 — image left, text right */}
+            <div className="flex flex-col sm:flex-row items-stretch rounded-3xl bg-[#e0f2fe] overflow-hidden min-h-[280px] sm:min-h-[300px]">
+              <div className="relative w-full sm:w-[42%] min-h-[200px] sm:min-h-0 shrink-0">
                 <Image
-                  src="/hero-home-1.png"
-                  alt="Wholesale Queen products"
+                  src="/hero-about-1.png"
+                  alt="Elegant dresses"
                   fill
-                  className="object-cover"
-                  sizes="(max-width: 768px) 100vw, 45vw"
+                  className="object-cover object-center"
+                  sizes="(max-width: 640px) 100vw, 20vw"
+                  unoptimized
                 />
-                {/* blend image into the dark panel */}
-                <span aria-hidden="true" className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-[#141414] via-[#141414]/40 md:via-[#141414]/30 to-transparent" />
+              </div>
+              <div className="flex flex-1 flex-col justify-center px-8 py-10 sm:py-12 sm:pl-6 sm:pr-10">
+                <h3 className="font-serif text-3xl sm:text-[2.15rem] font-bold text-[#1e40af] leading-[1.15]">
+                  Elegant
+                  <br />
+                  Dresses
+                </h3>
+                <Link
+                  href="/shop?search=dress"
+                  className="mt-7 inline-flex w-fit items-center justify-center rounded-xl bg-[#1e40af] px-7 py-3 text-sm font-semibold uppercase tracking-wide text-white hover:bg-[#1d4ed8] transition-colors"
+                >
+                  Shop Now
+                </Link>
+              </div>
+            </div>
+
+            {/* Card 2 — text left, image right */}
+            <div className="flex flex-col sm:flex-row items-stretch rounded-3xl bg-[#F5F0E8] overflow-hidden min-h-[280px] sm:min-h-[300px]">
+              <div className="flex flex-1 flex-col justify-center px-8 py-10 sm:py-12 sm:pl-10 sm:pr-6 order-2 sm:order-1">
+                <h3 className="font-serif text-3xl sm:text-[2.15rem] font-bold text-[#1e40af] leading-[1.15]">
+                  Bags &amp;
+                  <br />
+                  Accessories
+                </h3>
+                <p className="mt-4 text-sm text-[#1e40af]/65 leading-relaxed max-w-[220px]">
+                  Complete your look with handbags, slippers, wigs and more.
+                </p>
+                <Link
+                  href="/shop?search=bag"
+                  className="mt-7 inline-flex w-fit items-center justify-center rounded-xl bg-[#1e40af] px-7 py-3 text-sm font-semibold uppercase tracking-wide text-white hover:bg-[#1d4ed8] transition-colors"
+                >
+                  Shop Now
+                </Link>
+              </div>
+              <div className="relative w-full sm:w-[42%] min-h-[200px] sm:min-h-0 shrink-0 order-1 sm:order-2">
+                <Image
+                  src="/hero-about-2.png"
+                  alt="Bags and accessories"
+                  fill
+                  className="object-cover object-center"
+                  sizes="(max-width: 640px) 100vw, 20vw"
+                  unoptimized
+                />
               </div>
             </div>
           </div>
         </div>
-      </section>
+      </AnimatedSection>
     </main>
   );
 }

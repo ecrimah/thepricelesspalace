@@ -15,11 +15,16 @@ dist
 # Misc
 .DS_Store
 *.pem
+*.p12
+*.key
+*.crt
 
-# Debug
+# Debug / logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+*.log
+.cursor/debug*.log
 
 # Local Env Files
 .env
@@ -27,6 +32,26 @@ yarn-error.log*
 .env.development.local
 .env.test.local
 .env.production.local
+.env*.local
+scripts/vps/palace-env.local
+**/palace-env.local
+
+# Secrets & dumps
+**/service-account*.json
+**/*credentials*.json
+*.dump
+*.sql.gz
+backups/
+uploads/
+STORAGE_ROOT/
+.storage/
 
 # Vercel
 .vercel
+
+# TypeScript build info
+tsconfig.tsbuildinfo
+
+# IDE
+.idea
+.vscode

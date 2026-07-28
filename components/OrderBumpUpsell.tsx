@@ -19,9 +19,9 @@ export default function OrderBumpUpsell({ products, onToggle }: OrderBumpUpsellP
   if (products.length === 0) return null;
 
   return (
-    <div className="bg-gradient-to-br from-[#FFFFCC]/50 to-[#F3F3F3] rounded-xl p-6 border-2 border-[#D8B85F]/30">
+    <div className="bg-gradient-to-br from-[#FFFFCC]/50 to-[#F3F3F3] rounded-xl p-6 border-2 border-[#60a5fa]/30">
       <div className="flex items-center space-x-2 mb-4">
-        <div className="w-10 h-10 flex items-center justify-center bg-[#D8B85F] rounded-full">
+        <div className="w-10 h-10 flex items-center justify-center bg-[#60a5fa] rounded-full">
           <i className="ri-gift-line text-white text-xl"></i>
         </div>
         <div>
@@ -65,7 +65,7 @@ export default function OrderBumpUpsell({ products, onToggle }: OrderBumpUpsellP
                   {product.originalPrice && (
                     <>
                       <span className="text-sm text-gray-400 line-through">₵{product.originalPrice.toFixed(2)}</span>
-                      <span className="text-xs bg-[#E89DB5] text-[#9A1900] px-2 py-1 rounded-full font-semibold whitespace-nowrap">
+                      <span className="text-xs bg-[#93c5fd] text-[#9A1900] px-2 py-1 rounded-full font-semibold whitespace-nowrap">
                         Save {Math.round((1 - product.price / product.originalPrice) * 100)}%
                       </span>
                     </>
@@ -86,7 +86,7 @@ export default function OrderBumpUpsell({ products, onToggle }: OrderBumpUpsellP
       </div>
 
       <div className="mt-4 p-3 bg-[#FFFFCC] rounded-lg">
-        <p className="text-sm text-[#141414] font-medium text-center">
+        <p className="text-sm text-[#1e40af] font-medium text-center">
           <i className="ri-flashlight-fill mr-1"></i>
           Limited time offer - Add to your order now!
         </p>

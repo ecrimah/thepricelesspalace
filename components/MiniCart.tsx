@@ -59,7 +59,7 @@ export default function MiniCart({ isOpen, onClose }: MiniCartProps) {
         aria-label="Shopping cart"
       >
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-xl font-bold text-[#141414]">
+          <h2 className="text-xl font-bold text-[#1e40af]">
             Shopping Cart ({cart.reduce((sum, i) => sum + i.quantity, 0)})
           </h2>
           <button
@@ -75,12 +75,12 @@ export default function MiniCart({ isOpen, onClose }: MiniCartProps) {
             <div className="w-24 h-24 flex items-center justify-center bg-gray-100 rounded-full mb-4">
               <i className="ri-shopping-cart-line text-5xl text-gray-400"></i>
             </div>
-            <h3 className="text-xl font-semibold text-[#141414] mb-2">Your cart is empty</h3>
+            <h3 className="text-xl font-semibold text-[#1e40af] mb-2">Your cart is empty</h3>
             <p className="text-gray-600 mb-6">Add items to get started</p>
             <Link
               href="/shop"
               onClick={onClose}
-              className="px-6 py-3 bg-gradient-to-r from-[#C9A24E] to-[#9C7A2E] text-white rounded-full font-semibold shadow-[0_14px_30px_-12px_rgba(201,162,78,0.9)] hover:brightness-105 transition-all whitespace-nowrap cursor-pointer"
+              className="px-6 py-3 bg-gradient-to-r from-[#2563eb] to-[#1d4ed8] text-white rounded-full font-semibold shadow-[0_14px_30px_-12px_rgba(37,99,235,0.9)] hover:brightness-105 transition-all whitespace-nowrap cursor-pointer"
             >
               Continue Shopping
             </Link>
@@ -106,7 +106,7 @@ export default function MiniCart({ isOpen, onClose }: MiniCartProps) {
                     </div>
 
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-[#141414] mb-1 line-clamp-1">{item.name}</h3>
+                      <h3 className="font-semibold text-[#1e40af] mb-1 line-clamp-1">{item.name}</h3>
                       {item.variant && (
                         <p className="text-xs text-gray-600 mb-2">
                           Variant: {item.variant}
@@ -114,7 +114,7 @@ export default function MiniCart({ isOpen, onClose }: MiniCartProps) {
                       )}
 
                       <div className="flex items-center justify-between mt-2">
-                        <span className="text-lg font-bold text-[#141414]">
+                        <span className="text-lg font-bold text-[#1e40af]">
                           ₵{item.price.toFixed(2)}
                         </span>
 
@@ -129,7 +129,7 @@ export default function MiniCart({ isOpen, onClose }: MiniCartProps) {
                               <i className="ri-subtract-line text-gray-700"></i>
                             )}
                           </button>
-                          <span className="w-10 text-center font-semibold text-[#141414]">{item.quantity}</span>
+                          <span className="w-10 text-center font-semibold text-[#1e40af]">{item.quantity}</span>
                           <button
                             onClick={() => updateQuantity(item.id, item.quantity + 1, item.variant)}
                             className="w-8 h-8 flex items-center justify-center hover:bg-gray-100 transition-colors cursor-pointer"
@@ -140,13 +140,13 @@ export default function MiniCart({ isOpen, onClose }: MiniCartProps) {
                         </div>
                       </div>
                       {item.quantity >= item.maxStock && (
-                        <p className="text-xs text-[#C9A24E] mt-1">Max stock reached</p>
+                        <p className="text-xs text-[#2563eb] mt-1">Max stock reached</p>
                       )}
                     </div>
 
                     <button
                       onClick={() => removeFromCart(item.id, item.variant)}
-                      className="w-8 h-8 flex items-center justify-center hover:bg-[#E89DB5]/50 rounded-full transition-colors flex-shrink-0 cursor-pointer"
+                      className="w-8 h-8 flex items-center justify-center hover:bg-[#93c5fd]/50 rounded-full transition-colors flex-shrink-0 cursor-pointer"
                     >
                       <i className="ri-delete-bin-line text-[#9A1900]"></i>
                     </button>
@@ -158,7 +158,7 @@ export default function MiniCart({ isOpen, onClose }: MiniCartProps) {
             <div className="border-t border-gray-200 p-6 bg-gray-50">
               <div className="flex items-center justify-between mb-4">
                 <span className="text-gray-700 font-medium">Subtotal</span>
-                <span className="text-2xl font-bold text-[#141414]">₵{subtotal.toFixed(2)}</span>
+                <span className="text-2xl font-bold text-[#1e40af]">₵{subtotal.toFixed(2)}</span>
               </div>
 
               <p className="text-sm text-gray-600 mb-4 text-center">
@@ -169,14 +169,14 @@ export default function MiniCart({ isOpen, onClose }: MiniCartProps) {
                 <Link
                   href="/checkout"
                   onClick={onClose}
-                  className="block w-full py-4 bg-gradient-to-r from-[#C9A24E] to-[#9C7A2E] text-white text-center rounded-full font-semibold shadow-[0_14px_30px_-12px_rgba(201,162,78,0.9)] hover:brightness-105 transition-all whitespace-nowrap cursor-pointer"
+                  className="block w-full py-4 bg-gradient-to-r from-[#2563eb] to-[#1d4ed8] text-white text-center rounded-full font-semibold shadow-[0_14px_30px_-12px_rgba(37,99,235,0.9)] hover:brightness-105 transition-all whitespace-nowrap cursor-pointer"
                 >
                   Proceed to Checkout
                 </Link>
                 <Link
                   href="/cart"
                   onClick={onClose}
-                  className="block w-full py-4 border-2 border-[#141414] text-[#141414] text-center rounded-full font-semibold hover:bg-[#141414] hover:text-white transition-colors whitespace-nowrap cursor-pointer"
+                  className="block w-full py-4 border-2 border-[#1e40af] text-[#1e40af] text-center rounded-full font-semibold hover:bg-[#1e40af] hover:text-white transition-colors whitespace-nowrap cursor-pointer"
                 >
                   View Cart
                 </Link>

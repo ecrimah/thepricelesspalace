@@ -51,8 +51,8 @@ export default function CustomerInsightsPage() {
 
       // 3. Aggregate Data
       const aggregated = profiles.map((profile: any) => {
-        const userOrders = orders?.filter(o => o.user_id === profile.id) || [];
-        const totalSpent = userOrders.reduce((sum, o) => sum + (o.total || 0), 0);
+        const userOrders = orders?.filter((o: any) => o.user_id === profile.id) || [];
+        const totalSpent = userOrders.reduce((sum: any, o: any) => sum + (o.total || 0), 0);
         const orderCount = userOrders.length;
 
         // Sort orders to find last order
@@ -102,12 +102,12 @@ export default function CustomerInsightsPage() {
       setCustomers(aggregated);
 
       // Calculate Stats
-      const totalCLV = aggregated.reduce((sum, c) => sum + c.lifetimeValue, 0);
+      const totalCLV = aggregated.reduce((sum: any, c: any) => sum + c.lifetimeValue, 0);
       setStats({
-        vip: aggregated.filter(c => c.segment === 'vip').length,
-        returning: aggregated.filter(c => c.segment === 'returning').length,
-        new: aggregated.filter(c => c.segment === 'new').length,
-        atRisk: aggregated.filter(c => c.segment === 'at-risk').length,
+        vip: aggregated.filter((c: any) => c.segment === 'vip').length,
+        returning: aggregated.filter((c: any) => c.segment === 'returning').length,
+        new: aggregated.filter((c: any) => c.segment === 'new').length,
+        atRisk: aggregated.filter((c: any) => c.segment === 'at-risk').length,
         avgCLV: aggregated.length > 0 ? totalCLV / aggregated.length : 0
       });
 

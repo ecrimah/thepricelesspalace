@@ -63,7 +63,7 @@ export default function AddressBook() {
               <input
                 type="tel"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-                placeholder="054 284 9341"
+                placeholder="+1 000 000 0000"
               />
             </div>
             <div className="md:col-span-2">
@@ -79,7 +79,7 @@ export default function AddressBook() {
               <input
                 type="text"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-                placeholder="Accra"
+                placeholder="City"
               />
             </div>
             <div>
@@ -87,7 +87,7 @@ export default function AddressBook() {
               <input
                 type="text"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-                placeholder="Accra State"
+                placeholder="State / Region"
               />
             </div>
             <div>
@@ -103,7 +103,7 @@ export default function AddressBook() {
               <input
                 type="text"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-                placeholder="Ghana"
+                placeholder="Country"
               />
             </div>
             <div className="md:col-span-2">
@@ -180,7 +180,7 @@ export default function AddressBook() {
               )}
               <button
                 onClick={() => deleteAddress(address.id)}
-                className="px-4 py-2 border border-[#FF6666] text-[#9A1900] rounded-lg font-semibold hover:bg-[#E89DB5]/50 transition-colors whitespace-nowrap"
+                className="px-4 py-2 border border-[#FF6666] text-[#9A1900] rounded-lg font-semibold hover:bg-[#93c5fd]/50 transition-colors whitespace-nowrap"
               >
                 <i className="ri-delete-bin-line"></i>
               </button>

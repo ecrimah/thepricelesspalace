@@ -199,7 +199,7 @@ export default function MobileFilterDrawer({ isOpen, onClose }: MobileFilterDraw
                   <div className="flex items-center space-x-1">
                     {[...Array(5)].map((_, i) => (
                       <div key={i} className="w-4 h-4 flex items-center justify-center">
-                        <i className={`${i < rating ? 'ri-star-fill text-[#D8B85F]' : 'ri-star-line text-gray-300'} text-sm`}></i>
+                        <i className={`${i < rating ? 'ri-star-fill text-[#60a5fa]' : 'ri-star-line text-gray-300'} text-sm`}></i>
                       </div>
                     ))}
                     <span className="text-sm text-gray-600 ml-1">& Up</span>

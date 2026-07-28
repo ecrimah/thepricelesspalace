@@ -4,6 +4,7 @@ import {
   normalizeGhPhone,
 } from '@/lib/hubtel';
 import { getMoolreConfig, generatePaymentLink } from '@/lib/moolre';
+import { BRAND, brandPhoneList } from '@/lib/brand';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -342,12 +343,12 @@ export async function getRecommendations(
 // ─── 9. Get Store Info (static) ─────────────────────────────────────────────
 
 const STORE_INFO: Record<string, string> = {
-  shipping: `Wholesale Queen delivers across Ghana. Delivery timelines and fees are calculated by destination at checkout. Pickup is available at our Ashongman Estate location in Accra.`,
+  shipping: `${BRAND.name} delivers to supported regions. Delivery timelines and fees are calculated by destination at checkout. Pickup may be available at ${BRAND.address}.`,
   returns: `We accept eligible returns within 30 days of delivery for unused items in original condition. To start a return, use your account or ask me to create a support ticket. Refunds are processed after inspection.`,
-  payment: `We support secure checkout options, including Mobile Money for orders in Ghana. Available payment methods are shown at checkout.`,
-  contact: `You can reach us through:\n- This chat (24/7)\n- Email: hello@wholesalequeen.com\n- Phone/WhatsApp: 054 284 9341\n- TikTok/Instagram: @chinawholesalequeen\n- Visit: Ashongman Estate, Accra, Ghana\n- Support ticket: I can create one for you right now`,
-  about: `Wholesale Queen brings China wholesale straight to Ghana. We specialise in Shein bales (wholesale clothing), mannequins, and home appliances at unbeatable wholesale prices. Buy in bulk and save — perfect for resellers and boutiques. Located at Ashongman Estate, Accra, with delivery across Ghana.`,
-  delivery_times: `Delivery timelines vary by destination within Ghana. Estimated timing is shown at checkout and in your order updates. Same-region deliveries around Accra are typically fastest.`,
+  payment: `We support secure checkout options, including mobile money and card payments where available. Payment methods are shown at checkout.`,
+  contact: `You can reach us through:\n- This chat (24/7)\n- Email: ${BRAND.email}\n- Phone/WhatsApp: ${brandPhoneList()}\n- Visit: ${BRAND.address}\n- Support ticket: I can create one for you right now`,
+  about: `${BRAND.name} is a fashion store offering ${BRAND.tagline.toLowerCase()}. We serve individual shoppers and bulk buyers. Located at ${BRAND.address}, with delivery to supported regions.`,
+  delivery_times: `Delivery timelines vary by destination. Estimated timing is shown at checkout and in your order updates.`,
   hours: `Our online store is open 24/7. Customer support is available Monday-Saturday, 8 AM - 8 PM GMT.`,
 };
 

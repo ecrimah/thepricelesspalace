@@ -530,7 +530,8 @@ img {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #141414 0%, #3D2A00 100%);
+  /* Neutral starter splash — replace with your brand colors when ready */
+  background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%);
   animation: splashFadeOut 0.5s ease-out 1.5s forwards;
 }
 

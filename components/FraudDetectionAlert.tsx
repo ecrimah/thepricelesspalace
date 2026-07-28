@@ -10,15 +10,15 @@ export default function FraudDetectionAlert({ riskLevel, reasons, orderId }: Fra
   const getRiskColor = () => {
     switch (riskLevel) {
       case 'low': return 'bg-gray-50 border-gray-200 text-gray-800';
-      case 'medium': return 'bg-[#FFFFCC]/50 border-[#D8B85F]/30 text-[#141414]';
-      case 'high': return 'bg-[#E89DB5]/50 border-[#FF6666]/30 text-[#9A1900]';
+      case 'medium': return 'bg-[#FFFFCC]/50 border-[#60a5fa]/30 text-[#1e40af]';
+      case 'high': return 'bg-[#93c5fd]/50 border-[#FF6666]/30 text-[#9A1900]';
     }
   };
 
   const getRiskIcon = () => {
     switch (riskLevel) {
       case 'low': return 'ri-shield-check-line text-gray-700';
-      case 'medium': return 'ri-error-warning-line text-[#C9A24E]';
+      case 'medium': return 'ri-error-warning-line text-[#2563eb]';
       case 'high': return 'ri-alarm-warning-line text-[#9A1900]';
     }
   };
@@ -65,7 +65,7 @@ export default function FraudDetectionAlert({ riskLevel, reasons, orderId }: Fra
                   <i className="ri-pause-circle-line mr-1"></i>
                   Hold Order
                 </button>
-                <button className="px-3 py-1.5 bg-white text-[#9A1900] rounded text-sm font-medium hover:bg-[#E89DB5]/50 transition-colors whitespace-nowrap">
+                <button className="px-3 py-1.5 bg-white text-[#9A1900] rounded text-sm font-medium hover:bg-[#93c5fd]/50 transition-colors whitespace-nowrap">
                   <i className="ri-customer-service-line mr-1"></i>
                   Contact Customer
                 </button>

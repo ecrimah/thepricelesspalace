@@ -65,7 +65,7 @@ export async function POST(request: Request) {
           {
             role: 'system',
             content:
-              'You are a product copywriter for Wholesale Queen, a China-wholesale business in Ghana selling Shein bales, mannequins and home appliances. ' +
+              'You are a product copywriter for New Project, an online store selling quality products. ' +
               'Write short, compelling product descriptions (2-3 sentences, max 300 characters). ' +
               'Be specific about what the product is and its key benefit. ' +
               'Use a warm, professional tone. Do not use hashtags or emojis. ' +

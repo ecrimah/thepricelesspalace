@@ -27,9 +27,9 @@ export default function MobileSearchOverlay({ isOpen, onClose }: MobileSearchOve
   ];
 
   const searchSuggestions = [
-    { name: 'Summer Floral Dress', category: 'Women\'s Clothing', price: '₵289', image: 'https://readdy.ai/api/search-image?query=elegant%20summer%20floral%20dress%20on%20white%20mannequin%20with%20simple%20clean%20white%20studio%20background%20soft%20natural%20lighting%20feminine%20style%20fashion%20photography%20high%20quality%20detailed&width=80&height=80&seq=mob1&orientation=squarish' },
-    { name: 'Classic Leather Handbag', category: 'Bags', price: '₵459', image: 'https://readdy.ai/api/search-image?query=luxury%20brown%20leather%20handbag%20on%20white%20surface%20clean%20minimalist%20white%20studio%20background%20professional%20product%20photography%20high%20quality%20detailed%20premium%20fashion&width=80&height=80&seq=mob2&orientation=squarish' },
-    { name: 'Designer Sunglasses', category: 'Accessories', price: '₵199', image: 'https://readdy.ai/api/search-image?query=stylish%20modern%20sunglasses%20on%20white%20display%20stand%20clean%20white%20studio%20background%20professional%20product%20photography%20high%20quality%20detailed%20fashion%20accessory&width=80&height=80&seq=mob3&orientation=squarish' }
+    { name: 'Summer Floral Dress', category: 'Women\'s Clothing', price: '₵289', image: '/placeholder-product.png' },
+    { name: 'Classic Leather Handbag', category: 'Bags', price: '₵459', image: '/placeholder-product.png' },
+    { name: 'Designer Sunglasses', category: 'Accessories', price: '₵199', image: '/placeholder-product.png' }
   ];
 
   useEffect(() => {

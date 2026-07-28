@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { useRecaptcha } from '@/hooks/useRecaptcha';
+import { BRAND } from '@/lib/brand';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -77,7 +78,7 @@ export default function LoginPage() {
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
           <Link href="/" className="inline-block mb-5">
-            <img src="/wholesalequeen-logo.png" alt="Wholesale Queen" className="h-10 mx-auto" />
+            <img src="/logo.png" alt={BRAND.name} className="h-10 mx-auto" />
           </Link>
           <h1 className="text-4xl font-bold text-gray-900 mb-2">Welcome Back</h1>
           <p className="text-gray-600">Sign in to your account to continue</p>
@@ -85,7 +86,7 @@ export default function LoginPage() {
 
         <div className="bg-white rounded-xl shadow-sm p-8">
           {authError && (
-            <div className="mb-4 p-4 bg-[#E89DB5]/50 border border-[#FF6666]/30 text-[#9A1900] rounded-lg text-sm">
+            <div className="mb-4 p-4 bg-[#93c5fd]/50 border border-[#FF6666]/30 text-[#9A1900] rounded-lg text-sm">
               {authError}
             </div>
           )}
@@ -184,7 +185,7 @@ export default function LoginPage() {
                 disabled
                 className="flex items-center justify-center space-x-2 border-2 border-gray-200 bg-gray-50 py-3 rounded-lg cursor-not-allowed opacity-60"
               >
-                <i className="ri-facebook-fill text-xl text-[#C9A24E] grayscale opacity-50"></i>
+                <i className="ri-facebook-fill text-xl text-[#2563eb] grayscale opacity-50"></i>
                 <span className="font-medium text-gray-400">Facebook</span>
               </button>
             </div>

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import { BRAND } from '@/lib/brand';
 
 export default function AdminLayout({
   children,
@@ -409,7 +410,7 @@ export default function AdminLayout({
 
       {/* Sidebar - Mobile: Transform / Desktop: Width transition */}
       <aside
-        className={`fixed top-0 left-0 z-40 h-screen bg-[#141414] border-r border-[#C9A24E]/15 transition-all duration-300
+        className={`fixed top-0 left-0 z-40 h-screen bg-[#1e40af] border-r border-[#2563eb]/15 transition-all duration-300
           w-64
           ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
           ${isSidebarOpen ? 'lg:w-64' : 'lg:w-0 lg:overflow-hidden'}
@@ -418,8 +419,8 @@ export default function AdminLayout({
       >
         <div className="h-full px-4 py-6 overflow-y-auto">
           <Link href="/admin" className="flex items-center gap-3 mb-8 px-2 cursor-pointer">
-            <img src="/wholesalequeen-logo-white.png" alt="Wholesale Queen" className="h-9 w-auto object-contain" />
-            <span className="text-[10px] font-bold tracking-[0.2em] text-[#C9A24E] border border-[#C9A24E]/40 rounded-full px-2 py-0.5">ADMIN</span>
+            <img src="/logo-white.png" alt={BRAND.name} className="h-9 w-auto object-contain" />
+            <span className="text-[10px] font-bold tracking-[0.2em] text-[#2563eb] border border-[#2563eb]/40 rounded-full px-2 py-0.5">ADMIN</span>
           </Link>
 
           <nav className="space-y-1">
@@ -431,7 +432,7 @@ export default function AdminLayout({
                   href={item.path}
                   onClick={() => window.innerWidth < 1024 && setIsSidebarOpen(false)}
                   className={`flex items-center justify-between px-4 py-2.5 rounded-lg transition-colors cursor-pointer ${isActive
-                    ? 'bg-gradient-to-r from-[#C9A24E] to-[#9C7A2E] text-[#141414] font-semibold shadow-[0_8px_20px_-12px_rgba(201,162,78,0.9)]'
+                    ? 'bg-gradient-to-r from-[#2563eb] to-[#1d4ed8] text-[#1e40af] font-semibold shadow-[0_8px_20px_-12px_rgba(37,99,235,0.9)]'
                     : 'text-white/65 hover:bg-white/[0.06] hover:text-white'
                     }`}
                 >
@@ -440,7 +441,7 @@ export default function AdminLayout({
                     <span className="text-sm">{item.title}</span>
                   </div>
                   {item.badge && (
-                    <span className="bg-[#E89DB5] text-[#141414] text-xs font-bold px-2 py-1 rounded-full">
+                    <span className="bg-[#93c5fd] text-[#1e40af] text-xs font-bold px-2 py-1 rounded-full">
                       {item.badge}
                     </span>
                   )}
@@ -453,12 +454,12 @@ export default function AdminLayout({
             {/* Maintenance Mode Toggle — super admin only */}
             {userRole === 'admin' && (
               <div
-                className={`flex items-center justify-between px-4 py-3 rounded-lg ${maintenanceEnabled ? 'bg-[#C9A24E]/20' : 'bg-white/[0.05]'
+                className={`flex items-center justify-between px-4 py-3 rounded-lg ${maintenanceEnabled ? 'bg-[#2563eb]/20' : 'bg-white/[0.05]'
                   }`}
               >
                 <div className="flex items-center gap-2 min-w-0">
                   <i
-                    className={`text-lg shrink-0 ${maintenanceEnabled ? 'ri-tools-fill text-[#C9A24E]' : 'ri-store-2-line text-white/55'
+                    className={`text-lg shrink-0 ${maintenanceEnabled ? 'ri-tools-fill text-[#2563eb]' : 'ri-store-2-line text-white/55'
                       }`}
                   ></i>
                   <div className="min-w-0">
@@ -471,8 +472,8 @@ export default function AdminLayout({
                 <button
                   onClick={handleToggleMaintenance}
                   disabled={maintenanceToggling}
-                  className={`relative flex-shrink-0 w-11 h-6 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-offset-[#141414] ${maintenanceEnabled
-                    ? 'bg-[#C9A24E] focus:ring-[#C9A24E]/40'
+                  className={`relative flex-shrink-0 w-11 h-6 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-offset-[#1e40af] ${maintenanceEnabled
+                    ? 'bg-[#2563eb] focus:ring-[#2563eb]/40'
                     : 'bg-white/20 focus:ring-white/30'
                     } ${maintenanceToggling ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}
                   title={maintenanceEnabled ? 'Bring store back online' : 'Enable maintenance mode'}
@@ -497,7 +498,7 @@ export default function AdminLayout({
             <button
               onClick={handleClearCache}
               disabled={cacheCleared}
-              className="w-full flex items-center space-x-3 px-4 py-2.5 text-sm text-white/65 hover:bg-white/[0.06] hover:text-[#E89DB5] rounded-lg transition-colors cursor-pointer disabled:opacity-70"
+              className="w-full flex items-center space-x-3 px-4 py-2.5 text-sm text-white/65 hover:bg-white/[0.06] hover:text-[#93c5fd] rounded-lg transition-colors cursor-pointer disabled:opacity-70"
             >
               <i className={`${cacheCleared ? 'ri-check-line text-green-400' : 'ri-delete-bin-2-line'} text-xl w-5 h-5 flex items-center justify-center`}></i>
               <span className={cacheCleared ? 'text-green-400 font-medium' : ''}>{cacheCleared ? 'Cache Cleared!' : 'Clear Cache'}</span>
@@ -528,7 +529,7 @@ export default function AdminLayout({
                   onClick={() => setShowUserMenu(!showUserMenu)}
                   className="flex items-center space-x-2 lg:space-x-3 px-2 lg:px-3 py-2 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
                 >
-                  <div className="w-8 h-8 lg:w-9 lg:h-9 flex items-center justify-center bg-gradient-to-br from-[#C9A24E] to-[#9C7A2E] text-white rounded-full font-semibold">
+                  <div className="w-8 h-8 lg:w-9 lg:h-9 flex items-center justify-center bg-gradient-to-br from-[#2563eb] to-[#1d4ed8] text-white rounded-full font-semibold">
                     {user?.email?.charAt(0).toUpperCase() || 'A'}
                   </div>
                   <div className="text-left hidden md:block">

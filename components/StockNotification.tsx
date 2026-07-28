@@ -15,11 +15,11 @@ export default function StockNotification({ stockCount, threshold = 10, viewCoun
       {isLowStock && (
         <div className={`flex items-center space-x-2 px-3 py-2 rounded-lg ${
           isVeryLowStock 
-            ? 'bg-[#E89DB5]/50 border border-[#FF6666]/30' 
-            : 'bg-[#FFFFCC]/50 border border-[#D8B85F]/30'
+            ? 'bg-[#93c5fd]/50 border border-[#FF6666]/30' 
+            : 'bg-[#FFFFCC]/50 border border-[#60a5fa]/30'
         }`}>
           <div className={`w-2 h-2 rounded-full animate-pulse ${
-            isVeryLowStock ? 'bg-[#FF6666]' : 'bg-[#D8B85F]'
+            isVeryLowStock ? 'bg-[#FF6666]' : 'bg-[#60a5fa]'
           }`}></div>
           <span className={`text-sm font-semibold ${
             isVeryLowStock ? 'text-[#9A1900]' : 'text-[#996633]'
@@ -31,11 +31,11 @@ export default function StockNotification({ stockCount, threshold = 10, viewCoun
       )}
 
       {viewCount && viewCount > 50 && (
-        <div className="flex items-center space-x-2 px-3 py-2 rounded-lg bg-[#C9A24E]/10 border border-[#C9A24E]/30">
-          <div className="w-6 h-6 flex items-center justify-center bg-[#141414] rounded-full">
+        <div className="flex items-center space-x-2 px-3 py-2 rounded-lg bg-[#2563eb]/10 border border-[#2563eb]/30">
+          <div className="w-6 h-6 flex items-center justify-center bg-[#1e40af] rounded-full">
             <i className="ri-eye-fill text-white text-xs"></i>
           </div>
-          <span className="text-sm font-semibold text-[#C9A24E]">
+          <span className="text-sm font-semibold text-[#2563eb]">
             🔥 {viewCount.toLocaleString()} people viewed this today
           </span>
         </div>

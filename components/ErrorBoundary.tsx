@@ -35,7 +35,7 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
       return (
         <div className="min-h-[60vh] flex items-center justify-center px-4">
           <div className="text-center max-w-md">
-            <div className="w-20 h-20 mx-auto mb-6 bg-[#E89DB5]/50 rounded-full flex items-center justify-center">
+            <div className="w-20 h-20 mx-auto mb-6 bg-[#93c5fd]/50 rounded-full flex items-center justify-center">
               <i className="ri-error-warning-line text-4xl text-[#FF6666]"></i>
             </div>
             <h2 className="text-2xl font-bold text-gray-900 mb-3">Something went wrong</h2>

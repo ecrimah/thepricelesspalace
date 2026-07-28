@@ -1,44 +1,50 @@
 import Link from 'next/link';
-import { supabase } from '@/lib/supabase';
+import { isPlainPostgres } from '@/lib/db/mode';
+import { createClient } from '@/lib/db/supabase-compat';
 import PageHero from '@/components/PageHero';
 
 export const revalidate = 0; // Ensure fresh data on every visit
 
-export default async function CategoriesPage() {
-  const { data: categoriesData } = await supabase
-    .from('categories')
-    .select(`
-      id,
-      name,
-      slug,
-      description,
-      image_url,
-      position
-    `)
-    .eq('status', 'active')
-    .order('position', { ascending: true });
+type CategoryRow = {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  image_url: string | null;
+  position: number | null;
+};
 
-  // Palette to cycle through for visual variety since DB doesn't have colors
+export default async function CategoriesPage() {
+  let categoriesData: CategoryRow[] = [];
+  if (isPlainPostgres()) {
+    const db = createClient();
+    const { data } = await db
+      .from('categories')
+      .select('id, name, slug, description, image_url, position')
+      .eq('status', 'active')
+      .order('position', { ascending: true });
+    categoriesData = (data as CategoryRow[]) || [];
+  }
+
   const palette = [
-    { color: 'from-[#C9A24E] to-[#141414]', icon: 'ri-store-2-line' },
-    { color: 'from-[#141414] to-[#C9A24E]', icon: 'ri-shopping-bag-3-line' },
-    { color: 'from-[#141414] to-[#C9A24E]', icon: 'ri-t-shirt-line' },
-    { color: 'from-[#D8B85F] to-[#C9A24E]', icon: 'ri-home-smile-line' },
-    { color: 'from-[#9A1900] to-[#141414]', icon: 'ri-heart-line' },
-    { color: 'from-[#141414] to-[#C9A24E]', icon: 'ri-star-smile-line' },
+    { color: 'from-[#2563eb] to-[#1e40af]', icon: 'ri-store-2-line' },
+    { color: 'from-[#1e40af] to-[#2563eb]', icon: 'ri-shopping-bag-3-line' },
+    { color: 'from-[#1e40af] to-[#2563eb]', icon: 'ri-t-shirt-line' },
+    { color: 'from-[#60a5fa] to-[#2563eb]', icon: 'ri-home-smile-line' },
+    { color: 'from-[#9A1900] to-[#1e40af]', icon: 'ri-heart-line' },
+    { color: 'from-[#1e40af] to-[#2563eb]', icon: 'ri-star-smile-line' },
   ];
 
-  const categories = categoriesData?.map((c, i) => {
+  const categories = categoriesData.map((c: CategoryRow, i: number) => {
     const style = palette[i % palette.length];
     return {
       ...c,
       image: c.image_url || '/placeholder-product.png',
       color: style.color,
       icon: style.icon,
-      // Optional: Fetch product count if needed, currently skipping for performance/simplicity
       productCount: 'Browse',
     };
-  }) || [];
+  });
 
   return (
     <div className="min-h-screen bg-white">
@@ -55,7 +61,7 @@ export default async function CategoriesPage() {
               <Link
                 key={category.id}
                 href={`/shop?category=${category.slug}`}
-                className="group relative block aspect-[4/5] overflow-hidden rounded-3xl bg-[#141414]"
+                className="group relative block aspect-[4/5] overflow-hidden rounded-3xl bg-[#1e40af]"
               >
                 {category.image ? (
                   <img
@@ -70,7 +76,7 @@ export default async function CategoriesPage() {
                 {/* readability gradient */}
                 <span aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent"></span>
                 {/* gold ring on hover */}
-                <span aria-hidden="true" className="absolute inset-0 rounded-3xl ring-1 ring-inset ring-white/10 transition-all duration-300 group-hover:ring-2 group-hover:ring-[#C9A24E]/70"></span>
+                <span aria-hidden="true" className="absolute inset-0 rounded-3xl ring-1 ring-inset ring-white/10 transition-all duration-300 group-hover:ring-2 group-hover:ring-[#2563eb]/70"></span>
 
                 {/* index */}
                 <span className="absolute left-5 top-5 text-[11px] font-semibold tracking-[0.25em] text-white/45">
@@ -78,7 +84,7 @@ export default async function CategoriesPage() {
                 </span>
 
                 <div className="absolute inset-x-0 bottom-0 p-6">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#D8B85F]">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-[#60a5fa]">
                     Collection
                   </p>
                   <h3 className="mt-2 font-serif text-2xl sm:text-3xl font-bold leading-tight text-white drop-shadow-sm">
@@ -86,7 +92,7 @@ export default async function CategoriesPage() {
                   </h3>
                   <span className="mt-3 inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/85">
                     Browse
-                    <span aria-hidden="true" className="h-px w-6 bg-white/50 transition-all duration-300 group-hover:w-10 group-hover:bg-[#C9A24E]"></span>
+                    <span aria-hidden="true" className="h-px w-6 bg-white/50 transition-all duration-300 group-hover:w-10 group-hover:bg-[#2563eb]"></span>
                   </span>
                 </div>
               </Link>
@@ -101,26 +107,26 @@ export default async function CategoriesPage() {
       </div>
 
       <div className="px-4 sm:px-6 lg:px-8 pb-16">
-        <div className="relative max-w-6xl mx-auto overflow-hidden rounded-3xl bg-[#141414] text-white ring-1 ring-[#C9A24E]/20 shadow-[0_28px_70px_-34px_rgba(20,20,20,0.95)]">
+        <div className="relative max-w-6xl mx-auto overflow-hidden rounded-3xl bg-[#1e40af] text-white ring-1 ring-[#2563eb]/20 shadow-[0_28px_70px_-34px_rgba(20,20,20,0.95)]">
           {/* ambient brand glows */}
-          <span aria-hidden="true" className="pointer-events-none absolute -left-24 -top-24 h-80 w-80 rounded-full bg-[#C9A24E]/25 blur-[110px]" />
-          <span aria-hidden="true" className="pointer-events-none absolute -bottom-28 right-1/4 h-80 w-80 rounded-full bg-[#E89DB5]/15 blur-[110px]" />
+          <span aria-hidden="true" className="pointer-events-none absolute -left-24 -top-24 h-80 w-80 rounded-full bg-[#2563eb]/25 blur-[110px]" />
+          <span aria-hidden="true" className="pointer-events-none absolute -bottom-28 right-1/4 h-80 w-80 rounded-full bg-[#93c5fd]/15 blur-[110px]" />
 
           <div className="relative px-6 sm:px-10 py-14 sm:py-16 text-center">
-            <span className="inline-flex items-center gap-2 text-[11px] font-semibold tracking-[0.25em] uppercase text-[#D8B85F]">
-              <span className="h-px w-6 bg-[#D8B85F]/60" />
+            <span className="inline-flex items-center gap-2 text-[11px] font-semibold tracking-[0.25em] uppercase text-[#60a5fa]">
+              <span className="h-px w-6 bg-[#60a5fa]/60" />
               Need a hand?
-              <span className="h-px w-6 bg-[#D8B85F]/60" />
+              <span className="h-px w-6 bg-[#60a5fa]/60" />
             </span>
             <h2 className="mt-4 text-3xl sm:text-4xl font-extrabold">Can&apos;t find what you&apos;re looking for?</h2>
-            <span aria-hidden="true" className="mt-4 mx-auto block h-1 w-16 rounded-full bg-gradient-to-r from-[#C9A24E] to-[#E89DB5]" />
+            <span aria-hidden="true" className="mt-4 mx-auto block h-1 w-16 rounded-full bg-gradient-to-r from-[#2563eb] to-[#93c5fd]" />
             <p className="mt-5 text-base sm:text-lg text-white/70 max-w-xl mx-auto leading-relaxed">
               Search the full catalogue or message our team on WhatsApp for personalised bale and stock recommendations.
             </p>
             <div className="mt-8 flex flex-wrap gap-3 justify-center">
               <Link
                 href="/shop"
-                className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#C9A24E] to-[#9C7A2E] text-white px-8 py-3.5 text-sm font-semibold shadow-[0_14px_30px_-12px_rgba(201,162,78,0.9)] hover:brightness-105 hover:-translate-y-0.5 transition-all whitespace-nowrap"
+                className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#2563eb] to-[#1d4ed8] text-white px-8 py-3.5 text-sm font-semibold shadow-[0_14px_30px_-12px_rgba(37,99,235,0.9)] hover:brightness-105 hover:-translate-y-0.5 transition-all whitespace-nowrap"
               >
                 <i className="ri-search-line"></i>
                 Search All Products

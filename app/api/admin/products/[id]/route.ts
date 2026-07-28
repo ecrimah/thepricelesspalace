@@ -201,7 +201,7 @@ export async function DELETE(
 
     const { data: reviews } = await supabaseAdmin.from('reviews').select('id').eq('product_id', productId);
     if (reviews?.length) {
-      const reviewIds = reviews.map((r) => r.id);
+      const reviewIds = reviews.map((r: any) => r.id);
       await supabaseAdmin.from('review_images').delete().in('review_id', reviewIds);
       await supabaseAdmin.from('reviews').delete().eq('product_id', productId);
     }

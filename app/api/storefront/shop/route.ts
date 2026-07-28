@@ -146,11 +146,11 @@ export async function GET(request: Request) {
 
               return { category, score };
             })
-            .filter((row) => row.score > 0)
-            .sort((a, b) => b.score - a.score);
+            .filter((row: any) => row.score > 0)
+            .sort((a: any, b: any) => b.score - a.score);
 
           if (scoredMatches.length > 0) {
-            const matchedIds = new Set(scoredMatches.map((row) => row.category.id));
+            const matchedIds = new Set(scoredMatches.map((row: any) => row.category.id));
             for (const category of categoriesData) {
               if (category.parent_id && matchedIds.has(category.parent_id)) {
                 matchedIds.add(category.id);
@@ -158,8 +158,8 @@ export async function GET(request: Request) {
             }
 
             const fallbackSlugs = categoriesData
-              .filter((category) => matchedIds.has(category.id))
-              .map((category) => category.slug)
+              .filter((category: any) => matchedIds.has(category.id))
+              .map((category: any) => category.slug)
               .filter(Boolean);
 
             if (fallbackSlugs.length > 0) {

@@ -14,20 +14,23 @@ const defaultSource = path.join(
   'projects',
   'c-Users-hp-OneDrive-Desktop-websites-palace',
   'assets',
-  'c__Users_hp_AppData_Roaming_Cursor_User_workspaceStorage_f831908087544b2adeebf8747915e6b7_images_ChatGPT_Image_Jul_28__2026__07_33_40_PM-4f4ca4e3-931b-45a8-8fc3-db575f731d08.png'
+  'c__Users_hp_AppData_Roaming_Cursor_User_workspaceStorage_f831908087544b2adeebf8747915e6b7_images_ChatGPT_Image_Jul_28__2026__07_46_21_PM-d4665fb8-55c1-42d7-a743-d9b225e8e3b7.png'
 );
 
 const SOURCE = process.env.TPP_LOGO_SOURCE || defaultSource;
 
-/** Brand blue for light backgrounds (header, admin card). */
-const BRAND_RGB = { r: 30, g: 64, b: 175 }; // #1e40af
+/** Black letterforms for light backgrounds (header, admin card). */
+const INK_RGB = { r: 0, g: 0, b: 0 };
 
 function ensureDir(dir) {
   fs.mkdirSync(dir, { recursive: true });
 }
 
-/** Turn black/near-black pixels transparent; optional recolor for light-bg variant. */
-async function logoFromSource(recolor) {
+/**
+ * Black TPP on white source → transparent PNG.
+ * @param {'ink' | 'white'} variant
+ */
+async function logoFromSource(variant) {
   const { data, info } = await sharp(SOURCE)
     .ensureAlpha()
     .raw()
@@ -43,26 +46,25 @@ async function logoFromSource(recolor) {
     const b = out[idx + 2];
     const lum = 0.299 * r + 0.587 * g + 0.114 * b;
 
-    // Remove dark background (black square)
-    if (lum < 45) {
+    // Remove white / near-white background
+    if (lum > 210) {
       out[idx + 3] = 0;
       continue;
     }
 
-    // Soft edge: semi-transparent near threshold
-    if (lum < 80) {
-      out[idx + 3] = Math.round(((lum - 45) / 35) * 255);
+    // Soft edge on anti-aliased borders
+    if (lum > 175) {
+      out[idx + 3] = Math.round(((210 - lum) / 35) * 255);
     }
 
-    if (recolor) {
-      out[idx] = BRAND_RGB.r;
-      out[idx + 1] = BRAND_RGB.g;
-      out[idx + 2] = BRAND_RGB.b;
-    } else {
-      // Keep white letterforms on transparent
+    if (variant === 'white') {
       out[idx] = 255;
       out[idx + 1] = 255;
       out[idx + 2] = 255;
+    } else {
+      out[idx] = INK_RGB.r;
+      out[idx + 1] = INK_RGB.g;
+      out[idx + 2] = INK_RGB.b;
     }
   }
 
@@ -73,13 +75,13 @@ async function logoFromSource(recolor) {
 }
 
 async function buildLogoVariants() {
-  const logoWhite = await logoFromSource(false);
-  const logoDark = await logoFromSource(true);
+  const logoInk = await logoFromSource('ink');
+  const logoWhite = await logoFromSource('white');
 
+  fs.writeFileSync(path.join(pub, 'logo.png'), logoInk);
   fs.writeFileSync(path.join(pub, 'logo-white.png'), logoWhite);
-  fs.writeFileSync(path.join(pub, 'logo.png'), logoDark);
-  console.log('logo.png (blue, transparent) + logo-white.png (white, transparent)');
-  return { logoWhite, logoDark };
+  console.log('logo.png (black, transparent) + logo-white.png (white, transparent)');
+  return { logoInk, logoWhite };
 }
 
 async function buildIcons(logoBuffer, bg) {
@@ -162,11 +164,11 @@ async function main() {
   }
 
   ensureDir(pub);
-  const { logoWhite, logoDark } = await buildLogoVariants();
+  const { logoInk, logoWhite } = await buildLogoVariants();
   const iconBg = { r: 30, g: 64, b: 175, alpha: 1 };
-  await buildIcons(logoDark, iconBg);
+  await buildIcons(logoWhite, iconBg);
   await buildOgImages(logoWhite);
-  console.log('TPP logo deployed (background removed) across public/');
+  console.log('TPP logo deployed (white background removed) across public/');
 }
 
 main().catch((err) => {

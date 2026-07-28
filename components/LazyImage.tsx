@@ -16,7 +16,22 @@ interface LazyImageProps {
 
 /** Static public assets are already WebP — skip the optimizer for faster first paint. */
 function isStaticPublicAsset(src: string) {
-  return src.startsWith('/') && !src.startsWith('/storage/') && !src.startsWith('/uploads/');
+  try {
+    const pathname = src.startsWith('http')
+      ? new URL(src).pathname
+      : src.split('?')[0];
+    if (pathname.startsWith('/storage/') || pathname.startsWith('/uploads/')) {
+      return false;
+    }
+    return (
+      pathname.startsWith('/products/') ||
+      pathname.startsWith('/hero-') ||
+      pathname === '/placeholder-product.webp' ||
+      (pathname.startsWith('/') && /\.(webp|png|jpe?g|avif)$/i.test(pathname))
+    );
+  } catch {
+    return false;
+  }
 }
 
 export default function LazyImage({

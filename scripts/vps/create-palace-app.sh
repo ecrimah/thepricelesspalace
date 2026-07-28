@@ -27,7 +27,7 @@ fi
 # shellcheck disable=SC1090
 source "$SECRETS_FILE"
 
-GIT_REPO="${GIT_REPO:-ecrimah/thepricelesspalace}"
+GIT_REPO="${GIT_REPO:-https://github.com/ecrimah/thepricelesspalace.git}"
 GIT_BRANCH="${GIT_BRANCH:-staging/plain-postgres}"
 
 echo "==> ensure uploads dir"

@@ -21,6 +21,7 @@ export type LegacyQueryBuilder = {
   or: (...args: any[]) => LegacyQueryBuilder;
   not: (...args: any[]) => LegacyQueryBuilder;
   filter: (...args: any[]) => LegacyQueryBuilder;
+  contains: (...args: any[]) => LegacyQueryBuilder;
   order: (...args: any[]) => LegacyQueryBuilder;
   limit: (...args: any[]) => LegacyQueryBuilder;
   range: (...args: any[]) => LegacyQueryBuilder;

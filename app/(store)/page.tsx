@@ -67,7 +67,6 @@ export default function Home() {
             .from('categories')
             .select('id, name, slug, parent_id, position, metadata, image_url')
             .eq('status', 'active')
-            .contains('metadata', { featured: true })
             .is('parent_id', null)
             .order('position', { ascending: true })
             .limit(4),

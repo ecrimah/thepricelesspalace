@@ -3,8 +3,12 @@
 **Shape:** A (latest) — no `@supabase/*`; HTTP client + `/rest/v1`, `/auth/v1`, `/storage/v1` shims + `DATABASE_URL`  
 **Repo folder:** `palace`  
 **Branch:** `staging/plain-postgres`  
-**Fleet DB slug:** `store_palace` (provision with `sudo fleet db provision palace`)  
-**Coolify app:** not created yet (fleet cannot create apps — owner UI when domain ready)
+**Fleet DB slug:** `store_palace` (provisioned)  
+**Coolify app:** `palace-app` (`vbw578yuxwwbq9cenmyiwgxd`)  
+**GitHub:** `https://github.com/ecrimah/thepricelesspalace.git` branch `staging/plain-postgres`  
+**Domain:** `https://thepricelesspalace.com` (+ www + `palace.169-58-8-203.sslip.io`)  
+**Uploads:** `/var/www/palace/uploads`  
+**Admin:** `admin@palace.com` (bootstrap via seed / `npm run create-admin`)
 
 See also: [`STORE_HARDENING_PLAYBOOK.md`](./STORE_HARDENING_PLAYBOOK.md) (copied from big-vps, Jul 2026).
 

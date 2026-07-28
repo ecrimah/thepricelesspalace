@@ -136,6 +136,13 @@ function formatCmp(op: string, value: unknown): string {
     if (value === null || value === 'null') return 'is.null';
     return `is.${formatScalar(value)}`;
   }
+  if (op === 'cs' || op === 'cd' || op === 'ov') {
+    const json = typeof value === 'string' ? value : JSON.stringify(value ?? {});
+    return `${op}.${json}`;
+  }
+  if (value !== null && typeof value === 'object') {
+    return `${op}.${JSON.stringify(value)}`;
+  }
   return `${op}.${formatScalar(value)}`;
 }
 
@@ -253,6 +260,11 @@ class HttpQueryBuilder implements PromiseLike<QueryResult> {
     } else {
       this.filters.push({ kind: 'cmp', col, op, value });
     }
+    return this;
+  }
+  /** PostgREST jsonb containment (`cs`). */
+  contains(col: string, value: unknown) {
+    this.filters.push({ kind: 'cmp', col, op: 'cs', value });
     return this;
   }
 

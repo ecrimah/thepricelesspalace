@@ -28,7 +28,7 @@ import { FK_MAP, JSONB_COLUMNS, type FkEdge } from "./fk-map";
 import { createStorageClient, type StorageClient } from "./storage";
 
 type Row = Record<string, any>;
-type Op = "eq" | "neq" | "gt" | "gte" | "lt" | "lte" | "like" | "ilike" | "is" | "in";
+type Op = "eq" | "neq" | "gt" | "gte" | "lt" | "lte" | "like" | "ilike" | "is" | "in" | "cs" | "cd";
 
 interface Filter {
   kind: "cmp" | "in" | "is" | "or" | "notIn" | "notIs" | "raw";
@@ -343,6 +343,11 @@ class QueryBuilder implements PromiseLike<{ data: any; error: any; count: number
     }
     return this;
   }
+  /** PostgREST jsonb containment (`cs` / `@>`). */
+  contains(col: string, value: any) {
+    this.filters.push({ kind: "cmp", col, op: "cs", value });
+    return this;
+  }
 
   order(col: string, opts?: { ascending?: boolean; nullsFirst?: boolean }) {
     this.orders.push({
@@ -433,9 +438,16 @@ class QueryBuilder implements PromiseLike<{ data: any; error: any; count: number
       lte: "<=",
       like: "LIKE",
       ilike: "ILIKE",
+      cs: "@>",
+      cd: "<@",
     };
     const o = sqlOp[bare];
     if (!o) throw new Error(`Unsupported operator: ${op}`);
+    if (bare === "cs" || bare === "cd") {
+      params.push(typeof value === "string" ? value : JSON.stringify(value ?? {}));
+      const clause = `${ident(col)} ${o} $${params.length}::jsonb`;
+      return negate ? `NOT (${clause})` : clause;
+    }
     params.push(value);
     // Avoid Postgres uuid cast errors for filters like id.eq.ORD-123
     // (PostgREST coerces; we compare as text when the value is not a UUID).

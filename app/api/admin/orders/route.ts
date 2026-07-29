@@ -71,7 +71,8 @@ export async function GET(request: Request) {
       return NextResponse.json({ items: data || [] });
     }
 
-    // Full orders list
+    // Full orders list (capped to protect admin dashboard performance)
+    const limit = Math.min(Number(searchParams.get('limit') || 200), 500);
     const { data: ordersData, error } = await supabaseAdmin
       .from('orders')
       .select(`
@@ -92,10 +93,11 @@ export async function GET(request: Request) {
           product_name
         )
       `)
-      .order('created_at', { ascending: false });
+      .order('created_at', { ascending: false })
+      .limit(limit);
 
     if (error) throw error;
-    return NextResponse.json({ orders: ordersData || [] });
+    return NextResponse.json({ orders: ordersData || [], limit });
   } catch (e: any) {
     console.error('Admin orders API error:', e);
     return NextResponse.json({ error: e.message }, { status: 500 });

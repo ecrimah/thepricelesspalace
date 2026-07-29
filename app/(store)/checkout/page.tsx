@@ -137,137 +137,57 @@ export default function CheckoutPage() {
     }
 
     try {
-      const orderNumber = `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-      // Generate tracking number: ORD-XXXXXX (6-char alphanumeric)
-      const trackingId = Array.from({ length: 6 }, () => 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[Math.floor(Math.random() * 32)]).join('');
-      const trackingNumber = `ORD-${trackingId}`;
-
-      // 1. Create Order
-      const { data: order, error: orderError } = await supabase
-        .from('orders')
-        .insert([{
-          order_number: orderNumber,
-          user_id: user?.id || null, // Capture user_id if logged in
-          email: shippingData.email,
-          phone: shippingData.phone,
-          status: 'pending',
-          payment_status: 'pending',
-          currency: 'GHS',
-          subtotal: subtotal,
-          tax_total: tax,
-          shipping_total: shippingCost,
-          discount_total: couponDiscount,
-          total: total,
-          shipping_method: deliveryMethod,
-          payment_method: paymentMethod,
-          shipping_address: shippingData,
-          billing_address: shippingData, // Using same for now
-          metadata: {
-            guest_checkout: !user,
-            first_name: shippingData.firstName,
-            last_name: shippingData.lastName,
-            tracking_number: trackingNumber,
-            coupon_code: appliedCoupon?.code || null,
-            coupon_discount: couponDiscount || null
-          }
-        }])
-        .select()
-        .single();
-
-      if (orderError) throw orderError;
-
-      // 2. Create Order Items (with UUID validation)
-      // Helper to check if string is a valid UUID
-      const isValidUUID = (str: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
-      
-      // Build order items, resolving slugs to UUIDs if needed
-      const orderItems = [];
-      
-      // Batch-fetch product metadata (for preorder_shipping etc.)
-      const productIds = cart.map(item => item.id).filter(id => isValidUUID(id));
-      const { data: productsData } = productIds.length > 0
-        ? await supabase.from('products').select('id, metadata').in('id', productIds)
-        : { data: [] };
-      const productMetaMap = new Map((productsData || []).map((p: any) => [p.id, p.metadata]));
-      
-      for (const item of cart) {
-        let productId = item.id;
-        
-        // If id is not a valid UUID, it might be a slug - try to resolve it
-        if (!isValidUUID(productId)) {
-          const { data: product } = await supabase
-            .from('products')
-            .select('id, metadata')
-            .or(`slug.eq.${productId},id.eq.${productId}`)
-            .single();
-          
-          if (product) {
-            productId = product.id;
-            productMetaMap.set(product.id, product.metadata);
-          } else {
-            throw new Error(`Product not found: ${item.name}. Please remove it from your cart and try again.`);
-          }
-        }
-        
-        const prodMeta = productMetaMap.get(productId);
-        
-        orderItems.push({
-          order_id: order.id,
-          product_id: productId,
-          product_name: item.name,
-          variant_name: item.variant,
-          quantity: item.quantity,
-          unit_price: item.price,
-          total_price: item.price * item.quantity,
-          metadata: {
-            image: item.image,
+      // Server-priced order creation (client totals are not trusted)
+      const checkoutRes = await fetch('/api/storefront/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: user?.id || null,
+          shippingData,
+          deliveryMethod,
+          paymentMethod,
+          couponCode: appliedCoupon?.code || null,
+          cart: cart.map((item: any) => ({
+            id: item.id,
+            name: item.name,
             slug: item.slug,
-            preorder_shipping: (prodMeta as any)?.preorder_shipping || null
-          }
-        });
+            image: item.image,
+            variant: item.variant,
+            variantId: item.variantId,
+            quantity: item.quantity,
+          })),
+        }),
+      });
+
+      const checkoutResult = await checkoutRes.json();
+      if (!checkoutRes.ok || !checkoutResult.order) {
+        throw new Error(checkoutResult.error || 'Failed to create order');
       }
 
-      const { error: itemsError } = await supabase
-        .from('order_items')
-        .insert(orderItems);
-
-      if (itemsError) throw itemsError;
-
-      // Record coupon usage (best-effort, server-side via service role)
-      if (appliedCoupon?.code) {
-        fetch('/api/storefront/coupons/redeem', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ code: appliedCoupon.code }),
-        }).catch((e) => console.error('Coupon redeem trigger error:', e));
-      }
+      const order = checkoutResult.order;
+      const orderNumber = checkoutResult.orderNumber || order.order_number;
+      const trackingNumber =
+        checkoutResult.trackingNumber || order.metadata?.tracking_number;
+      const chargedTotal = checkoutResult.totals?.total ?? order.total;
 
       // Note: Stock reduction happens in mark_order_paid when payment is confirmed
 
-      // 3. Upsert Customer Record (for both guest and registered users)
-      const fullName = `${shippingData.firstName} ${shippingData.lastName}`.trim();
-      await supabase.rpc('upsert_customer_from_order', {
-        p_email: shippingData.email,
-        p_phone: shippingData.phone,
-        p_full_name: fullName,
-        p_first_name: shippingData.firstName,
-        p_last_name: shippingData.lastName,
-        p_user_id: user?.id || null,
-        p_address: shippingData
-      });
-
-      // 4. Handle Payment Redirects or Completion (Hubtel or Moolre)
-      if (paymentMethod === 'hubtel' || paymentMethod === 'moolre') {
+      // Handle Payment Redirects or Completion
+      if (paymentMethod === 'hubtel' || paymentMethod === 'moolre' || paymentMethod === 'paystack') {
         try {
           const paymentEndpoint =
-            paymentMethod === 'hubtel' ? '/api/payment/hubtel' : '/api/payment/moolre';
+            paymentMethod === 'hubtel'
+              ? '/api/payment/hubtel'
+              : paymentMethod === 'paystack'
+                ? '/api/payment/paystack'
+                : '/api/payment/moolre';
 
           const paymentRes = await fetch(paymentEndpoint, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               orderId: orderNumber,
-              amount: total,
+              amount: chargedTotal,
               customerEmail: shippingData.email
             })
           });
@@ -696,6 +616,30 @@ export default function CheckoutPage() {
                     </div>
                     <i className="ri-wallet-3-line text-2xl text-[#2563eb]"></i>
                   </label>
+
+                  <label
+                    className={`flex items-start gap-3 p-4 border-2 rounded-xl cursor-pointer transition-colors ${
+                      paymentMethod === 'paystack'
+                        ? 'border-[#2563eb] bg-[#2563eb]/[0.07]'
+                        : 'border-gray-200 hover:border-[#2563eb]/40'
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      value="paystack"
+                      checked={paymentMethod === 'paystack'}
+                      onChange={() => setPaymentMethod('paystack')}
+                      className="w-5 h-5 accent-[#2563eb] mt-0.5"
+                    />
+                    <div className="flex-1">
+                      <p className="font-semibold text-gray-900">Paystack</p>
+                      <p className="text-sm text-gray-600 mt-1">
+                        Pay with card, Mobile Money, or bank transfer. Powered by Paystack.
+                      </p>
+                    </div>
+                    <i className="ri-bank-card-line text-2xl text-[#2563eb]"></i>
+                  </label>
                 </div>
 
                 <div className="flex flex-col-reverse md:flex-row gap-4 mt-6">
@@ -721,6 +665,8 @@ export default function CheckoutPage() {
                       </>
                     ) : paymentMethod === 'hubtel' ? (
                       'Pay with Hubtel'
+                    ) : paymentMethod === 'paystack' ? (
+                      'Pay with Paystack'
                     ) : (
                       'Pay with Moolre'
                     )}

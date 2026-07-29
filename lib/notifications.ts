@@ -1,5 +1,5 @@
 import { Resend } from 'resend';
-import { supabase } from '@/lib/supabase';
+import { supabaseAdmin } from '@/lib/supabase-admin';
 import { escapeHtml } from '@/lib/sanitize';
 
 const resend = new Resend(process.env.RESEND_API_KEY || 'missing_api_key');
@@ -136,12 +136,15 @@ export async function sendSMS({ to, message }: { to: string; message: string }) 
 
     try {
         console.log(`[SMS] Sending to ${maskPhone(recipient)}`);
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 15_000);
         const response = await fetch('https://api.moolre.com/open/sms/send', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'X-API-VASKEY': smsVasKey
             },
+            signal: controller.signal,
             body: JSON.stringify({
                 type: 1,
                 senderid: process.env.SMS_SENDER_ID || 'NEWPROJ',
@@ -152,7 +155,7 @@ export async function sendSMS({ to, message }: { to: string; message: string }) 
                     }
                 ]
             })
-        });
+        }).finally(() => clearTimeout(timer));
 
         const contentType = response.headers.get('content-type') || '';
         if (!contentType.includes('application/json')) {
@@ -173,8 +176,36 @@ export async function sendSMS({ to, message }: { to: string; message: string }) 
     }
 }
 
+/**
+ * Atomically claim the right to send confirmation notifications once per order.
+ * Returns false if another worker already claimed / sent.
+ */
+export async function claimOrderConfirmation(orderId: string): Promise<boolean> {
+    if (!orderId) return false;
+    const { data, error } = await supabaseAdmin
+        .from('orders')
+        .update({ confirmation_sent_at: new Date().toISOString() })
+        .eq('id', orderId)
+        .is('confirmation_sent_at', null)
+        .select('id')
+        .maybeSingle();
+    if (error) {
+        console.warn('[Notification] confirmation claim failed:', error.message);
+        return false;
+    }
+    return !!data?.id;
+}
+
 export async function sendOrderConfirmation(order: any) {
     const { id, email, phone: orderPhone, shipping_address, total, created_at, order_number, metadata } = order;
+
+    if (id) {
+        const claimed = await claimOrderConfirmation(id);
+        if (!claimed) {
+            console.log(`[Notification] Skipping duplicate confirmation for #${order_number || id}`);
+            return { skipped: true };
+        }
+    }
 
     const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) || 'https://example.com').replace(/\/+$/, '');
 
@@ -209,7 +240,7 @@ export async function sendOrderConfirmation(order: any) {
     // Fetch order items to get preorder_shipping info
     let shippingNotes: string[] = [];
     try {
-        const { data: items } = await supabase
+        const { data: items } = await supabaseAdmin
             .from('order_items')
             .select('product_name, metadata')
             .eq('order_id', id);

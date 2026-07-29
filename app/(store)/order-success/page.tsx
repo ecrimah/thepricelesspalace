@@ -67,9 +67,11 @@ function OrderSuccessContent() {
       const current = await refreshOrder().catch(() => null);
       const method = current?.payment_method || _initialOrder?.payment_method || 'hubtel';
       const endpoints =
-        method === 'moolre'
-          ? ['/api/payment/moolre/verify', '/api/payment/hubtel/verify']
-          : ['/api/payment/hubtel/verify', '/api/payment/moolre/verify'];
+        method === 'paystack'
+          ? ['/api/payment/paystack/verify', '/api/payment/hubtel/verify', '/api/payment/moolre/verify']
+          : method === 'moolre'
+            ? ['/api/payment/moolre/verify', '/api/payment/paystack/verify', '/api/payment/hubtel/verify']
+            : ['/api/payment/hubtel/verify', '/api/payment/paystack/verify', '/api/payment/moolre/verify'];
 
       for (const endpoint of endpoints) {
         const res = await fetch(endpoint, {

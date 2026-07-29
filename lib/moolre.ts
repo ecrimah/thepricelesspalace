@@ -77,6 +77,7 @@ export async function generatePaymentLink(args: GeneratePaymentLinkArgs): Promis
             method: 'POST',
             headers: moolreHeaders(cfg),
             body: JSON.stringify(body),
+            signal: AbortSignal.timeout(20_000),
         });
 
         const result = await res.json().catch(() => ({}));
@@ -110,6 +111,7 @@ export async function checkPaymentStatus(cfg: MoolreConfig, externalRef: string)
         const res = await fetch(`${MOOLRE_BASE}/open/transact/status`, {
             method: 'POST',
             headers: moolreHeaders(cfg),
+            signal: AbortSignal.timeout(20_000),
             body: JSON.stringify({
                 type: 1,
                 idtype: '1',

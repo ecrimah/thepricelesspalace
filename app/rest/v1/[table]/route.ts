@@ -4,6 +4,10 @@ import {
   applyPostgrestParams,
 } from "@/lib/db/supabase-compat";
 import { isPlainPostgres } from "@/lib/db/mode";
+import {
+  authorizeTableAccess,
+  resolveRestActor,
+} from "@/lib/db/rest-guard";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -41,6 +45,15 @@ function jsonError(message: string, status = 400) {
   );
 }
 
+async function guard(
+  req: NextRequest,
+  table: string,
+  method: "GET" | "POST" | "PATCH" | "PUT" | "DELETE"
+) {
+  const actor = await resolveRestActor(req);
+  return authorizeTableAccess(actor, table, method);
+}
+
 export async function OPTIONS() {
   return new NextResponse(null, { status: 204, headers: corsHeaders() });
 }
@@ -55,6 +68,9 @@ export async function GET(
   const { table } = await ctx.params;
   if (!PG_IDENT.test(table)) return jsonError("Invalid table");
 
+  const authz = await guard(req, table, "GET");
+  if (!authz.ok) return jsonError(authz.message, authz.status);
+
   const client = createClient();
   const qb = client.from(table);
   const select = req.nextUrl.searchParams.get("select") || "*";
@@ -66,7 +82,6 @@ export async function GET(
   } else {
     qb.select(select);
   }
-  // Apply filters/order/limit without re-applying select
   const params = new URLSearchParams(req.nextUrl.searchParams);
   params.delete("select");
   applyPostgrestParams(qb as any, params, {
@@ -81,7 +96,10 @@ export async function GET(
   const headers = new Headers(corsHeaders());
   headers.set("Content-Type", "application/json");
   if (result.count != null) {
-    headers.set("Content-Range", `0-${Math.max((Array.isArray(result.data) ? result.data.length : 1) - 1, 0)}/${result.count}`);
+    headers.set(
+      "Content-Range",
+      `0-${Math.max((Array.isArray(result.data) ? result.data.length : 1) - 1, 0)}/${result.count}`
+    );
   }
 
   if (preferSingle(req)) {
@@ -99,6 +117,9 @@ export async function POST(
   }
   const { table } = await ctx.params;
   if (!PG_IDENT.test(table)) return jsonError("Invalid table");
+
+  const authz = await guard(req, table, "POST");
+  if (!authz.ok) return jsonError(authz.message, authz.status);
 
   const body = await req.json().catch(() => null);
   if (body == null) return jsonError("Invalid JSON body");
@@ -129,6 +150,9 @@ export async function PATCH(
   const { table } = await ctx.params;
   if (!PG_IDENT.test(table)) return jsonError("Invalid table");
 
+  const authz = await guard(req, table, "PATCH");
+  if (!authz.ok) return jsonError(authz.message, authz.status);
+
   const body = await req.json().catch(() => null);
   if (body == null || typeof body !== "object") return jsonError("Invalid JSON body");
 
@@ -155,6 +179,9 @@ export async function DELETE(
   }
   const { table } = await ctx.params;
   if (!PG_IDENT.test(table)) return jsonError("Invalid table");
+
+  const authz = await guard(req, table, "DELETE");
+  if (!authz.ok) return jsonError(authz.message, authz.status);
 
   const client = createClient();
   let qb = client.from(table).delete();

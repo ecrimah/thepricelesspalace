@@ -80,6 +80,7 @@ export async function initiateHubtelCheckout(
             Accept: 'application/json',
             Authorization: buildAuthHeader(),
         },
+        signal: AbortSignal.timeout(20_000),
         body: JSON.stringify(payload),
     });
     return parseJsonOrThrow(res, 'initiate');
@@ -114,6 +115,7 @@ export async function checkHubtelStatus(
             Accept: 'application/json',
             Authorization: buildAuthHeader(),
         },
+        signal: AbortSignal.timeout(20_000),
     });
     const raw = await parseJsonOrThrow<any>(res, 'status');
     return normalizeStatusResponse(raw);

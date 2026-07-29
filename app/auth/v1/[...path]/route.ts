@@ -146,8 +146,11 @@ export async function POST(
   }
 
   if (slug === "recover") {
-    // Password recovery email not wired in staging shim yet
-    return NextResponse.json({}, { status: 200, headers: cors() });
+    return gotrueError(
+      "Password recovery email is not available. Please contact the store for a password reset.",
+      501,
+      "not_implemented"
+    );
   }
 
   return gotrueError(`Unknown auth path: ${slug}`, 404);

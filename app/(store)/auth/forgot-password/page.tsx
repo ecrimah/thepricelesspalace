@@ -36,37 +36,15 @@ export default function ForgotPasswordPage() {
       return;
     }
 
-    setTimeout(() => {
-      setIsLoading(false);
-      setIsSubmitted(true);
-    }, 1500);
+    // Email-based recovery is not wired on the plain-Postgres auth shim.
+    setIsLoading(false);
+    setError(
+      'Self-serve password reset is not available yet. Please contact the store (WhatsApp or phone) and we will reset your account.'
+    );
   };
 
   if (isSubmitted) {
-    return (
-      <main className="min-h-screen bg-white flex items-center justify-center py-12 px-4 sm:px-6">
-        <div className="max-w-md w-full">
-          <div className="bg-white rounded-xl shadow-sm p-8 text-center">
-            <div className="w-16 h-16 flex items-center justify-center bg-gray-100 rounded-full mx-auto mb-6">
-              <i className="ri-mail-send-line text-3xl text-gray-900"></i>
-            </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-3">Check Your Email</h1>
-            <p className="text-gray-600 mb-6">
-              We've sent a password reset link to <strong>{email}</strong>
-            </p>
-            <p className="text-sm text-gray-500 mb-8">
-              If you don't receive an email within a few minutes, please check your spam folder.
-            </p>
-            <Link
-              href="/auth/login"
-              className="inline-block bg-gray-900 hover:bg-gray-800 text-white px-8 py-3 rounded-lg font-semibold transition-colors whitespace-nowrap"
-            >
-              Back to Sign In
-            </Link>
-          </div>
-        </div>
-      </main>
-    );
+    return null;
   }
 
   return (

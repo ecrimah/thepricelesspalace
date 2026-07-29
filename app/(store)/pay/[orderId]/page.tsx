@@ -16,7 +16,7 @@ export default function PaymentPage() {
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [outOfStockItems, setOutOfStockItems] = useState<string[]>([]);
-  const [paymentMethod, setPaymentMethod] = useState<'hubtel' | 'moolre'>('hubtel');
+  const [paymentMethod, setPaymentMethod] = useState<'hubtel' | 'moolre' | 'paystack'>('hubtel');
 
   useEffect(() => {
     async function fetchOrder() {
@@ -31,8 +31,9 @@ export default function PaymentPage() {
         }
 
         setOrder(data.order);
-        if (data.order.payment_method === 'moolre') {
-          setPaymentMethod('moolre');
+        const savedMethod = data.order.payment_method;
+        if (savedMethod === 'moolre' || savedMethod === 'paystack') {
+          setPaymentMethod(savedMethod);
         } else {
           setPaymentMethod('hubtel');
         }
@@ -76,7 +77,11 @@ export default function PaymentPage() {
       }
 
       const paymentEndpoint =
-        paymentMethod === 'hubtel' ? '/api/payment/hubtel' : '/api/payment/moolre';
+        paymentMethod === 'hubtel'
+          ? '/api/payment/hubtel'
+          : paymentMethod === 'paystack'
+            ? '/api/payment/paystack'
+            : '/api/payment/moolre';
 
       const paymentRes = await fetch(paymentEndpoint, {
         method: 'POST',
@@ -300,6 +305,26 @@ export default function PaymentPage() {
                 <p className="text-sm text-gray-600">Alternative Mobile Money / card checkout</p>
               </div>
             </label>
+            <label
+              className={`flex items-start gap-3 p-4 border-2 rounded-xl cursor-pointer transition-colors ${
+                paymentMethod === 'paystack'
+                  ? 'border-[#2563eb] bg-[#2563eb]/[0.07]'
+                  : 'border-gray-200 hover:border-[#2563eb]/40'
+              }`}
+            >
+              <input
+                type="radio"
+                name="payGateway"
+                value="paystack"
+                checked={paymentMethod === 'paystack'}
+                onChange={() => setPaymentMethod('paystack')}
+                className="w-5 h-5 accent-[#2563eb] mt-0.5"
+              />
+              <div>
+                <p className="font-semibold text-gray-900">Paystack</p>
+                <p className="text-sm text-gray-600">Card, Mobile Money, or bank transfer</p>
+              </div>
+            </label>
           </div>
         )}
 
@@ -321,7 +346,12 @@ export default function PaymentPage() {
             ) : (
               <>
                 <i className="ri-secure-payment-line mr-2"></i>
-                Pay ₵ {order?.total?.toFixed(2)} with {paymentMethod === 'hubtel' ? 'Hubtel' : 'Moolre'}
+                Pay ₵ {order?.total?.toFixed(2)} with{' '}
+                {paymentMethod === 'hubtel'
+                  ? 'Hubtel'
+                  : paymentMethod === 'paystack'
+                    ? 'Paystack'
+                    : 'Moolre'}
               </>
             )}
           </button>
@@ -347,7 +377,7 @@ export default function PaymentPage() {
         <div className="mt-6 text-center">
           <p className="text-xs text-gray-500 flex items-center justify-center">
             <i className="ri-lock-line mr-1"></i>
-            Secure payment powered by Hubtel or Moolre
+            Secure payment powered by Hubtel, Moolre, or Paystack
           </p>
         </div>
 

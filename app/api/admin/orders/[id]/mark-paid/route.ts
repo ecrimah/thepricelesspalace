@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
+import { sendOrderConfirmation } from '@/lib/notifications';
 
 function getAccessToken(request: Request): string | null {
   const authHeader = request.headers.get('authorization');
@@ -26,9 +27,6 @@ function getAccessToken(request: Request): string | null {
 }
 
 async function requireAdmin(request: Request): Promise<NextResponse | null> {
-  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
-    return NextResponse.json({ error: 'Server misconfiguration' }, { status: 503 });
-  }
   const token = getAccessToken(request);
   if (!token) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
   const { data: { user }, error: userError } = await supabaseAdmin.auth.getUser(token);
@@ -52,10 +50,9 @@ export async function POST(
   const { id } = await params;
 
   try {
-    // Fetch current order to preserve metadata
     const { data: order, error: fetchError } = await supabaseAdmin
       .from('orders')
-      .select('metadata')
+      .select('id, order_number, payment_status, metadata, email, total, phone, shipping_address, created_at, status')
       .eq('id', id)
       .single();
 
@@ -63,17 +60,44 @@ export async function POST(
       return NextResponse.json({ error: 'Order not found' }, { status: 404 });
     }
 
-    const { error } = await supabaseAdmin
-      .from('orders')
-      .update({
-        payment_status: 'paid',
-        metadata: { ...(order.metadata || {}), manually_marked_paid: true },
-      })
-      .eq('id', id);
+    if (order.payment_status === 'paid') {
+      return NextResponse.json({ success: true, alreadyPaid: true, order });
+    }
 
-    if (error) throw error;
+    const orderRef = order.order_number || id;
+    const { data: orderJson, error: rpcError } = await supabaseAdmin.rpc('mark_order_paid', {
+      order_ref: orderRef,
+      moolre_ref: `manual-${Date.now()}`,
+    });
 
-    return NextResponse.json({ success: true });
+    if (rpcError) {
+      return NextResponse.json({ error: rpcError.message }, { status: 500 });
+    }
+
+    const paidOrder = orderJson || order;
+
+    try {
+      await supabaseAdmin
+        .from('orders')
+        .update({
+          metadata: {
+            ...(paidOrder.metadata || order.metadata || {}),
+            manually_marked_paid: true,
+            payment_provider: 'manual',
+          },
+        })
+        .eq('id', id);
+    } catch {
+      /* best-effort annotate */
+    }
+
+    try {
+      await sendOrderConfirmation({ ...order, ...paidOrder, id });
+    } catch (notifyErr: any) {
+      console.error('[mark-paid] notification failed:', notifyErr?.message);
+    }
+
+    return NextResponse.json({ success: true, order: paidOrder });
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });
   }

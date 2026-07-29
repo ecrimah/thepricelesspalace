@@ -36,6 +36,16 @@ Also required:
 2. Apply [`db/migrations/002_uuid_id_defaults.sql`](../db/migrations/002_uuid_id_defaults.sql) (playbook §1a).
 3. Bootstrap admin: set `ADMIN_EMAIL` / `ADMIN_PASSWORD` / `DATABASE_URL` then `npm run create-admin`.
 
+## RLS replacement (2026-07-29 audit)
+
+Postgres RLS was removed for plain Postgres. Authorization is enforced in:
+
+- [`lib/db/rest-guard.ts`](../lib/db/rest-guard.ts) — table/RPC allowlists on `/rest/v1`
+- `/api/*` route guards (`lib/auth.ts`, `lib/admin-auth.ts`)
+- Server-priced checkout at `/api/storefront/checkout`
+
+Full audit artifacts: repo-root `FULL_SYSTEM_AUDIT.md`, `SUPABASE_TO_POSTGRES_MIGRATION_REPORT.md`, `PAYMENT_AND_CALLBACK_AUDIT.md`, `PERFORMANCE_REPORT.md`, `REPAIR_CHANGELOG.md`.
+
 ## Verify after deploy
 
 ```bash

@@ -1,6 +1,6 @@
 // New Project — Service Worker (playbook §16)
 // Bump CACHE_VERSION on every SW behavior change.
-const CACHE_VERSION = 'sw-v2.12-fix-images';
+const CACHE_VERSION = 'sw-v2.13-audit-repair';
 const STATIC_CACHE = `static-${CACHE_VERSION}`;
 
 // Pre-cache only offline shell + tiny static assets (never HTML routes like / or /shop)

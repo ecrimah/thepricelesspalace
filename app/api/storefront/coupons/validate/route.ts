@@ -55,7 +55,7 @@ function isCurrentlyValid(coupon: CouponRow): { ok: boolean; reason?: string } {
  * Validates a coupon against the database and returns the computed discount.
  */
 export async function POST(request: Request) {
-  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+  if (!process.env.DATABASE_URL && !process.env.POSTGRES_URL) {
     return NextResponse.json({ valid: false, error: 'Server misconfiguration' }, { status: 503 });
   }
 
@@ -120,7 +120,7 @@ export async function POST(request: Request) {
  * Returns the list of currently-valid public coupons (for the "available coupons" UI).
  */
 export async function GET() {
-  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+  if (!process.env.DATABASE_URL && !process.env.POSTGRES_URL) {
     return NextResponse.json({ coupons: [] }, { status: 200 });
   }
   try {

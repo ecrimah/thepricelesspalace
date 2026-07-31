@@ -26,7 +26,7 @@ export default function AdminLoginPage() {
     } else if (errorParam === 'no_profile') {
       setError('No admin profile found. From project root run: node scripts/create-admin.mjs');
     } else if (errorParam === 'config') {
-      setError('Server misconfiguration: SUPABASE_SERVICE_ROLE_KEY is not set in .env.local. Add it from Supabase Dashboard → Settings → API.');
+      setError('Server misconfiguration: DATABASE_URL is not set in .env.local. Add your Postgres connection string.');
     }
   }, [searchParams]);
 

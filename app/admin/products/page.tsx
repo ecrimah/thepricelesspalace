@@ -15,6 +15,7 @@ export default function ProductsPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [categories, setCategories] = useState<any[]>([]);
 
   // Statistics
@@ -45,6 +46,7 @@ export default function ProductsPage() {
   const fetchProducts = async () => {
     try {
       setLoading(true);
+      setLoadError(null);
       const sortParam = sortBy ? `?sortBy=${encodeURIComponent(sortBy)}` : '';
       const res = await fetch(`/api/admin/products${sortParam}`, { credentials: 'include' });
       if (!res.ok) {
@@ -52,20 +54,18 @@ export default function ProductsPage() {
         throw new Error(err.error || 'Failed to load products');
       }
       const data = await res.json();
-
-      if (data) {
-        setProducts(Array.isArray(data) ? data : []);
-
-        const list = Array.isArray(data) ? data : [];
-        setStats({
-          total: list.length,
-          lowStock: list.filter((p: any) => p.quantity < (p.metadata?.low_stock_threshold || 5) && p.quantity > 0).length,
-          outOfStock: list.filter((p: any) => p.quantity === 0).length,
-          active: list.filter((p: any) => p.status === 'active').length
-        });
-      }
-    } catch (error) {
+      const list = Array.isArray(data) ? data : [];
+      setProducts(list);
+      setStats({
+        total: list.length,
+        lowStock: list.filter((p: any) => p.quantity < (p.metadata?.low_stock_threshold || 5) && p.quantity > 0).length,
+        outOfStock: list.filter((p: any) => p.quantity === 0).length,
+        active: list.filter((p: any) => p.status === 'active').length
+      });
+    } catch (error: any) {
       console.error('Error fetching products:', error);
+      setLoadError(error?.message || 'Failed to load products');
+      setProducts([]);
     } finally {
       setLoading(false);
     }
@@ -290,8 +290,19 @@ export default function ProductsPage() {
         ) : filteredProducts.length === 0 ? (
           <div className="p-12 text-center text-gray-500">
             <i className="ri-inbox-line text-4xl mb-4 text-gray-300 inline-block"></i>
-            <p className="text-lg">No products found</p>
-            <p className="text-sm text-gray-400 mt-1">Try adjusting your search or filters</p>
+            <p className="text-lg">{loadError ? 'Could not load products' : 'No products found'}</p>
+            <p className="text-sm text-gray-400 mt-1">
+              {loadError || 'Try adjusting your search or filters'}
+            </p>
+            {loadError && (
+              <button
+                type="button"
+                onClick={() => fetchProducts()}
+                className="mt-4 px-4 py-2 rounded-lg bg-[#1e40af] text-white text-sm font-semibold"
+              >
+                Retry
+              </button>
+            )}
           </div>
         ) : viewMode === 'list' ? (
           <div className="overflow-x-auto">

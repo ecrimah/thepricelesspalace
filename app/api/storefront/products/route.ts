@@ -19,7 +19,7 @@ export async function GET(request: Request) {
         });
     }
 
-    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    if (!process.env.DATABASE_URL && !process.env.POSTGRES_URL) {
         return NextResponse.json({ error: 'Server misconfiguration' }, { status: 503 });
     }
 

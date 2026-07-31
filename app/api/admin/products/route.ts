@@ -29,7 +29,7 @@ function getAccessToken(request: Request): string | null {
 }
 
 async function requireAdmin(request: Request): Promise<NextResponse | null> {
-  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+  if (!process.env.DATABASE_URL && !process.env.POSTGRES_URL) {
     return NextResponse.json({ error: 'Server misconfiguration' }, { status: 503 });
   }
   const token = getAccessToken(request);
@@ -63,12 +63,13 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const sortBy = searchParams.get('sortBy') || 'newest';
 
+    // Avoid product_variants(count) — plain Postgres compat has no PostgREST aggregate count column.
     let query = supabaseAdmin
       .from('products')
       .select(`
         *,
         categories(name),
-        product_variants(count),
+        product_variants(id),
         product_images(url, position)
       `);
 
@@ -88,13 +89,14 @@ export async function GET(request: Request) {
       const firstImageUrl = images.find((img: any) => Number(img.position) === 0)?.url
         || images[0]?.url
         || PLACEHOLDER_IMAGE;
+      const variants = Array.isArray(p.product_variants) ? p.product_variants : [];
 
       return {
         ...p,
         category: p.categories?.name || 'Uncategorized',
         image: firstImageUrl,
         product_images: images,
-        variantsCount: p.product_variants?.[0]?.count || 0,
+        variantsCount: variants.length,
         stock: p.quantity,
         sales: 0,
         rating: p.rating_avg || 0,

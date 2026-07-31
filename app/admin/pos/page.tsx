@@ -349,23 +349,28 @@ export default function POSPage() {
     const fetchData = async () => {
         try {
             setLoading(true);
-            const { data: prodData } = await supabase
-                .from('products')
-                .select(`id, name, price, quantity, sku, metadata, categories(name), product_images(url)`)
-                .eq('status', 'active')
-                .order('name');
+            // Use admin API (service role) — avoids broken REST aggregates and is faster
+            const prodRes = await fetch('/api/admin/products?sortBy=name', { credentials: 'include' });
+            const prodJson = await prodRes.json().catch(() => null);
+            const prodList = Array.isArray(prodJson)
+                ? prodJson
+                : Array.isArray(prodJson?.products)
+                    ? prodJson.products
+                    : [];
 
-            if (prodData) {
-                const formatted: Product[] = prodData.map((p: any) => ({
-                    id: p.id,
-                    name: p.name,
-                    price: p.price,
-                    quantity: p.quantity,
-                    category: p.categories?.name || 'Uncategorized',
-                    image: p.product_images?.[0]?.url || '',
-                    sku: p.sku || '',
-                    barcode: p.metadata?.barcode || p.sku || '',
-                }));
+            if (prodRes.ok && prodList.length >= 0) {
+                const formatted: Product[] = prodList
+                    .filter((p: any) => p.status === 'active')
+                    .map((p: any) => ({
+                        id: p.id,
+                        name: p.name,
+                        price: p.price,
+                        quantity: p.quantity,
+                        category: p.category || p.categories?.name || 'Uncategorized',
+                        image: p.image || p.product_images?.[0]?.url || '',
+                        sku: p.sku || '',
+                        barcode: p.metadata?.barcode || p.sku || '',
+                    }));
                 setProducts(formatted);
                 const cats = Array.from(new Set(formatted.map(p => p.category))).sort();
                 setCategories(['All', ...cats]);
@@ -659,7 +664,7 @@ export default function POSPage() {
                     order_number: orderNumber,
                     email: customerEmail,
                     phone: customerPhone,
-                    status: isCashOrCard ? 'completed' : 'pending',
+                    status: isCashOrCard ? 'delivered' : 'pending',
                     payment_status: isCashOrCard ? 'paid' : 'pending',
                     subtotal: cartSubtotal,
                     discount_total: totalDiscount,
@@ -740,13 +745,37 @@ export default function POSPage() {
             }
 
             if (paymentMethod === 'momo') {
-                const paymentRes = await fetch('/api/payment/hubtel', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ orderId: orderNumber, amount: grandTotal, customerEmail })
-                });
-                const paymentResult = await paymentRes.json();
-                if (!paymentResult.success) throw new Error(paymentResult.message || 'Failed to initiate online payment');
+                // Prefer Hubtel; fall back to Moolre if Hubtel is not configured
+                const paymentPayload = {
+                    orderId: orderNumber,
+                    amount: grandTotal,
+                    customerEmail,
+                };
+                let paymentResult: any = null;
+                let usedGateway: 'hubtel' | 'moolre' | null = null;
+                for (const endpoint of ['/api/payment/hubtel', '/api/payment/moolre'] as const) {
+                    const paymentRes = await fetch(endpoint, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(paymentPayload),
+                    });
+                    paymentResult = await paymentRes.json().catch(() => ({}));
+                    if (paymentResult?.success && paymentResult?.url) {
+                        usedGateway = endpoint.includes('hubtel') ? 'hubtel' : 'moolre';
+                        break;
+                    }
+                }
+                if (!paymentResult?.success || !paymentResult?.url) {
+                    throw new Error(
+                        paymentResult?.message ||
+                            'Payment gateway not configured. Set Hubtel or Moolre credentials in the server environment.'
+                    );
+                }
+                if (usedGateway) {
+                    // Best-effort annotate; payment init already wrote gateway metadata
+                    fetch(`/api/admin/orders`, { method: 'GET', credentials: 'include' }).catch(() => {});
+                    void usedGateway;
+                }
 
                 const receiptData = {
                     orderNumber, items: cart, subtotal: cartSubtotal,

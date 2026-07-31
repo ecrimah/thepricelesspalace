@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic';
  * Best-effort: never blocks the checkout flow.
  */
 export async function POST(request: Request) {
-  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+  if (!process.env.DATABASE_URL && !process.env.POSTGRES_URL) {
     return NextResponse.json({ ok: false }, { status: 503 });
   }
   try {

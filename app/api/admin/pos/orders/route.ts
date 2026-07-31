@@ -26,7 +26,7 @@ function getAccessToken(request: Request): string | null {
 }
 
 async function requireAdmin(request: Request): Promise<NextResponse | null> {
-  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+  if (!process.env.DATABASE_URL && !process.env.POSTGRES_URL) {
     return NextResponse.json({ error: 'Server misconfiguration' }, { status: 503 });
   }
   const token = getAccessToken(request);
@@ -77,6 +77,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Missing order_number, total, or items' }, { status: 400 });
     }
 
+    // Map legacy/UI statuses onto the Postgres order_status enum
+    const STATUS_MAP: Record<string, string> = {
+      completed: 'delivered',
+      complete: 'delivered',
+      done: 'delivered',
+      paid: 'processing',
+    };
+    const rawStatus = String(status || 'pending').toLowerCase();
+    const normalizedStatus = STATUS_MAP[rawStatus] || rawStatus;
+
     const { data: order, error: orderError } = await supabaseAdmin
       .from('orders')
       .insert({
@@ -84,7 +94,7 @@ export async function POST(request: Request) {
         user_id: null,
         email: email || null,
         phone: phone || null,
-        status: status || 'pending',
+        status: normalizedStatus || 'pending',
         payment_status: payment_status || 'pending',
         currency: 'GHS',
         subtotal: Number(subtotal) || 0,
@@ -129,10 +139,10 @@ export async function POST(request: Request) {
           order_ref: order_number,
           moolre_ref: `POS-${(payment_method || 'cash').toUpperCase()}-${Date.now()}`,
         });
-        // POS sales are fulfilled immediately — mark as completed
+        // POS cash/card sales are fulfilled immediately
         await supabaseAdmin
           .from('orders')
-          .update({ status: 'completed' })
+          .update({ status: 'delivered' })
           .eq('order_number', order_number);
       } catch (e) {
         console.error('mark_order_paid error:', e);

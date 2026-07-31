@@ -61,7 +61,7 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
       setAdminNotes(data.notes || '');
     } catch (err: any) {
       console.error('Error fetching order:', err);
-      setError('Failed to load order details');
+      setError(err?.message || 'Failed to load order details');
     } finally {
       setLoading(false);
     }

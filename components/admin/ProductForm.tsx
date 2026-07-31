@@ -81,6 +81,12 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
     const [description, setDescription] = useState(initialData?.description || '');
     const [status, setStatus] = useState(initialData?.status || 'Active');
     const [featured, setFeatured] = useState(initialData?.featured || false);
+    const [availability, setAvailability] = useState<'available' | 'preorder'>(
+        initialData?.metadata?.availability === 'preorder' ||
+            (!!initialData?.metadata?.preorder_shipping && initialData?.metadata?.availability !== 'available')
+            ? 'preorder'
+            : 'available'
+    );
     const [preorderShipping, setPreorderShipping] = useState(initialData?.metadata?.preorder_shipping || '');
     const [activeTab, setActiveTab] = useState('general');
     const [aiGenerating, setAiGenerating] = useState(false);
@@ -525,7 +531,9 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
                 tags: (keywords as string).split(',').map((k: string) => k.trim()).filter(Boolean),
                 metadata: {
                     low_stock_threshold: parseInt(lowStockThreshold) || 5,
-                    preorder_shipping: preorderShipping.trim() || null,
+                    availability,
+                    preorder_shipping:
+                        availability === 'preorder' ? (preorderShipping.trim() || null) : null,
                     wholesale_price: wholesalePrice ? parseFloat(wholesalePrice) : null,
                     wholesale_min_qty: wholesaleMinQty ? parseInt(wholesaleMinQty) : null
                 },
@@ -754,16 +762,53 @@ export default function ProductForm({ initialData, isEditMode = false }: Product
 
                             <div>
                                 <label className="block text-sm font-semibold text-gray-900 mb-2">
-                                    Pre-order / Estimated Shipping
+                                    Availability
                                 </label>
-                                <input
-                                    type="text"
-                                    value={preorderShipping}
-                                    onChange={(e) => setPreorderShipping(e.target.value)}
-                                    placeholder="e.g., Ships in 14 days, Available March 15"
-                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-gray-600 focus:border-transparent transition-all"
-                                />
-                                <p className="text-xs text-gray-500 mt-1">Leave empty if product ships immediately. Otherwise, enter estimated shipping time.</p>
+                                <div className="inline-flex rounded-xl border border-gray-200 p-1 bg-gray-50">
+                                    <button
+                                        type="button"
+                                        onClick={() => setAvailability('available')}
+                                        className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${
+                                            availability === 'available'
+                                                ? 'bg-[#1e40af] text-white shadow-sm'
+                                                : 'text-gray-600 hover:text-gray-900'
+                                        }`}
+                                    >
+                                        Available
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setAvailability('preorder')}
+                                        className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${
+                                            availability === 'preorder'
+                                                ? 'bg-[#1e40af] text-white shadow-sm'
+                                                : 'text-gray-600 hover:text-gray-900'
+                                        }`}
+                                    >
+                                        Pre-order
+                                    </button>
+                                </div>
+                                <p className="text-xs text-gray-500 mt-2">
+                                    This label shows on the product card in the shop.
+                                </p>
+
+                                {availability === 'preorder' && (
+                                    <div className="mt-4">
+                                        <label className="block text-sm font-semibold text-gray-900 mb-2">
+                                            Estimated Shipping
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={preorderShipping}
+                                            onChange={(e) => setPreorderShipping(e.target.value)}
+                                            placeholder="e.g., 10 days, Ships in 2 weeks"
+                                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#2563eb] focus:border-transparent transition-all"
+                                        />
+                                        <p className="text-xs text-gray-500 mt-1">
+                                            Shown on the product card and product page for pre-order items.
+                                        </p>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     )}

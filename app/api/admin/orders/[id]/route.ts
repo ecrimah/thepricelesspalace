@@ -72,23 +72,42 @@ export async function GET(
   try {
     const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
     let data: any = null;
+    let lastError: any = null;
 
-    if (isUUID) {
-      const { data: d, error } = await supabaseAdmin
-        .from('orders').select(ORDER_SELECT).eq('id', id).single();
-      if (!error) data = d;
-    }
+    const fetchBy = async (column: 'id' | 'order_number', value: string) => {
+      const primary = await supabaseAdmin
+        .from('orders')
+        .select(ORDER_SELECT)
+        .eq(column, value)
+        .single();
+      if (!primary.error && primary.data) return primary.data;
+
+      // Fallback without nested product images (older shim / missing FK edge)
+      lastError = primary.error;
+      const fallback = await supabaseAdmin
+        .from('orders')
+        .select(`*, order_items (*)`)
+        .eq(column, value)
+        .single();
+      if (!fallback.error && fallback.data) return fallback.data;
+      lastError = fallback.error || lastError;
+      return null;
+    };
+
+    if (isUUID) data = await fetchBy('id', id);
+    if (!data) data = await fetchBy('order_number', id);
 
     if (!data) {
-      const { data: d, error } = await supabaseAdmin
-        .from('orders').select(ORDER_SELECT).eq('order_number', id).single();
-      if (error) return NextResponse.json({ error: 'Order not found' }, { status: 404 });
-      data = d;
+      return NextResponse.json(
+        { error: lastError?.message || 'Order not found' },
+        { status: 404 }
+      );
     }
 
     return NextResponse.json({ order: data });
   } catch (e: any) {
-    return NextResponse.json({ error: e.message }, { status: 500 });
+    console.error('Admin order detail error:', e);
+    return NextResponse.json({ error: e.message || 'Failed to load order' }, { status: 500 });
   }
 }
 

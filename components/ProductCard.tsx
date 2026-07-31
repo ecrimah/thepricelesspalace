@@ -46,6 +46,8 @@ interface ProductCardProps {
   rating?: number;
   reviewCount?: number;
   badge?: string;
+  availability?: 'available' | 'preorder';
+  preorderShipping?: string | null;
   inStock?: boolean;
   maxStock?: number;
   moq?: number;
@@ -62,6 +64,8 @@ export default function ProductCard({
   originalPrice,
   image,
   badge,
+  availability = 'available',
+  preorderShipping,
   inStock = true,
   maxStock = 50,
   moq = 1,
@@ -74,6 +78,8 @@ export default function ProductCard({
   const displayPrice = hasVariants && minVariantPrice ? minVariantPrice : price;
   const discount = originalPrice ? Math.round((1 - displayPrice / originalPrice) * 100) : 0;
   const MAX_SWATCHES = 4;
+  const isPreorder = availability === 'preorder';
+  const availabilityLabel = isPreorder ? 'Pre-order' : 'Available';
 
   return (
     <article className="group h-full w-full overflow-hidden rounded-xl bg-white border border-[#1e40af]/[0.06] hover:border-[#2563eb]/40 hover:shadow-[0_10px_28px_-16px_rgba(20, 20, 20,0.45)] transition-all duration-300">
@@ -87,8 +93,18 @@ export default function ProductCard({
           className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.05]"
         />
 
-        {badge && (
-          <span className="absolute left-2 top-2 rounded-full bg-white/95 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.1em] text-[#1e40af] shadow-sm">
+        <span
+          className={`absolute left-2 top-2 rounded-full px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.1em] shadow-sm ${
+            isPreorder
+              ? 'bg-amber-500 text-white'
+              : 'bg-white/95 text-[#1e40af]'
+          }`}
+        >
+          {availabilityLabel}
+        </span>
+
+        {badge && badge.toLowerCase() !== availabilityLabel.toLowerCase() && (
+          <span className="absolute left-2 top-8 rounded-full bg-white/95 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.1em] text-[#1e40af] shadow-sm">
             {badge}
           </span>
         )}
@@ -137,6 +153,11 @@ export default function ProductCard({
             {name}
           </h3>
         </Link>
+        {isPreorder && preorderShipping && (
+          <p className="mt-0.5 text-[10px] text-amber-700 line-clamp-1">
+            Ships in {preorderShipping}
+          </p>
+        )}
 
         <div className="mt-1 sm:mt-1.5 flex items-center justify-between gap-1.5 sm:gap-2">
           <div className="flex items-baseline gap-1 sm:gap-1.5 min-w-0">

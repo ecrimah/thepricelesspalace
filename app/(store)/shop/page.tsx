@@ -155,6 +155,9 @@ function ShopContent() {
                 }
               }
             }
+            const isPreorder =
+              p.metadata?.availability === 'preorder' ||
+              (!!p.metadata?.preorder_shipping && p.metadata?.availability !== 'available');
             return {
               id: p.id,           // Product UUID for cart/orders
               slug: p.slug,       // Slug for navigation
@@ -165,6 +168,8 @@ function ShopContent() {
               rating: p.rating_avg || 0,
               reviewCount: 0, // Need to implement reviews relation
               badge: p.compare_at_price > p.price ? 'Sale' : undefined,
+              availability: isPreorder ? 'preorder' as const : 'available' as const,
+              preorderShipping: p.metadata?.preorder_shipping || null,
               inStock: effectiveStock > 0,
               maxStock: effectiveStock || 50,
               moq: p.moq || 1,

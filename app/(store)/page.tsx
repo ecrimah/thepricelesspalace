@@ -24,6 +24,7 @@ type ProductRow = {
   featured?: boolean;
   rating_avg?: number;
   review_count?: number;
+  metadata?: { availability?: string; preorder_shipping?: string | null };
   product_variants?: Array<{ price?: number; quantity?: number; option2?: string }>;
   product_images?: Array<{ url: string }>;
 };
@@ -359,6 +360,14 @@ export default function Home() {
                     rating={product.rating_avg || 5}
                     reviewCount={product.review_count || 0}
                     badge={product.featured ? 'Featured' : 'Trending'}
+                    availability={
+                      product.metadata?.availability === 'preorder' ||
+                      (!!product.metadata?.preorder_shipping &&
+                        product.metadata?.availability !== 'available')
+                        ? 'preorder'
+                        : 'available'
+                    }
+                    preorderShipping={product.metadata?.preorder_shipping || null}
                     inStock={effectiveStock > 0}
                     maxStock={effectiveStock || 50}
                     moq={product.moq || 1}

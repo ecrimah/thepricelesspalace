@@ -252,6 +252,7 @@ CREATE TABLE public.product_variants (
   image_url text,
   barcode text,
   external_id text,
+  sort_order integer NOT NULL DEFAULT 0,
   metadata jsonb DEFAULT '{}'::jsonb,
   created_at timestamptz DEFAULT now(),
   updated_at timestamptz DEFAULT now()

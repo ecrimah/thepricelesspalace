@@ -73,11 +73,14 @@ function ShopContent() {
               .from('products')
               .select(`
                 *,
-                categories!inner(name, slug),
-                product_images!product_id(url, position),
+                categories(name, slug),
+                product_images(url, position),
                 product_variants(id, name, price, quantity, option1, option2, image_url)
               `, { count: 'exact' })
-              .order('position', { foreignTable: 'product_images', ascending: true });
+              .eq('status', 'active');
+            // product_images are already ordered by position in the PG embed resolver.
+            // Do NOT .order('position', { foreignTable }) — the HTTP client treats that
+            // as products.position, which does not exist and empties the shop.
 
             if (search) {
               query = query.ilike('name', `%${search}%`);

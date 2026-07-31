@@ -268,7 +268,21 @@ class HttpQueryBuilder implements PromiseLike<QueryResult> {
     return this;
   }
 
-  order(col: string, opts?: { ascending?: boolean; nullsFirst?: boolean }) {
+  order(
+    col: string,
+    opts?: {
+      ascending?: boolean;
+      nullsFirst?: boolean;
+      /** PostgREST embedded-resource order — must not apply to the root table. */
+      foreignTable?: string;
+      referencedTable?: string;
+    }
+  ) {
+    // Embed-only sorts (e.g. product_images.position) are resolved server-side.
+    // Never map them onto the root table — products.position does not exist.
+    if (opts?.referencedTable || opts?.foreignTable) {
+      return this;
+    }
     this.orders.push({
       col,
       ascending: opts?.ascending !== false,

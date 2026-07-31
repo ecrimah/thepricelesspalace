@@ -123,7 +123,8 @@ export default function Home() {
     );
   };
 
-  const popularProducts = featuredProducts.filter((p) => (p.product_images?.length || 0) > 0);
+  // Show all featured active products; missing images use the card placeholder.
+  const popularProducts = featuredProducts;
 
   const defaultCategoryStyles = [
     { chip: 'Everyday style', icon: 'ri-t-shirt-line', color: 'from-brand-carton to-brand-brown' },

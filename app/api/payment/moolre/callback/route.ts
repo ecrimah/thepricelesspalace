@@ -3,6 +3,11 @@ import { supabaseAdmin } from '@/lib/supabase-admin';
 import { sendOrderConfirmation } from '@/lib/notifications';
 import { checkRateLimit, getClientIdentifier, RATE_LIMITS } from '@/lib/rate-limit';
 import { getMoolreConfig, checkPaymentStatus } from '@/lib/moolre';
+import {
+  finalizePaymentAttempt,
+  markWebhookProcessed,
+  recordWebhookEvent,
+} from '@/lib/payment-audit';
 
 /**
  * Moolre Payment Webhook Handler
@@ -30,14 +35,16 @@ export async function POST(req: Request) {
             return NextResponse.json({ success: false, message: 'Too many requests' }, { status: 429 });
         }
 
-        // 1. Shared-secret check (if configured)
+        // 1. Shared-secret check (required in production)
         const expectedSecret = process.env.MOOLRE_CALLBACK_SECRET;
-        if (expectedSecret) {
-            const provided = new URL(req.url).searchParams.get('s') || '';
-            if (provided !== expectedSecret) {
-                console.error('[Moolre Callback] Invalid callback secret');
-                return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
-            }
+        if (!expectedSecret) {
+            console.error('[Moolre Callback] MOOLRE_CALLBACK_SECRET is not configured');
+            return NextResponse.json({ success: false, message: 'Server configuration error' }, { status: 503 });
+        }
+        const provided = new URL(req.url).searchParams.get('s') || '';
+        if (provided !== expectedSecret) {
+            console.error('[Moolre Callback] Invalid callback secret');
+            return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
         }
 
         const cfg = getMoolreConfig();
@@ -67,11 +74,27 @@ export async function POST(req: Request) {
         // Strip retry suffix to recover the original order number
         const merchantOrderRef = externalRef.replace(/-R\d+$/, '');
 
+        const eventId =
+            String(data?.transactionid || body?.transactionid || `${externalRef}:${body?.code || ''}:${data?.txstatus || ''}`);
+        const { id: webhookId, duplicate } = await recordWebhookEvent({
+            gateway: 'moolre',
+            externalEventId: eventId,
+            eventType: String(body?.code || data?.txstatus || 'callback'),
+            internalReference: externalRef,
+            gatewayReference: String(data?.transactionid || ''),
+            payload: { code: body?.code, message: body?.message, externalref: externalRef, txstatus: data?.txstatus },
+            signatureValid: true,
+        });
+        if (duplicate) {
+            return NextResponse.json({ success: true, message: 'Duplicate event ignored' });
+        }
+
         // 2. Authoritative re-verification via Moolre status API
         const status = await checkPaymentStatus(cfg, externalRef);
 
         if (!status.success) {
             console.log(`[Moolre Callback] Payment not confirmed for ${merchantOrderRef} (status API). Ignoring.`);
+            await markWebhookProcessed(webhookId, 'ignored', 'not confirmed by status API');
             return NextResponse.json({ success: true, message: 'Acknowledged — not confirmed' });
         }
 
@@ -89,6 +112,7 @@ export async function POST(req: Request) {
         // Idempotent: already paid
         if (existingOrder.payment_status === 'paid') {
             console.log('[Moolre Callback] Order already paid, skipping:', merchantOrderRef);
+            await markWebhookProcessed(webhookId, 'ignored', 'order already paid');
             return NextResponse.json({ success: true, message: 'Order already processed' });
         }
 
@@ -97,6 +121,7 @@ export async function POST(req: Request) {
             const expectedAmount = Number(existingOrder.total);
             if (Math.abs(status.amount - expectedAmount) > 0.01) {
                 console.error('[Moolre Callback] AMOUNT MISMATCH — REJECTING! Expected:', expectedAmount, 'Got:', status.amount, 'Order:', merchantOrderRef);
+                await markWebhookProcessed(webhookId, 'failed', 'amount mismatch');
                 return NextResponse.json({
                     success: false,
                     message: 'Payment amount does not match order total'
@@ -114,8 +139,17 @@ export async function POST(req: Request) {
 
         if (updateError) {
             console.error('[Moolre Callback] RPC Error:', updateError.message);
+            await markWebhookProcessed(webhookId, 'failed', updateError.message);
             return NextResponse.json({ success: false, message: 'Database update failed' }, { status: 500 });
         }
+
+        await finalizePaymentAttempt({
+            internalReference: externalRef,
+            status: 'successful',
+            gatewayReference: String(data?.transactionid || ''),
+            amountPaid: status.amount,
+        });
+        await markWebhookProcessed(webhookId, 'processed');
 
         if (!orderJson) {
             console.error('[Moolre Callback] Order not found after RPC:', merchantOrderRef);

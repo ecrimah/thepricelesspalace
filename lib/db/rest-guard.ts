@@ -54,6 +54,19 @@ const MUTATION_BLOCKED_FOR_NON_ADMIN = new Set([
   "delivery_status_history",
   "staff_roles",
   "auth",
+  "payment_attempts",
+  "payment_webhook_events",
+  "sms_messages",
+  "audit_logs",
+]);
+
+/** Sensitive tables — no REST read for non-admin (use /api/*) */
+const READ_BLOCKED_FOR_NON_ADMIN = new Set([
+  "payment_attempts",
+  "payment_webhook_events",
+  "sms_messages",
+  "audit_logs",
+  "auth",
 ]);
 
 /** RPC callable without auth */
@@ -119,6 +132,13 @@ export function authorizeTableAccess(
   }
 
   if (method === "GET") {
+    if (READ_BLOCKED_FOR_NON_ADMIN.has(table)) {
+      return {
+        ok: false,
+        status: 403,
+        message: `Reads from '${table}' must go through authenticated API routes`,
+      };
+    }
     if (PUBLIC_READ.has(table)) return { ok: true };
     if (actor.kind === "user") return { ok: true };
     return { ok: false, status: 401, message: "Authentication required" };

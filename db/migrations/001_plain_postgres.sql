@@ -305,7 +305,8 @@ CREATE TABLE public.orders (
   created_at timestamptz DEFAULT now(),
   updated_at timestamptz DEFAULT now(),
   payment_reminder_sent boolean DEFAULT false,
-  payment_reminder_sent_at timestamptz
+  payment_reminder_sent_at timestamptz,
+  confirmation_sent_at timestamptz
 );
 
 -- Order Items

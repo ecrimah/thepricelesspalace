@@ -32,6 +32,20 @@ test('allows public product reads', () => {
   assert.match(guardSrc, /['\"]products['\"]/);
   assert.match(guardSrc, /['\"]categories['\"]/);
 });
+test('blocks payment audit tables for non-admin', () => {
+  assert.match(guardSrc, /payment_attempts/);
+  assert.match(guardSrc, /payment_webhook_events/);
+  assert.match(guardSrc, /sms_messages/);
+  assert.match(guardSrc, /READ_BLOCKED_FOR_NON_ADMIN/);
+});
+test('migration 004 exists', () => {
+  assert.ok(
+    fs.existsSync(path.join(root, 'db/migrations/004_payment_integrity_and_audit.sql'))
+  );
+});
+test('health db route exists', () => {
+  assert.ok(fs.existsSync(path.join(root, 'app/api/health/db/route.ts')));
+});
 test('marks mark_order_paid as admin-only via RPC route', () => {
   const rpc = fs.readFileSync(path.join(root, 'app/rest/v1/rpc/[fn]/route.ts'), 'utf8');
   assert.match(rpc, /mark_order_paid/);

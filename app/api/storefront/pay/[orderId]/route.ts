@@ -1,6 +1,11 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 
+/**
+ * Payment page order loader.
+ * Returns only fields needed to complete payment (not full admin dump).
+ * Uses products.quantity (not nonexistent "stock").
+ */
 export async function GET(
   _request: Request,
   { params }: { params: Promise<{ orderId: string }> }
@@ -8,11 +13,12 @@ export async function GET(
   const { orderId } = await params;
 
   try {
-    // Fetch order (by UUID or order_number)
     const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(orderId);
     const { data: order, error: orderError } = await supabaseAdmin
       .from('orders')
-      .select('*, order_items(id, product_id, product_name, variant_name, quantity, unit_price, metadata)')
+      .select(
+        'id, order_number, email, phone, status, payment_status, currency, total, subtotal, shipping_total, discount_total, payment_method, payment_provider, shipping_method, shipping_address, created_at, metadata, order_items(id, product_id, product_name, variant_name, quantity, unit_price, metadata)'
+      )
       .or(isUUID ? `id.eq.${orderId}` : `order_number.eq.${orderId}`)
       .single();
 
@@ -20,17 +26,32 @@ export async function GET(
       return NextResponse.json({ error: 'Order not found' }, { status: 404 });
     }
 
-    // Validate stock for every item in the order
+    // Already paid — do not expose a re-payable checkout payload
+    if (order.payment_status === 'paid') {
+      return NextResponse.json({
+        order: {
+          id: order.id,
+          order_number: order.order_number,
+          payment_status: order.payment_status,
+          status: order.status,
+          total: order.total,
+          currency: order.currency,
+        },
+        stockValid: true,
+        outOfStockItems: [],
+        alreadyPaid: true,
+      });
+    }
+
     const outOfStockItems: string[] = [];
 
     if (order.order_items?.length) {
       for (const item of order.order_items) {
         if (!item.product_id) continue;
 
-        // Fetch current product stock
         const { data: product } = await supabaseAdmin
           .from('products')
-          .select('stock, status, name')
+          .select('quantity, status, name, track_quantity, continue_selling')
           .eq('id', item.product_id)
           .single();
 
@@ -39,29 +60,30 @@ export async function GET(
           continue;
         }
 
-        // Product is inactive / deleted
         if (product.status && product.status !== 'active') {
           outOfStockItems.push(item.product_name);
           continue;
         }
 
-        // Check variant stock if variant metadata is available
+        if (product.continue_selling || product.track_quantity === false) continue;
+
         const variantId = item.metadata?.variant_id;
         if (variantId) {
           const { data: variant } = await supabaseAdmin
             .from('product_variants')
-            .select('stock')
+            .select('quantity')
             .eq('id', variantId)
             .single();
 
-          if (variant && typeof variant.stock === 'number' && variant.stock < item.quantity) {
-            outOfStockItems.push(`${item.product_name}${item.variant_name ? ` (${item.variant_name})` : ''}`);
+          if (variant && typeof variant.quantity === 'number' && variant.quantity < item.quantity) {
+            outOfStockItems.push(
+              `${item.product_name}${item.variant_name ? ` (${item.variant_name})` : ''}`
+            );
             continue;
           }
         }
 
-        // Check overall product stock
-        if (typeof product.stock === 'number' && product.stock < item.quantity) {
+        if (typeof product.quantity === 'number' && product.quantity < item.quantity) {
           outOfStockItems.push(item.product_name);
         }
       }
@@ -71,6 +93,7 @@ export async function GET(
       order,
       stockValid: outOfStockItems.length === 0,
       outOfStockItems,
+      alreadyPaid: false,
     });
   } catch (err: any) {
     console.error('[Pay API] Error:', err);

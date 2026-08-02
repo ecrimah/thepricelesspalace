@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { checkRateLimit, getClientIdentifier, RATE_LIMITS } from '@/lib/rate-limit';
 import { getMoolreConfig, generatePaymentLink } from '@/lib/moolre';
+import { recordPaymentAttempt } from '@/lib/payment-audit';
 
 /**
  * Moolre payment initialization.
@@ -81,10 +82,24 @@ export async function POST(req: Request) {
         // Webhook URL is protected by a shared secret query param (defence in depth;
         // the callback also re-verifies via Moolre's status API).
         const callbackSecret = process.env.MOOLRE_CALLBACK_SECRET || '';
-        const callbackUrl = `${baseUrl}/api/payment/moolre/callback${callbackSecret ? `?s=${encodeURIComponent(callbackSecret)}` : ''}`;
+        if (!callbackSecret) {
+            console.error('[Moolre] MOOLRE_CALLBACK_SECRET is required');
+            return NextResponse.json({ success: false, message: 'Payment gateway configuration error' }, { status: 500 });
+        }
+        const callbackUrl = `${baseUrl}/api/payment/moolre/callback?s=${encodeURIComponent(callbackSecret)}`;
         const redirectUrl = `${baseUrl}/order-success?order=${orderRef}&payment_success=true`;
 
         console.log('[Moolre] Initializing for order:', orderRef, '| Amount:', amount, 'GHS', '| Ref:', uniqueRef);
+
+        await recordPaymentAttempt({
+            orderId: order.id,
+            gateway: 'moolre',
+            internalReference: uniqueRef,
+            expectedAmount: amount,
+            currency: 'GHS',
+            idempotencyKey: uniqueRef,
+            metadata: { order_number: orderRef },
+        });
 
         // Save Moolre reference on the order so verify/callback can use it later
         try {

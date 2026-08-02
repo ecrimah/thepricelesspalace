@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
+import { requireAdmin } from '@/lib/admin-auth';
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const authErr = await requireAdmin(_req);
+  if (authErr) return authErr;
+
   const { id } = await params;
   const { data, error } = await supabaseAdmin
     .from('support_ticket_messages')
@@ -14,6 +18,9 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
 }
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const authErr = await requireAdmin(req);
+  if (authErr) return authErr;
+
   const { id } = await params;
   const body = await req.json();
 

@@ -43,6 +43,17 @@ export const FK_MAP: Record<string, FkEdge[]> = {
     { column: 'product_id', foreignTable: 'products', foreignColumn: 'id' },
     { column: 'variant_id', foreignTable: 'product_variants', foreignColumn: 'id' },
   ],
+  payment_attempts: [
+    { column: 'order_id', foreignTable: 'orders', foreignColumn: 'id' },
+  ],
+  payment_webhook_events: [
+    { column: 'order_id', foreignTable: 'orders', foreignColumn: 'id' },
+    { column: 'payment_attempt_id', foreignTable: 'payment_attempts', foreignColumn: 'id' },
+  ],
+  sms_messages: [
+    { column: 'related_order_id', foreignTable: 'orders', foreignColumn: 'id' },
+    { column: 'related_payment_attempt_id', foreignTable: 'payment_attempts', foreignColumn: 'id' },
+  ],
   order_status_history: [
     { column: 'order_id', foreignTable: 'orders', foreignColumn: 'id' },
   ],

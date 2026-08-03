@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 
 interface LazyImageProps {
@@ -14,20 +14,22 @@ interface LazyImageProps {
   sizes?: string;
 }
 
-/** Static public assets are already WebP — skip the optimizer for faster first paint. */
-function isStaticPublicAsset(src: string) {
+const PLACEHOLDER = '/placeholder-product.webp';
+
+/** Serve same-origin images directly — skip /_next/image (avoids sharp/cache blanks). */
+function shouldBypassOptimizer(src: string) {
   try {
     const pathname = src.startsWith('http')
       ? new URL(src).pathname
       : src.split('?')[0];
     if (pathname.startsWith('/storage/') || pathname.startsWith('/uploads/')) {
-      return false;
+      return true;
     }
     return (
       pathname.startsWith('/products/') ||
       pathname.startsWith('/hero-') ||
-      pathname === '/placeholder-product.webp' ||
-      (pathname.startsWith('/') && /\.(webp|png|jpe?g|avif)$/i.test(pathname))
+      pathname === PLACEHOLDER ||
+      (pathname.startsWith('/') && /\.(webp|png|jpe?g|avif|gif)$/i.test(pathname))
     );
   } catch {
     return false;
@@ -44,18 +46,29 @@ export default function LazyImage({
   onLoad,
   sizes = '(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw',
 }: LazyImageProps) {
-  const [hasError, setHasError] = useState(false);
+  const [displaySrc, setDisplaySrc] = useState(src || PLACEHOLDER);
+  const [failedPlaceholder, setFailedPlaceholder] = useState(false);
+
+  useEffect(() => {
+    setDisplaySrc(src || PLACEHOLDER);
+    setFailedPlaceholder(false);
+  }, [src]);
 
   const handleLoad = () => {
     onLoad?.();
   };
 
   const handleError = () => {
-    setHasError(true);
+    if (displaySrc !== PLACEHOLDER) {
+      setDisplaySrc(PLACEHOLDER);
+      onLoad?.();
+      return;
+    }
+    setFailedPlaceholder(true);
     onLoad?.();
   };
 
-  if (!src || hasError) {
+  if (!displaySrc || failedPlaceholder) {
     return (
       <div
         className={`relative overflow-hidden bg-gray-100 flex items-center justify-center ${className}`}
@@ -66,12 +79,13 @@ export default function LazyImage({
     );
   }
 
-  const unoptimized = isStaticPublicAsset(src);
+  const unoptimized = shouldBypassOptimizer(displaySrc);
 
   return (
     <div className={`relative overflow-hidden ${className}`} style={{ width, height }}>
       <Image
-        src={src}
+        key={displaySrc}
+        src={displaySrc}
         alt={alt}
         fill
         sizes={sizes}

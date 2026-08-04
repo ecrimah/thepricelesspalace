@@ -748,8 +748,16 @@ export async function createChatOrder(
         }
 
         const uniqueRef = `${orderNumber}-R${Date.now()}`;
-        const callbackSecret = process.env.MOOLRE_CALLBACK_SECRET || '';
-        const callbackUrl = `${baseUrl}/api/payment/moolre/callback${callbackSecret ? `?s=${encodeURIComponent(callbackSecret)}` : ''}`;
+        const { buildMoolreCallbackUrl } = await import('@/lib/moolre-callback-auth');
+        const callbackUrl = buildMoolreCallbackUrl(baseUrl);
+        if (!callbackUrl) {
+          return {
+            success: true,
+            orderNumber,
+            total,
+            message: `Order ${orderNumber} created (₵${total.toFixed(2)}), but payment callback is not configured. Please complete payment through the website.`,
+          };
+        }
 
         try {
           await supabaseAdmin

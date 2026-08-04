@@ -85,16 +85,43 @@ export async function POST(req: Request) {
         const looksSuccessful =
             isHubtelPaid(String(topStatus || ''), responseCode) || isHubtelPaid(innerStatus, responseCode);
 
-        const { data: existingOrder, error: fetchError } = await supabaseAdmin
-            .from('orders')
-            .select('id, order_number, payment_status, total, email, metadata')
-            .eq('order_number', merchantOrderRef)
-            .maybeSingle();
+        // Prefer exact order_number; fall back to stored hubtel_client_reference
+        // (needed when makeHubtelClientReference truncated a long ORD-...).
+        let existingOrder: any = null;
+        let fetchError: any = null;
+        {
+            const byNumber = await supabaseAdmin
+                .from('orders')
+                .select('id, order_number, payment_status, total, email, metadata')
+                .eq('order_number', merchantOrderRef)
+                .maybeSingle();
+            existingOrder = byNumber.data;
+            fetchError = byNumber.error;
+        }
+        if (!existingOrder && rawClientReference) {
+            const byRef = await supabaseAdmin
+                .from('orders')
+                .select('id, order_number, payment_status, total, email, metadata')
+                .contains('metadata', { hubtel_client_reference: rawClientReference })
+                .maybeSingle();
+            if (byRef.data) {
+                existingOrder = byRef.data;
+                fetchError = null;
+                console.log(
+                    '[Hubtel Callback] Resolved via hubtel_client_reference →',
+                    existingOrder.order_number
+                );
+            } else if (byRef.error) {
+                fetchError = byRef.error;
+            }
+        }
 
         if (fetchError || !existingOrder) {
-            console.error('[Hubtel Callback] Order not found:', merchantOrderRef);
+            console.error('[Hubtel Callback] Order not found:', merchantOrderRef, '| raw:', rawClientReference);
             return NextResponse.json({ success: false, message: 'Order not found' }, { status: 404 });
         }
+
+        const orderNumberForPaid = existingOrder.order_number as string;
 
         // Already paid — idempotent
         if (existingOrder.payment_status === 'paid') {
@@ -117,7 +144,7 @@ export async function POST(req: Request) {
                         failure_at: new Date().toISOString(),
                     },
                 })
-                .eq('order_number', merchantOrderRef);
+                .eq('id', existingOrder.id);
 
             return NextResponse.json({ success: false, message: 'Payment not successful' });
         }
@@ -174,7 +201,7 @@ export async function POST(req: Request) {
         }
 
         const { data: orderJson, error: updateError } = await supabaseAdmin.rpc('mark_order_paid', {
-            order_ref: merchantOrderRef,
+            order_ref: orderNumberForPaid,
             moolre_ref: checkoutId || rawClientReference || 'hubtel-callback',
         });
 
@@ -186,46 +213,44 @@ export async function POST(req: Request) {
             return NextResponse.json({ success: false, message: 'Order not found' }, { status: 404 });
         }
 
-        // Annotate metadata so we know which gateway processed this
-        try {
-            await supabaseAdmin
-                .from('orders')
-                .update({
-                    payment_method: 'hubtel',
-                    metadata: {
-                        ...(orderJson.metadata || {}),
+        // Annotate + notify off the critical path so Hubtel gets a fast 200
+        void (async () => {
+            try {
+                await supabaseAdmin
+                    .from('orders')
+                    .update({
+                        payment_method: 'hubtel',
                         payment_provider: 'hubtel',
-                        hubtel_client_reference: rawClientReference || merchantOrderRef,
-                        hubtel_checkout_id: checkoutId || null,
-                        hubtel_paid_at: new Date().toISOString(),
-                    },
-                })
-                .eq('id', orderJson.id);
-        } catch (annotateErr: any) {
-            console.warn('[Hubtel Callback] Metadata annotate failed:', annotateErr.message);
-        }
+                        metadata: {
+                            ...(orderJson.metadata || {}),
+                            payment_provider: 'hubtel',
+                            hubtel_client_reference: rawClientReference || merchantOrderRef,
+                            hubtel_checkout_id: checkoutId || null,
+                            hubtel_paid_at: new Date().toISOString(),
+                        },
+                    })
+                    .eq('id', orderJson.id);
+            } catch (annotateErr: any) {
+                console.warn('[Hubtel Callback] Metadata annotate failed:', annotateErr.message);
+            }
+            try {
+                if (orderJson.email) {
+                    await supabaseAdmin.rpc('update_customer_stats', {
+                        p_customer_email: orderJson.email,
+                        p_order_total: orderJson.total,
+                    });
+                }
+            } catch (e: any) {
+                console.error('[Hubtel Callback] Customer stats failed:', e?.message || e);
+            }
+            try {
+                await sendOrderConfirmation(orderJson);
+            } catch (e: any) {
+                console.error('[Hubtel Callback] Notification failed:', e?.message || e);
+            }
+        })();
 
         console.log('[Hubtel Callback] Order updated! ID:', orderJson.id, '| Status:', orderJson.status);
-
-        try {
-            if (orderJson.email) {
-                await supabaseAdmin.rpc('update_customer_stats', {
-                    p_customer_email: orderJson.email,
-                    p_order_total: orderJson.total,
-                });
-            }
-        } catch (e: any) {
-            console.error('[Hubtel Callback] Customer stats failed:', e?.message || e);
-        }
-
-        try {
-            console.log('[Hubtel Callback] Sending notifications for:', orderJson.order_number);
-            await sendOrderConfirmation(orderJson);
-            console.log('[Hubtel Callback] Notifications sent!');
-        } catch (e: any) {
-            console.error('[Hubtel Callback] Notification failed:', e?.message || e);
-        }
-
         return NextResponse.json({ success: true, message: 'Payment verified and order updated' });
     } catch (error: any) {
         console.error('[Hubtel Callback] Critical error:', error?.message || error);

@@ -168,46 +168,44 @@ export async function POST(req: Request) {
             return NextResponse.json({ success: false, message: 'Order not found' }, { status: 404 });
         }
 
-        // Annotate metadata so we know which gateway processed this
-        try {
-            await supabaseAdmin
-                .from('orders')
-                .update({
-                    metadata: {
-                        ...(orderJson.metadata || {}),
+        // Annotate + notify off the critical path so Paystack gets a fast 200
+        void (async () => {
+            try {
+                await supabaseAdmin
+                    .from('orders')
+                    .update({
                         payment_provider: 'paystack',
-                        paystack_reference: rawRef,
-                        paystack_transaction_id: data.id,
-                        paystack_channel: data.channel,
-                        paystack_paid_at: data.paid_at,
-                    }
-                })
-                .eq('id', orderJson.id);
-        } catch (annotateErr: any) {
-            console.warn('[Paystack Callback] Metadata annotate failed:', annotateErr.message);
-        }
+                        metadata: {
+                            ...(orderJson.metadata || {}),
+                            payment_provider: 'paystack',
+                            paystack_reference: rawRef,
+                            paystack_transaction_id: data.id,
+                            paystack_channel: data.channel,
+                            paystack_paid_at: data.paid_at,
+                        },
+                    })
+                    .eq('id', orderJson.id);
+            } catch (annotateErr: any) {
+                console.warn('[Paystack Callback] Metadata annotate failed:', annotateErr.message);
+            }
+            try {
+                if (orderJson.email) {
+                    await supabaseAdmin.rpc('update_customer_stats', {
+                        p_customer_email: orderJson.email,
+                        p_order_total: orderJson.total,
+                    });
+                }
+            } catch (statsError: any) {
+                console.error('[Paystack Callback] Customer stats failed:', statsError.message);
+            }
+            try {
+                await sendOrderConfirmation(orderJson);
+            } catch (notifyError: any) {
+                console.error('[Paystack Callback] Notification failed:', notifyError.message);
+            }
+        })();
 
         console.log('[Paystack Callback] Order updated! ID:', orderJson.id, '| Status:', orderJson.status);
-
-        try {
-            if (orderJson.email) {
-                await supabaseAdmin.rpc('update_customer_stats', {
-                    p_customer_email: orderJson.email,
-                    p_order_total: orderJson.total
-                });
-            }
-        } catch (statsError: any) {
-            console.error('[Paystack Callback] Customer stats failed:', statsError.message);
-        }
-
-        try {
-            console.log('[Paystack Callback] Sending notifications for:', orderJson.order_number);
-            await sendOrderConfirmation(orderJson);
-            console.log('[Paystack Callback] Notifications sent!');
-        } catch (notifyError: any) {
-            console.error('[Paystack Callback] Notification failed:', notifyError.message);
-        }
-
         return NextResponse.json({ success: true, message: 'Payment verified and order updated' });
 
     } catch (error: any) {

@@ -77,44 +77,67 @@ export async function POST(req: Request) {
             );
         }
 
-        const clientReference = (order.metadata as any)?.hubtel_client_reference as string | undefined;
-        if (!clientReference) {
-            console.warn('[Hubtel Verify] No hubtel_client_reference on order:', orderNumber);
-            return NextResponse.json({
-                success: false,
-                status: order.status,
-                payment_status: order.payment_status,
-                message: 'Payment reference not found',
-            });
+        const metaRef = (order.metadata as any)?.hubtel_client_reference as string | undefined;
+        // Fallbacks for older orders that never persisted hubtel_client_reference
+        const refsToTry = Array.from(
+            new Set(
+                [metaRef, orderNumber, orderNumber.slice(0, 32)].filter(
+                    (r): r is string => Boolean(r && String(r).trim())
+                )
+            )
+        );
+        if (!metaRef) {
+            console.warn(
+                '[Hubtel Verify] No hubtel_client_reference on order; trying fallbacks:',
+                orderNumber,
+                refsToTry
+            );
         }
 
         const expectedAmount = Number(order.total) || 0;
 
         let verified = false;
         let settlementAmount: number | null = null;
+        let clientReference = metaRef || orderNumber;
         try {
-            const status = await checkHubtelStatus(clientReference);
-            const sStatus = String(status?.data?.status || '').toLowerCase();
-            verified = isHubtelPaid(sStatus, status?.responseCode);
-            const settlement = status?.data?.amountAfterCharges ?? status?.data?.amount;
-            if (settlement !== undefined && settlement !== null) {
-                const n = parseFloat(String(settlement));
-                if (Number.isFinite(n)) settlementAmount = n;
+            for (const ref of refsToTry) {
+                const status = await checkHubtelStatus(ref);
+                const sStatus = String(status?.data?.status || '').toLowerCase();
+                const paid = isHubtelPaid(sStatus, status?.responseCode);
+                console.log(
+                    '[Hubtel Verify] ref:',
+                    ref,
+                    '| status:',
+                    status?.data?.status,
+                    '| amount:',
+                    status?.data?.amount,
+                    '| amountAfterCharges:',
+                    status?.data?.amountAfterCharges,
+                    '| expected:',
+                    expectedAmount
+                );
+                if (paid) {
+                    verified = true;
+                    clientReference = ref;
+                    const settlement = status?.data?.amountAfterCharges ?? status?.data?.amount;
+                    if (settlement !== undefined && settlement !== null) {
+                        const n = parseFloat(String(settlement));
+                        if (Number.isFinite(n)) settlementAmount = n;
+                    }
+                    break;
+                }
             }
-            console.log(
-                '[Hubtel Verify] ref:',
-                clientReference,
-                '| status:',
-                status?.data?.status,
-                '| amount:',
-                status?.data?.amount,
-                '| amountAfterCharges:',
-                status?.data?.amountAfterCharges,
-                '| expected:',
-                expectedAmount
-            );
         } catch (e: any) {
             console.warn('[Hubtel Verify] Status API failed:', e?.message || e);
+        }
+
+        if (!verified && !metaRef) {
+            return NextResponse.json({
+                success: false,
+                status: order.status,
+                payment_status: order.payment_status,
+                message: 'Payment reference not found — ask customer to pay again or mark paid manually after confirming in Hubtel',
+            });
         }
 
         if (verified && settlementAmount !== null && Math.abs(settlementAmount - expectedAmount) > 0.01) {

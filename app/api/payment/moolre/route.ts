@@ -3,6 +3,7 @@ import { supabaseAdmin } from '@/lib/supabase-admin';
 import { checkRateLimit, getClientIdentifier, RATE_LIMITS } from '@/lib/rate-limit';
 import { getMoolreConfig, generatePaymentLink } from '@/lib/moolre';
 import { recordPaymentAttempt } from '@/lib/payment-audit';
+import { buildMoolreCallbackUrl } from '@/lib/moolre-callback-auth';
 
 /**
  * Moolre payment initialization.
@@ -79,14 +80,14 @@ export async function POST(req: Request) {
         // Unique reference per attempt so retries don't collide with a prior one
         const uniqueRef = `${orderRef}-R${Date.now()}`;
 
-        // Webhook URL is protected by a shared secret query param (defence in depth;
-        // the callback also re-verifies via Moolre's status API).
-        const callbackSecret = process.env.MOOLRE_CALLBACK_SECRET || '';
-        if (!callbackSecret) {
+        // Webhook URL puts the secret in the PATH (not query string) — many
+        // gateways/proxies strip ?s=... which made callbacks look "broken".
+        // Handler still re-verifies via Moolre's status API before marking paid.
+        const callbackUrl = buildMoolreCallbackUrl(baseUrl);
+        if (!callbackUrl) {
             console.error('[Moolre] MOOLRE_CALLBACK_SECRET is required');
             return NextResponse.json({ success: false, message: 'Payment gateway configuration error' }, { status: 500 });
         }
-        const callbackUrl = `${baseUrl}/api/payment/moolre/callback?s=${encodeURIComponent(callbackSecret)}`;
         const redirectUrl = `${baseUrl}/order-success?order=${orderRef}&payment_success=true`;
 
         console.log('[Moolre] Initializing for order:', orderRef, '| Amount:', amount, 'GHS', '| Ref:', uniqueRef);

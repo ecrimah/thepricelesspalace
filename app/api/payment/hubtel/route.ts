@@ -99,23 +99,28 @@ export async function POST(req: Request) {
 
         console.log('[Hubtel] Initiating for order:', orderRef, '| Amount:', roundedAmount, 'GHS', '| Ref:', clientReference);
 
-        // Save Hubtel reference on the order so verify/callback can use it later
-        try {
-            await supabaseAdmin
-                .from('orders')
-                .update({
-                    payment_method: 'hubtel',
-                    metadata: {
-                        ...(order.metadata || {}),
-                        payment_gateway: 'hubtel',
-                        payment_method: 'hubtel',
-                        hubtel_client_reference: clientReference,
-                        hubtel_initiated_at: new Date().toISOString(),
-                    },
-                })
-                .eq('id', order.id);
-        } catch (metaErr) {
-            console.warn('[Hubtel] Could not save reference to order:', metaErr);
+        // Persist Hubtel reference BEFORE initiating — verify/callback need it.
+        const metaBase = {
+            ...(order.metadata || {}),
+            payment_gateway: 'hubtel',
+            payment_method: 'hubtel',
+            hubtel_client_reference: clientReference,
+            hubtel_initiated_at: new Date().toISOString(),
+        };
+        const { error: metaErr } = await supabaseAdmin
+            .from('orders')
+            .update({
+                payment_method: 'hubtel',
+                payment_provider: 'hubtel',
+                metadata: metaBase,
+            })
+            .eq('id', order.id);
+        if (metaErr) {
+            console.error('[Hubtel] Failed to save client reference:', metaErr.message);
+            return NextResponse.json(
+                { success: false, message: 'Could not prepare payment session' },
+                { status: 500 }
+            );
         }
 
         const result = await initiateHubtelCheckout({
@@ -148,23 +153,22 @@ export async function POST(req: Request) {
             );
         }
 
-        // Store checkoutId if we got one
+        // Merge checkoutId without wiping hubtel_client_reference
         if (checkoutId) {
-            try {
-                await supabaseAdmin
-                    .from('orders')
-                    .update({
-                        metadata: {
-                            ...(order.metadata || {}),
-                            payment_gateway: 'hubtel',
-                            payment_method: 'hubtel',
-                            hubtel_client_reference: clientReference,
-                            hubtel_checkout_id: checkoutId,
-                            hubtel_initiated_at: new Date().toISOString(),
-                        },
-                    })
-                    .eq('id', order.id);
-            } catch {}
+            const { error: checkoutMetaErr } = await supabaseAdmin
+                .from('orders')
+                .update({
+                    payment_method: 'hubtel',
+                    payment_provider: 'hubtel',
+                    metadata: {
+                        ...metaBase,
+                        hubtel_checkout_id: checkoutId,
+                    },
+                })
+                .eq('id', order.id);
+            if (checkoutMetaErr) {
+                console.warn('[Hubtel] Could not save checkoutId:', checkoutMetaErr.message);
+            }
         }
 
         return NextResponse.json({

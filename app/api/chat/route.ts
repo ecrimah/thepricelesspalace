@@ -287,8 +287,9 @@ const LLM_TOOLS = [
           },
           payment_method: {
             type: 'string',
-            enum: ['hubtel', 'moolre', 'cod'],
-            description: 'Payment method. hubtel or moolre = online payment (Mobile Money, card, bank transfer), cod = Cash on Delivery (where available)',
+            // Hubtel temporarily disabled — Moolre only for online pay
+            enum: ['moolre', 'cod' /* , 'hubtel' */],
+            description: 'Payment method. moolre = online payment (Mobile Money, card, bank transfer), cod = Cash on Delivery (where available)',
           },
         },
         required: ['items', 'shipping', 'delivery_method', 'payment_method'],
@@ -1148,7 +1149,7 @@ async function executeToolCall(
         items: args.items || [],
         shipping: args.shipping || {},
         deliveryMethod: args.delivery_method || 'standard',
-        paymentMethod: args.payment_method || 'hubtel',
+        paymentMethod: args.payment_method || 'moolre',
         userId,
       });
 

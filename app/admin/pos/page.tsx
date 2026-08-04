@@ -670,7 +670,7 @@ export default function POSPage() {
                     discount_total: totalDiscount,
                     total: grandTotal,
                     shipping_method: deliveryMethod,
-                    payment_method: paymentMethod === 'momo' ? 'hubtel' : paymentMethod,
+                    payment_method: paymentMethod === 'momo' ? 'moolre' : paymentMethod,
                     shipping_address: addressData,
                     billing_address: addressData,
                     metadata: {
@@ -745,7 +745,7 @@ export default function POSPage() {
             }
 
             if (paymentMethod === 'momo') {
-                // Prefer Hubtel; fall back to Moolre if Hubtel is not configured
+                // Hubtel temporarily disabled — Moolre only
                 const paymentPayload = {
                     orderId: orderNumber,
                     amount: grandTotal,
@@ -753,7 +753,8 @@ export default function POSPage() {
                 };
                 let paymentResult: any = null;
                 let usedGateway: 'hubtel' | 'moolre' | null = null;
-                for (const endpoint of ['/api/payment/hubtel', '/api/payment/moolre'] as const) {
+                // for (const endpoint of ['/api/payment/hubtel', '/api/payment/moolre'] as const) {
+                for (const endpoint of ['/api/payment/moolre'] as const) {
                     const paymentRes = await fetch(endpoint, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -761,20 +762,24 @@ export default function POSPage() {
                     });
                     paymentResult = await paymentRes.json().catch(() => ({}));
                     if (paymentResult?.success && paymentResult?.url) {
-                        usedGateway = endpoint.includes('hubtel') ? 'hubtel' : 'moolre';
+                        usedGateway = 'moolre';
                         break;
                     }
                 }
                 if (!paymentResult?.success || !paymentResult?.url) {
                     throw new Error(
                         paymentResult?.message ||
-                            'Payment gateway not configured. Set Hubtel or Moolre credentials in the server environment.'
+                            'Payment gateway not configured. Set Moolre credentials in the server environment.'
                     );
                 }
                 if (usedGateway) {
-                    // Best-effort annotate; payment init already wrote gateway metadata
-                    fetch(`/api/admin/orders`, { method: 'GET', credentials: 'include' }).catch(() => {});
-                    void usedGateway;
+                    await supabase
+                        .from('orders')
+                        .update({
+                            payment_method: usedGateway,
+                            payment_provider: usedGateway,
+                        })
+                        .eq('order_number', orderNumber);
                 }
 
                 const receiptData = {

@@ -16,7 +16,8 @@ export default function PaymentPage() {
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [outOfStockItems, setOutOfStockItems] = useState<string[]>([]);
-  const [paymentMethod, setPaymentMethod] = useState<'hubtel' | 'moolre' | 'paystack'>('hubtel');
+  // Hubtel / Paystack disabled — only Moolre is configured in prod
+  const [paymentMethod, setPaymentMethod] = useState<'hubtel' | 'moolre' | 'paystack'>('moolre');
 
   useEffect(() => {
     async function fetchOrder() {
@@ -31,12 +32,16 @@ export default function PaymentPage() {
         }
 
         setOrder(data.order);
+        // Force Moolre while Hubtel / Paystack are disabled
+        setPaymentMethod('moolre');
+        /*
         const savedMethod = data.order.payment_method;
         if (savedMethod === 'moolre' || savedMethod === 'paystack') {
           setPaymentMethod(savedMethod);
         } else {
           setPaymentMethod('hubtel');
         }
+        */
 
         // If already paid, redirect to success page
         if (data.order.payment_status === 'paid') {
@@ -76,12 +81,15 @@ export default function PaymentPage() {
         return;
       }
 
-      const paymentEndpoint =
-        paymentMethod === 'hubtel'
-          ? '/api/payment/hubtel'
-          : paymentMethod === 'paystack'
-            ? '/api/payment/paystack'
-            : '/api/payment/moolre';
+      // Hubtel / Paystack temporarily disabled — Moolre only
+      const paymentEndpoint = '/api/payment/moolre';
+      /*
+      paymentMethod === 'hubtel'
+        ? '/api/payment/hubtel'
+        : paymentMethod === 'paystack'
+          ? '/api/payment/paystack'
+          : '/api/payment/moolre';
+      */
 
       const paymentRes = await fetch(paymentEndpoint, {
         method: 'POST',
@@ -261,10 +269,11 @@ export default function PaymentPage() {
           </div>
         )}
 
-        {/* Gateway choice */}
+        {/* Gateway choice — Hubtel / Paystack temporarily disabled */}
         {!hasStockIssue && (
           <div className="mb-6 space-y-3">
-            <p className="text-sm font-semibold text-gray-900">Choose payment method</p>
+            <p className="text-sm font-semibold text-gray-900">Payment method</p>
+            {/*
             <label
               className={`flex items-start gap-3 p-4 border-2 rounded-xl cursor-pointer transition-colors ${
                 paymentMethod === 'hubtel'
@@ -285,6 +294,7 @@ export default function PaymentPage() {
                 <p className="text-sm text-gray-600">Mobile Money, card, or bank</p>
               </div>
             </label>
+            */}
             <label
               className={`flex items-start gap-3 p-4 border-2 rounded-xl cursor-pointer transition-colors ${
                 paymentMethod === 'moolre'
@@ -302,9 +312,10 @@ export default function PaymentPage() {
               />
               <div>
                 <p className="font-semibold text-gray-900">Moolre</p>
-                <p className="text-sm text-gray-600">Alternative Mobile Money / card checkout</p>
+                <p className="text-sm text-gray-600">Mobile Money, card, or bank</p>
               </div>
             </label>
+            {/*
             <label
               className={`flex items-start gap-3 p-4 border-2 rounded-xl cursor-pointer transition-colors ${
                 paymentMethod === 'paystack'
@@ -325,6 +336,7 @@ export default function PaymentPage() {
                 <p className="text-sm text-gray-600">Card, Mobile Money, or bank transfer</p>
               </div>
             </label>
+            */}
           </div>
         )}
 
@@ -346,12 +358,7 @@ export default function PaymentPage() {
             ) : (
               <>
                 <i className="ri-secure-payment-line mr-2"></i>
-                Pay ₵ {order?.total?.toFixed(2)} with{' '}
-                {paymentMethod === 'hubtel'
-                  ? 'Hubtel'
-                  : paymentMethod === 'paystack'
-                    ? 'Paystack'
-                    : 'Moolre'}
+                Pay ₵ {order?.total?.toFixed(2)} with Moolre
               </>
             )}
           </button>
@@ -377,7 +384,7 @@ export default function PaymentPage() {
         <div className="mt-6 text-center">
           <p className="text-xs text-gray-500 flex items-center justify-center">
             <i className="ri-lock-line mr-1"></i>
-            Secure payment powered by Hubtel, Moolre, or Paystack
+            Secure payment powered by Moolre
           </p>
         </div>
 

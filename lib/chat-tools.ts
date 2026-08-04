@@ -1,8 +1,10 @@
+/* Hubtel temporarily disabled
 import {
   initiateHubtelCheckout,
   makeHubtelClientReference,
   normalizeGhPhone,
 } from '@/lib/hubtel';
+*/
 import { getMoolreConfig, generatePaymentLink } from '@/lib/moolre';
 import { BRAND, brandPhoneList } from '@/lib/brand';
 
@@ -497,8 +499,9 @@ export async function createChatOrder(
   if (!['standard', 'express', 'pickup'].includes(deliveryMethod)) {
     return { success: false, message: 'Invalid delivery method.' };
   }
-  if (!['hubtel', 'moolre', 'cod'].includes(paymentMethod)) {
-    return { success: false, message: 'Invalid payment method.' };
+  // Hubtel temporarily disabled — Moolre (or COD) only
+  if (!['moolre', 'cod' /* , 'hubtel' */].includes(paymentMethod)) {
+    return { success: false, message: 'Invalid payment method. Please use Moolre.' };
   }
 
   // Rate-limit order creation per email to prevent spam/abuse
@@ -650,6 +653,7 @@ export async function createChatOrder(
     }
 
     // Handle payment
+    /* Hubtel temporarily disabled — credentials not configured
     if (paymentMethod === 'hubtel') {
       try {
         const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || '').replace(/\/+$/, '');
@@ -674,7 +678,6 @@ export async function createChatOrder(
           sanitizedShipping.email ||
           'Customer';
 
-        // Save Hubtel reference on the order so verify/callback can find it later
         try {
           await supabaseAdmin
             .from('orders')
@@ -732,6 +735,7 @@ export async function createChatOrder(
         };
       }
     }
+    */
 
     if (paymentMethod === 'moolre') {
       try {

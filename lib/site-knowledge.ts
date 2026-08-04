@@ -72,11 +72,11 @@ Refunds are processed after item inspection.`,
     title: "Payment Methods",
     path: "/checkout",
     category: "payment",
-    content: `Secure payments are processed by Hubtel or Moolre — customers choose either at checkout. Both support mobile money, debit/credit cards, and bank transfer.
+    content: `Secure payments are processed by Moolre at checkout. Supports mobile money, debit/credit cards, and bank transfer.
 
 Cash on Delivery may be available for eligible orders in supported areas.
 All prices are shown in ₵ (GHS) unless otherwise stated.`,
-    keywords: ["payment", "hubtel", "moolre", "card", "bank transfer", "mobile money", "momo", "checkout", "secure", "ghs", "cedi"],
+    keywords: ["payment", "moolre", "card", "bank transfer", "mobile money", "momo", "checkout", "secure", "ghs", "cedi"],
   },
   {
     id: "order-tracking-guide",

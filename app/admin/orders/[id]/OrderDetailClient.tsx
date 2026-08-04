@@ -145,11 +145,15 @@ export default function OrderDetailClient({ orderId }: OrderDetailClientProps) {
     setReverifying(true);
     setReverifyResult(null);
     try {
-      const method = order.payment_method || 'hubtel';
-      const endpoints =
-        method === 'moolre'
-          ? ['/api/payment/moolre/verify', '/api/payment/hubtel/verify']
-          : ['/api/payment/hubtel/verify', '/api/payment/moolre/verify'];
+      // Hubtel / Paystack verify disabled — Moolre only
+      const method = order.payment_method || 'moolre';
+      const endpoints = ['/api/payment/moolre/verify'];
+      void method;
+      /*
+      method === 'moolre'
+        ? ['/api/payment/moolre/verify', '/api/payment/hubtel/verify']
+        : ['/api/payment/hubtel/verify', '/api/payment/moolre/verify'];
+      */
 
       let verified = false;
       let lastMessage = '';

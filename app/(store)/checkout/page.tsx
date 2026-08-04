@@ -54,7 +54,8 @@ export default function CheckoutPage() {
   ];
 
   const [deliveryMethod, setDeliveryMethod] = useState('pickup');
-  const [paymentMethod, setPaymentMethod] = useState('hubtel');
+  // Hubtel / Paystack disabled — only Moolre credentials are configured in prod
+  const [paymentMethod, setPaymentMethod] = useState('moolre');
   const [errors, setErrors] = useState<any>({});
 
 
@@ -173,14 +174,17 @@ export default function CheckoutPage() {
       // Note: Stock reduction happens in mark_order_paid when payment is confirmed
 
       // Handle Payment Redirects or Completion
-      if (paymentMethod === 'hubtel' || paymentMethod === 'moolre' || paymentMethod === 'paystack') {
+      // Hubtel / Paystack temporarily disabled — Moolre only
+      if (paymentMethod === 'moolre' /* || paymentMethod === 'hubtel' || paymentMethod === 'paystack' */) {
         try {
-          const paymentEndpoint =
-            paymentMethod === 'hubtel'
-              ? '/api/payment/hubtel'
-              : paymentMethod === 'paystack'
-                ? '/api/payment/paystack'
-                : '/api/payment/moolre';
+          const paymentEndpoint = '/api/payment/moolre';
+          /*
+          paymentMethod === 'hubtel'
+            ? '/api/payment/hubtel'
+            : paymentMethod === 'paystack'
+              ? '/api/payment/paystack'
+              : '/api/payment/moolre';
+          */
 
           const paymentRes = await fetch(paymentEndpoint, {
             method: 'POST',
@@ -564,6 +568,7 @@ export default function CheckoutPage() {
                 <p className="text-sm text-gray-600 mb-6">Choose how you&apos;d like to pay.</p>
 
                 <div className="space-y-3">
+                  {/* Hubtel temporarily disabled — credentials not configured
                   <label
                     className={`flex items-start gap-3 p-4 border-2 rounded-xl cursor-pointer transition-colors ${
                       paymentMethod === 'hubtel'
@@ -592,6 +597,7 @@ export default function CheckoutPage() {
                     </div>
                     <i className="ri-smartphone-line text-2xl text-[#2563eb]"></i>
                   </label>
+                  */}
 
                   <label
                     className={`flex items-start gap-3 p-4 border-2 rounded-xl cursor-pointer transition-colors ${
@@ -609,14 +615,20 @@ export default function CheckoutPage() {
                       className="w-5 h-5 accent-[#2563eb] mt-0.5"
                     />
                     <div className="flex-1">
-                      <p className="font-semibold text-gray-900">Moolre</p>
+                      <p className="font-semibold text-gray-900 flex items-center gap-2">
+                        Moolre
+                        <span className="text-[10px] uppercase tracking-wide font-bold bg-[#2563eb]/15 text-[#1d4ed8] border border-[#2563eb]/30 rounded-full px-2 py-0.5">
+                          Recommended
+                        </span>
+                      </p>
                       <p className="text-sm text-gray-600 mt-1">
-                        Alternative Mobile Money / card checkout. Use this if Hubtel is unavailable.
+                        Pay with Mobile Money (MTN, Telecel, AirtelTigo), card, or bank. Powered by Moolre.
                       </p>
                     </div>
                     <i className="ri-wallet-3-line text-2xl text-[#2563eb]"></i>
                   </label>
 
+                  {/* Paystack temporarily disabled — credentials not configured
                   <label
                     className={`flex items-start gap-3 p-4 border-2 rounded-xl cursor-pointer transition-colors ${
                       paymentMethod === 'paystack'
@@ -640,6 +652,7 @@ export default function CheckoutPage() {
                     </div>
                     <i className="ri-bank-card-line text-2xl text-[#2563eb]"></i>
                   </label>
+                  */}
                 </div>
 
                 <div className="flex flex-col-reverse md:flex-row gap-4 mt-6">
@@ -663,10 +676,6 @@ export default function CheckoutPage() {
                         </svg>
                         Processing...
                       </>
-                    ) : paymentMethod === 'hubtel' ? (
-                      'Pay with Hubtel'
-                    ) : paymentMethod === 'paystack' ? (
-                      'Pay with Paystack'
                     ) : (
                       'Pay with Moolre'
                     )}

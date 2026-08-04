@@ -15,6 +15,12 @@ import {
  * from the client request.
  */
 export async function POST(req: Request) {
+    // Temporarily disabled — only Moolre is configured for this store
+    return NextResponse.json(
+        { success: false, message: 'Hubtel is temporarily unavailable. Please pay with Moolre.' },
+        { status: 503 }
+    );
+
     try {
         const clientId = getClientIdentifier(req);
         const rateLimitResult = checkRateLimit(`hubtel:${clientId}`, RATE_LIMITS.payment);

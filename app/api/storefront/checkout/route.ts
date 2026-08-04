@@ -27,7 +27,7 @@ export async function POST(request: Request) {
       email,
       phone,
       deliveryMethod = 'pickup',
-      paymentMethod = 'hubtel',
+      paymentMethod = 'moolre',
       shippingData,
       cart,
       couponCode,
@@ -49,7 +49,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Missing shipping details' }, { status: 400 });
     }
 
-    const allowedPayments = new Set(['hubtel', 'moolre', 'paystack', 'cash', 'pos']);
+    // Hubtel / Paystack temporarily disabled — only Moolre online checkout
+    const allowedPayments = new Set(['moolre', 'cash', 'pos' /* , 'hubtel', 'paystack' */]);
     if (!allowedPayments.has(paymentMethod)) {
       return NextResponse.json({ error: 'Invalid payment method' }, { status: 400 });
     }

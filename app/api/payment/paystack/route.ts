@@ -3,6 +3,12 @@ import { supabaseAdmin } from '@/lib/supabase-admin';
 import { checkRateLimit, getClientIdentifier, RATE_LIMITS } from '@/lib/rate-limit';
 
 export async function POST(req: Request) {
+    // Temporarily disabled — only Moolre is configured for this store
+    return NextResponse.json(
+        { success: false, message: 'Paystack is temporarily unavailable. Please pay with Moolre.' },
+        { status: 503 }
+    );
+
     try {
         const clientId = getClientIdentifier(req);
         const rateLimitResult = checkRateLimit(`payment:${clientId}`, RATE_LIMITS.payment);

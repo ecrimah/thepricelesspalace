@@ -88,7 +88,7 @@ export default function ProductCard({
         className="relative block aspect-square overflow-hidden bg-brand-carton/10"
       >
         <LazyImage
-          src={image}
+          src={image || ''}
           alt={name}
           className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.05]"
         />

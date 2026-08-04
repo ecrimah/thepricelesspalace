@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Image from 'next/image';
 
 interface LazyImageProps {
-  src: string;
+  src?: string;
   alt: string;
   className?: string;
   width?: number;

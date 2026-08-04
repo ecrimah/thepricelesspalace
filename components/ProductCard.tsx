@@ -136,7 +136,7 @@ export default function ProductCard({
             <button
               onClick={(e) => {
                 e.preventDefault();
-                addToCart({ id, name, price, image, quantity: moq, slug, maxStock, moq });
+                addToCart({ id, name, price, image: image || '', quantity: moq, slug, maxStock, moq });
               }}
               className="absolute bottom-2 right-2 inline-flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-full bg-gradient-to-br from-[#60a5fa] to-[#2563eb] text-[#1e40af] shadow-md translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 hover:brightness-105 transition-all duration-300"
               aria-label={moq > 1 ? `Add ${moq} to cart` : 'Add to cart'}

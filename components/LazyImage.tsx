@@ -14,8 +14,6 @@ interface LazyImageProps {
   sizes?: string;
 }
 
-const PLACEHOLDER = '/placeholder-product.webp';
-
 /** Serve same-origin images directly — skip /_next/image (avoids sharp/cache blanks). */
 function shouldBypassOptimizer(src: string) {
   try {
@@ -28,12 +26,30 @@ function shouldBypassOptimizer(src: string) {
     return (
       pathname.startsWith('/products/') ||
       pathname.startsWith('/hero-') ||
-      pathname === PLACEHOLDER ||
       (pathname.startsWith('/') && /\.(webp|png|jpe?g|avif|gif)$/i.test(pathname))
     );
   } catch {
     return false;
   }
+}
+
+function EmptyImage({
+  className,
+  width,
+  height,
+}: {
+  className: string;
+  width?: number;
+  height?: number;
+}) {
+  return (
+    <div
+      className={`relative overflow-hidden bg-gray-100 flex items-center justify-center ${className}`}
+      style={{ width, height }}
+    >
+      <span className="text-gray-400 text-xs">No Image</span>
+    </div>
+  );
 }
 
 export default function LazyImage({
@@ -46,12 +62,12 @@ export default function LazyImage({
   onLoad,
   sizes = '(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw',
 }: LazyImageProps) {
-  const [displaySrc, setDisplaySrc] = useState(src || PLACEHOLDER);
-  const [failedPlaceholder, setFailedPlaceholder] = useState(false);
+  const [displaySrc, setDisplaySrc] = useState(src || '');
+  const [failed, setFailed] = useState(false);
 
   useEffect(() => {
-    setDisplaySrc(src || PLACEHOLDER);
-    setFailedPlaceholder(false);
+    setDisplaySrc(src || '');
+    setFailed(false);
   }, [src]);
 
   const handleLoad = () => {
@@ -59,24 +75,12 @@ export default function LazyImage({
   };
 
   const handleError = () => {
-    if (displaySrc !== PLACEHOLDER) {
-      setDisplaySrc(PLACEHOLDER);
-      onLoad?.();
-      return;
-    }
-    setFailedPlaceholder(true);
+    setFailed(true);
     onLoad?.();
   };
 
-  if (!displaySrc || failedPlaceholder) {
-    return (
-      <div
-        className={`relative overflow-hidden bg-gray-100 flex items-center justify-center ${className}`}
-        style={{ width, height }}
-      >
-        <span className="text-gray-400 text-xs">No Image</span>
-      </div>
-    );
+  if (!displaySrc || failed) {
+    return <EmptyImage className={className} width={width} height={height} />;
   }
 
   const unoptimized = shouldBypassOptimizer(displaySrc);

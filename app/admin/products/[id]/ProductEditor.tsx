@@ -22,12 +22,7 @@ export default function ProductEditor({ productId }: { productId: string }) {
     { id: 3, name: 'Cognac Brown', sku: 'LCB-CG-003', price: 299.00, stock: 12 }
   ];
 
-  const images = [
-    '/placeholder-product.webp',
-    '/placeholder-product.webp',
-    '/placeholder-product.webp',
-    '/placeholder-product.webp'
-  ];
+  const images: string[] = [];
 
   const tabs = [
     { id: 'general', label: 'General', icon: 'ri-information-line' },

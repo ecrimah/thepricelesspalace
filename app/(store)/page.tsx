@@ -357,7 +357,7 @@ export default function Home() {
                     name={product.name}
                     price={product.price}
                     originalPrice={product.compare_at_price}
-                    image={product.product_images?.[0]?.url || '/placeholder-product.webp'}
+                    image={product.product_images?.[0]?.url || ''}
                     rating={product.rating_avg || 5}
                     reviewCount={product.review_count || 0}
                     badge={product.featured ? 'Featured' : 'Trending'}

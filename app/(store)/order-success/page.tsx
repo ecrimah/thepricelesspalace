@@ -220,11 +220,13 @@ function OrderSuccessContent() {
                 {order.order_items.map((item: any) => (
                   <div key={item.id} className="flex items-center space-x-4">
                     <div className="w-20 h-20 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 border border-gray-200">
-                      <img
-                        src={item.metadata?.image || '/placeholder-product.webp'}
-                        alt={item.product_name}
-                        className="w-full h-full object-cover object-center"
-                      />
+                      {item.metadata?.image ? (
+                        <img
+                          src={item.metadata.image}
+                          alt={item.product_name}
+                          className="w-full h-full object-cover object-center"
+                        />
+                      ) : null}
                     </div>
                     <div className="flex-1">
                       <p className="font-semibold text-gray-900 line-clamp-2">{item.product_name}</p>

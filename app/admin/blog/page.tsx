@@ -13,7 +13,7 @@ export default function AdminBlogPage() {
       slug: 'placeholder-blog-post',
       author: 'Admin',
       category: 'General',
-      image: '/placeholder-product.webp',
+      image: '',
       excerpt: 'Starter demo post. Replace with real content from the blog editor.',
       status: 'Draft',
       views: 0,
@@ -88,7 +88,9 @@ export default function AdminBlogPage() {
             {posts.map((post) => (
               <div key={post.id} className="border-2 border-gray-200 rounded-xl overflow-hidden">
                 <div className="aspect-video bg-gray-100 overflow-hidden">
-                  <img src={post.image} alt={post.title} className="w-full h-full object-cover" />
+                  {post.image ? (
+                    <img src={post.image} alt={post.title} className="w-full h-full object-cover" />
+                  ) : null}
                 </div>
                 <div className="p-4">
                   <div className="flex items-center justify-between mb-3">

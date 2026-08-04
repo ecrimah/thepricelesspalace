@@ -26,42 +26,42 @@ export default function AdvancedSearch() {
       name: 'Premium Wireless Headphones',
       category: 'Electronics',
       price: 450,
-      image: '/placeholder-product.webp'
+      image: ''
     },
     {
       id: '2',
       name: 'Smart Fitness Watch',
       category: 'Wearables',
       price: 320,
-      image: '/placeholder-product.webp'
+      image: ''
     },
     {
       id: '3',
       name: 'Leather Crossbody Bag',
       category: 'Fashion',
       price: 289,
-      image: '/placeholder-product.webp'
+      image: ''
     },
     {
       id: '4',
       name: 'Minimalist Ceramic Vase Set',
       category: 'Home Decor',
       price: 159,
-      image: '/placeholder-product.webp'
+      image: ''
     },
     {
       id: '5',
       name: 'Organic Cotton T-Shirt',
       category: 'Clothing',
       price: 45,
-      image: '/placeholder-product.webp'
+      image: ''
     },
     {
       id: '6',
       name: 'Bamboo Desk Organizer',
       category: 'Office',
       price: 68,
-      image: '/placeholder-product.webp'
+      image: ''
     }
   ];
 
@@ -195,11 +195,15 @@ export default function AdvancedSearch() {
                   }}
                   className="flex items-center space-x-3 p-3 hover:bg-gray-50 rounded-lg transition-colors"
                 >
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="w-12 h-12 object-cover object-top rounded-lg"
-                  />
+                  <div className="w-12 h-12 rounded-lg bg-gray-100 overflow-hidden flex-shrink-0">
+                    {product.image ? (
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        className="w-full h-full object-cover object-top"
+                      />
+                    ) : null}
+                  </div>
                   <div className="flex-1">
                     <p className="font-semibold text-gray-900 text-sm">{product.name}</p>
                     <p className="text-xs text-gray-500">{product.category}</p>

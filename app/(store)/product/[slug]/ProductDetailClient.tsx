@@ -128,10 +128,6 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
           preorderShipping: dataToTransform.metadata?.preorder_shipping || null
         };
 
-        // Ensure at least one image/placeholder
-        if (transformedProduct.images.length === 0) {
-          transformedProduct.images = ['/placeholder-product.webp'];
-        }
 
         setProduct(transformedProduct);
 
@@ -174,7 +170,7 @@ export default function ProductDetailClient({ slug }: { slug: string }) {
                 slug: p.slug,
                 name: p.name,
                 price: p.price,
-                image: p.product_images?.[0]?.url || '/placeholder-product.webp',
+                image: p.product_images?.[0]?.url || '',
                 rating: p.rating_avg || 0,
                 reviewCount: 0,
                 availability: isPreorder ? 'preorder' as const : 'available' as const,

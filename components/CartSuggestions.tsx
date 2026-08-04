@@ -18,7 +18,7 @@ export default function CartSuggestions() {
       name: 'Premium Wireless Headphones',
       price: 129.99,
       originalPrice: 179.99,
-      image: '/placeholder-product.webp',
+      image: '',
       rating: 4.8
     },
     {
@@ -26,14 +26,14 @@ export default function CartSuggestions() {
       name: 'Leather Card Holder Wallet',
       price: 34.99,
       originalPrice: 49.99,
-      image: '/placeholder-product.webp',
+      image: '',
       rating: 4.7
     },
     {
       id: '23',
       name: 'Smart Watch Band',
       price: 24.99,
-      image: '/placeholder-product.webp',
+      image: '',
       rating: 4.6
     },
     {
@@ -41,7 +41,7 @@ export default function CartSuggestions() {
       name: 'Phone Stand Holder',
       price: 19.99,
       originalPrice: 29.99,
-      image: '/placeholder-product.webp',
+      image: '',
       rating: 4.5
     }
   ];
@@ -58,11 +58,13 @@ export default function CartSuggestions() {
           <div key={product.id} className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
             <Link href={`/product/${product.id}`}>
               <div className="aspect-square bg-gray-100 overflow-hidden">
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="w-full h-full object-cover object-top hover:scale-105 transition-transform duration-300"
-                />
+                {product.image ? (
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                    className="w-full h-full object-cover object-top hover:scale-105 transition-transform duration-300"
+                  />
+                ) : null}
               </div>
               <div className="p-3">
                 <h4 className="font-semibold text-gray-900 text-sm mb-2 line-clamp-2">{product.name}</h4>

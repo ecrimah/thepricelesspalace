@@ -27,9 +27,9 @@ export default function MobileSearchOverlay({ isOpen, onClose }: MobileSearchOve
   ];
 
   const searchSuggestions = [
-    { name: 'Summer Floral Dress', category: 'Women\'s Clothing', price: '₵289', image: '/placeholder-product.webp' },
-    { name: 'Classic Leather Handbag', category: 'Bags', price: '₵459', image: '/placeholder-product.webp' },
-    { name: 'Designer Sunglasses', category: 'Accessories', price: '₵199', image: '/placeholder-product.webp' }
+    { name: 'Summer Floral Dress', category: 'Women\'s Clothing', price: '₵289', image: '' },
+    { name: 'Classic Leather Handbag', category: 'Bags', price: '₵459', image: '' },
+    { name: 'Designer Sunglasses', category: 'Accessories', price: '₵199', image: '' }
   ];
 
   useEffect(() => {
@@ -141,11 +141,15 @@ export default function MobileSearchOverlay({ isOpen, onClose }: MobileSearchOve
                   className="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded-lg transition-colors"
                   onClick={onClose}
                 >
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="w-16 h-16 object-cover rounded-lg"
-                  />
+                  <div className="w-16 h-16 rounded-lg bg-gray-100 overflow-hidden flex-shrink-0">
+                    {product.image ? (
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : null}
+                  </div>
                   <div className="flex-1 min-w-0">
                     <h4 className="text-sm font-medium text-gray-900 truncate">{product.name}</h4>
                     <p className="text-xs text-gray-500 mt-0.5">{product.category}</p>

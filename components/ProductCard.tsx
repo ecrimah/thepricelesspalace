@@ -42,7 +42,7 @@ interface ProductCardProps {
   name: string;
   price: number;
   originalPrice?: number;
-  image: string;
+  image?: string;
   rating?: number;
   reviewCount?: number;
   badge?: string;

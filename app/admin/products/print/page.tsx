@@ -2,8 +2,6 @@
 
 import { useState, useEffect, useRef } from 'react';
 
-const PLACEHOLDER_IMAGE = '/placeholder-product.webp';
-
 export default function PrintInventoryPage() {
     const [products, setProducts] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
@@ -180,13 +178,15 @@ export default function PrintInventoryPage() {
                         <tr key={product.id} className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}>
                             <td className="p-2 border border-gray-300 text-center align-middle">
                                 <div className="w-14 h-14 mx-auto bg-gray-100 border border-gray-200 overflow-hidden flex items-center justify-center bg-white">
-                                    <img
-                                        src={product.image}
-                                        alt={product.name}
-                                        className="max-w-full max-h-full object-contain"
-                                        style={{ WebkitPrintColorAdjust: "exact", printColorAdjust: "exact" }}
-                                        onError={(e) => { (e.target as HTMLImageElement).src = PLACEHOLDER_IMAGE; }}
-                                    />
+                                    {product.image ? (
+                                      <img
+                                          src={product.image}
+                                          alt={product.name}
+                                          className="max-w-full max-h-full object-contain"
+                                          style={{ WebkitPrintColorAdjust: "exact", printColorAdjust: "exact" }}
+                                          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                                      />
+                                    ) : null}
                                 </div>
                             </td>
                             <td className="p-3 border border-gray-300 font-semibold text-sm">{product.name}</td>

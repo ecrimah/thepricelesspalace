@@ -39,7 +39,7 @@ export default async function CategoriesPage() {
     const style = palette[i % palette.length];
     return {
       ...c,
-      image: c.image_url || '/placeholder-product.webp',
+      image: c.image_url || '',
       color: style.color,
       icon: style.icon,
       productCount: 'Browse',

@@ -28,7 +28,7 @@ export default function SmartRecommendations({ productId, type, title }: SmartRe
       name: 'Premium Wireless Headphones',
       price: 450,
       originalPrice: 599,
-      image: '/placeholder-product.webp',
+      image: '',
       rating: 4.8,
       reviews: 234
     },
@@ -36,7 +36,7 @@ export default function SmartRecommendations({ productId, type, title }: SmartRe
       id: '2',
       name: 'Smart Fitness Watch',
       price: 320,
-      image: '/placeholder-product.webp',
+      image: '',
       rating: 4.6,
       reviews: 189
     },
@@ -45,7 +45,7 @@ export default function SmartRecommendations({ productId, type, title }: SmartRe
       name: 'Leather Crossbody Bag',
       price: 289,
       originalPrice: 399,
-      image: '/placeholder-product.webp',
+      image: '',
       rating: 4.9,
       reviews: 312
     },
@@ -53,7 +53,7 @@ export default function SmartRecommendations({ productId, type, title }: SmartRe
       id: '4',
       name: 'Minimalist Ceramic Vase Set',
       price: 159,
-      image: '/placeholder-product.webp',
+      image: '',
       rating: 4.7,
       reviews: 156
     }
@@ -107,11 +107,13 @@ export default function SmartRecommendations({ productId, type, title }: SmartRe
               className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-lg transition-shadow group"
             >
               <div className="relative aspect-square overflow-hidden bg-gray-100">
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300"
-                />
+                {product.image ? (
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                    className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300"
+                  />
+                ) : null}
                 {product.originalPrice && (
                   <div className="absolute top-3 left-3 bg-[#9A1900] text-white px-3 py-1 rounded-full text-xs font-bold">
                     -{Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}%

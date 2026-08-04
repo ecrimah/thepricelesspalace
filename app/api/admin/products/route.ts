@@ -48,8 +48,6 @@ async function requireAdmin(request: Request): Promise<NextResponse | null> {
   return null;
 }
 
-const PLACEHOLDER_IMAGE = '/placeholder-product.webp';
-
 /**
  * GET /api/admin/products
  * Returns products with product_images (and categories, variant count) using service role.
@@ -88,7 +86,7 @@ export async function GET(request: Request) {
       images.sort((a: any, b: any) => (Number(a.position) ?? 0) - (Number(b.position) ?? 0));
       const firstImageUrl = images.find((img: any) => Number(img.position) === 0)?.url
         || images[0]?.url
-        || PLACEHOLDER_IMAGE;
+        || '';
       const variants = Array.isArray(p.product_variants) ? p.product_variants : [];
 
       return {

@@ -4,8 +4,6 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 
-const PLACEHOLDER_IMAGE = '/placeholder-product.webp';
-
 export default function ProductsPage() {
   const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
   const [sortBy, setSortBy] = useState('newest');
@@ -340,12 +338,14 @@ export default function ProductsPage() {
                     <td className="py-4 px-4">
                       <div className="flex items-center space-x-3">
                         <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
-                          <img
-                            src={product.image}
-                            alt={product.name}
-                            className="w-full h-full object-cover"
-                            onError={(e) => { (e.target as HTMLImageElement).src = PLACEHOLDER_IMAGE; }}
-                          />
+                          {product.image ? (
+                            <img
+                              src={product.image}
+                              alt={product.name}
+                              className="w-full h-full object-cover"
+                              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                            />
+                          ) : null}
                         </div>
                         <div>
                           <p className="font-semibold text-gray-900">{product.name}</p>
@@ -405,12 +405,14 @@ export default function ProductsPage() {
                     className="absolute top-2 left-2 w-5 h-5 text-gray-900 border-gray-300 rounded focus:ring-gray-600 cursor-pointer z-10"
                   />
                   <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden mb-3 border border-gray-200">
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      className="w-full h-full object-cover"
-                      onError={(e) => { (e.target as HTMLImageElement).src = PLACEHOLDER_IMAGE; }}
-                    />
+                    {product.image ? (
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        className="w-full h-full object-cover"
+                        onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                      />
+                    ) : null}
                   </div>
                 </div>
                 <span className={`inline-block px-2 py-1 rounded-full text-xs font-semibold mb-2 capitalize ${statusColors[product.status] || 'bg-gray-100 text-gray-600'}`}>

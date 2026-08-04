@@ -31,10 +31,7 @@ export default function AdminCustomersPage() {
         // Fallback to old profiles-based approach if customers table doesn't exist yet
         console.warn('Customers table not available, falling back to profiles');
         await fetchCustomersFromProfiles();
-        return;
-      }
-
-      if (customerData) {
+      } else if (customerData) {
         const processed = customerData.map((customer: any) => {
           // Determine status dynamically
           let status = 'New';
@@ -179,8 +176,6 @@ export default function AdminCustomersPage() {
       setCustomers([...registeredCustomers, ...guestCustomers]);
     } catch (error) {
       console.error('Error in fallback fetch:', error);
-    } finally {
-      setLoading(false);
     }
   };
 

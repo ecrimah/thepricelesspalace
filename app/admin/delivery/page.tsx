@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import DeliveryNav from './DeliveryNav';
 
@@ -52,27 +52,48 @@ export default function DeliveryDashboard() {
     const [stats, setStats] = useState<Stats | null>(null);
     const [recentAssignments, setRecentAssignments] = useState<Assignment[]>([]);
     const [loading, setLoading] = useState(true);
+    const fetchControllerRef = useRef<AbortController | null>(null);
+    const fetchIdRef = useRef(0);
 
     useEffect(() => {
         fetchData();
         const interval = setInterval(fetchData, 30000);
-        return () => clearInterval(interval);
+        return () => {
+            clearInterval(interval);
+            fetchControllerRef.current?.abort();
+        };
     }, []);
 
     async function fetchData() {
+        fetchControllerRef.current?.abort();
+        const controller = new AbortController();
+        fetchControllerRef.current = controller;
+        const fetchId = ++fetchIdRef.current;
+
+        const signal = typeof AbortSignal !== 'undefined' && 'timeout' in AbortSignal
+            ? AbortSignal.timeout(15000)
+            : controller.signal;
+
         try {
             const [statsRes, recentRes] = await Promise.all([
-                fetch('/api/delivery?action=stats'),
-                fetch('/api/delivery?action=recent'),
+                fetch('/api/delivery?action=stats', { signal }),
+                fetch('/api/delivery?action=recent', { signal }),
             ]);
+            if (fetchId !== fetchIdRef.current) return;
+
             const statsData = await statsRes.json();
             const recentData = await recentRes.json();
+            if (fetchId !== fetchIdRef.current) return;
+
             setStats(statsData.stats);
             setRecentAssignments(recentData.assignments || []);
         } catch (err) {
+            if (err instanceof DOMException && err.name === 'AbortError') return;
             console.error('Failed to fetch dashboard data:', err);
         } finally {
-            setLoading(false);
+            if (fetchId === fetchIdRef.current) {
+                setLoading(false);
+            }
         }
     }
 

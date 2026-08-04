@@ -3,6 +3,11 @@
  *   /rest/v1/*  /auth/v1/*  /storage/v1/*
  */
 
+import { fetchWithTimeout } from '../fetch-with-timeout';
+
+const HTTP_TIMEOUT_MS = 15_000;
+const UPLOAD_TIMEOUT_MS = 60_000;
+
 type Row = Record<string, unknown>;
 type QueryResult = {
   data: any;
@@ -375,7 +380,7 @@ class HttpQueryBuilder implements PromiseLike<QueryResult> {
     try {
       if (this.action === 'select') {
         const url = `${base}/rest/v1/${encodeURIComponent(this.table)}?${params}`;
-        const res = await fetch(url, { method: 'GET', headers });
+        const res = await fetchWithTimeout(url, { method: 'GET', headers }, HTTP_TIMEOUT_MS);
         return this.parseRestResponse(res);
       }
 
@@ -391,11 +396,11 @@ class HttpQueryBuilder implements PromiseLike<QueryResult> {
           );
         }
         const url = `${base}/rest/v1/${encodeURIComponent(this.table)}?${params}`;
-        const res = await fetch(url, {
+        const res = await fetchWithTimeout(url, {
           method: 'POST',
           headers,
           body: JSON.stringify(this.payload),
-        });
+        }, HTTP_TIMEOUT_MS);
         return this.parseRestResponse(res);
       }
 
@@ -404,18 +409,18 @@ class HttpQueryBuilder implements PromiseLike<QueryResult> {
           headers.set('Prefer', 'return=representation');
         }
         const url = `${base}/rest/v1/${encodeURIComponent(this.table)}?${params}`;
-        const res = await fetch(url, {
+        const res = await fetchWithTimeout(url, {
           method: 'PATCH',
           headers,
           body: JSON.stringify(this.payload),
-        });
+        }, HTTP_TIMEOUT_MS);
         return this.parseRestResponse(res);
       }
 
       if (this.action === 'delete') {
         if (this.returnRows) headers.set('Prefer', 'return=representation');
         const url = `${base}/rest/v1/${encodeURIComponent(this.table)}?${params}`;
-        const res = await fetch(url, { method: 'DELETE', headers });
+        const res = await fetchWithTimeout(url, { method: 'DELETE', headers }, HTTP_TIMEOUT_MS);
         return this.parseRestResponse(res);
       }
 
@@ -475,11 +480,11 @@ function createAuthApi() {
   return {
     async signInWithPassword(creds: { email: string; password: string }) {
       const base = resolveBaseUrl();
-      const res = await fetch(`${base}/auth/v1/token?grant_type=password`, {
+      const res = await fetchWithTimeout(`${base}/auth/v1/token?grant_type=password`, {
         method: 'POST',
         headers: apiHeaders(),
         body: JSON.stringify({ email: creds.email, password: creds.password }),
-      });
+      }, HTTP_TIMEOUT_MS);
       const body = await parseJson(res);
       if (!res.ok) {
         return {
@@ -510,7 +515,7 @@ function createAuthApi() {
       options?: { data?: Record<string, unknown> };
     }) {
       const base = resolveBaseUrl();
-      const res = await fetch(`${base}/auth/v1/signup`, {
+      const res = await fetchWithTimeout(`${base}/auth/v1/signup`, {
         method: 'POST',
         headers: apiHeaders(),
         body: JSON.stringify({
@@ -518,7 +523,7 @@ function createAuthApi() {
           password: opts.password,
           data: opts.options?.data,
         }),
-      });
+      }, HTTP_TIMEOUT_MS);
       const body = await parseJson(res);
       if (!res.ok) {
         return {
@@ -546,7 +551,7 @@ function createAuthApi() {
     async signOut() {
       const base = resolveBaseUrl();
       try {
-        await fetch(`${base}/auth/v1/logout`, { method: 'POST', headers: apiHeaders() });
+        await fetchWithTimeout(`${base}/auth/v1/logout`, { method: 'POST', headers: apiHeaders() }, 8_000);
       } catch {
         /* ignore */
       }
@@ -566,9 +571,9 @@ function createAuthApi() {
         return { data: { session }, error: null };
       }
       const base = resolveBaseUrl();
-      const res = await fetch(`${base}/auth/v1/user`, {
+      const res = await fetchWithTimeout(`${base}/auth/v1/user`, {
         headers: apiHeaders(new Headers({ Authorization: `Bearer ${session.access_token}` })),
-      });
+      }, HTTP_TIMEOUT_MS);
       if (!res.ok) {
         cachedSession = null;
         persistSession(null);
@@ -585,9 +590,9 @@ function createAuthApi() {
       const token = jwt || getAccessToken();
       if (!token) return { data: { user: null }, error: { message: 'No JWT provided' } };
       const base = resolveBaseUrl();
-      const res = await fetch(`${base}/auth/v1/user`, {
+      const res = await fetchWithTimeout(`${base}/auth/v1/user`, {
         headers: apiHeaders(new Headers({ Authorization: `Bearer ${token}` })),
-      });
+      }, HTTP_TIMEOUT_MS);
       const body = await parseJson(res);
       if (!res.ok) {
         return { data: { user: null }, error: { message: body?.msg || body?.message || 'Invalid JWT' } };
@@ -604,11 +609,11 @@ function createAuthApi() {
       const payload: Record<string, unknown> = {};
       if (attrs.password) payload.password = attrs.password;
       if (attrs.data) payload.data = attrs.data;
-      const res = await fetch(`${base}/auth/v1/user`, {
+      const res = await fetchWithTimeout(`${base}/auth/v1/user`, {
         method: 'PUT',
         headers: apiHeaders(new Headers({ Authorization: `Bearer ${session.access_token}` })),
         body: JSON.stringify(payload),
-      });
+      }, HTTP_TIMEOUT_MS);
       const body = await parseJson(res);
       if (!res.ok) {
         return { data: { user: null }, error: { message: body?.msg || body?.message || 'Update failed' } };
@@ -641,13 +646,14 @@ function createStorageApi() {
       return {
         async upload(path: string, file: Blob | ArrayBuffer | File, _opts?: { upsert?: boolean }) {
           const base = resolveBaseUrl();
-          const res = await fetch(
+          const res = await fetchWithTimeout(
             `${base}/storage/v1/object/${encodeURIComponent(bucket)}/${path}`,
             {
               method: 'POST',
               headers: apiHeaders(new Headers({ 'Content-Type': (file as File).type || 'application/octet-stream' })),
               body: file instanceof Blob ? file : new Blob([file]),
-            }
+            },
+            UPLOAD_TIMEOUT_MS
           );
           const body = await parseJson(res);
           if (!res.ok) return { data: null, error: { message: body?.message || 'Upload failed' } };
@@ -686,11 +692,11 @@ export function createHttpClient(_url?: string, _key?: string): HttpSupabaseClie
     storage: createStorageApi(),
     async rpc(fn: string, args: Record<string, unknown> = {}) {
       const base = resolveBaseUrl();
-      const res = await fetch(`${base}/rest/v1/rpc/${encodeURIComponent(fn)}`, {
+      const res = await fetchWithTimeout(`${base}/rest/v1/rpc/${encodeURIComponent(fn)}`, {
         method: 'POST',
         headers: apiHeaders(),
         body: JSON.stringify(args),
-      });
+      }, HTTP_TIMEOUT_MS);
       const body = await parseJson(res);
       if (!res.ok) {
         return { data: null, error: { message: body?.message || 'RPC failed' } };

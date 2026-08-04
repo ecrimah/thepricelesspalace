@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { query } from '@/lib/db/pool';
+import { getPoolStats, query } from '@/lib/db/pool';
 
 /**
  * Safe DB health check — no credentials, hosts, or row data exposed.
@@ -20,12 +20,14 @@ export async function GET() {
   try {
     if (!process.env.DATABASE_URL && !process.env.POSTGRES_URL) {
       return NextResponse.json(
-        { status: 'unhealthy', database: 'misconfigured', checks: {} },
+        { status: 'unhealthy', database: 'misconfigured', checks: {}, pool: getPoolStats() },
         { status: 503 }
       );
     }
 
+    const started = Date.now();
     await query('SELECT 1 AS ok');
+    const pingMs = Date.now() - started;
 
     const { rows } = await query<{ table_name: string }>(
       `SELECT table_name
@@ -54,18 +56,24 @@ export async function GET() {
     );
     checks['product_variants.sort_order'] = !!sortRows[0]?.ok;
 
+    const pool = getPoolStats();
     const allOk = Object.values(checks).every(Boolean);
+    const degradedPool =
+      pool.initialized && typeof pool.waiting === 'number' && pool.waiting > 0;
+
     return NextResponse.json(
       {
-        status: allOk ? 'healthy' : 'degraded',
+        status: !allOk || degradedPool ? 'degraded' : 'healthy',
         database: 'connected',
+        pingMs,
         checks,
+        pool,
       },
       { status: allOk ? 200 : 503 }
     );
   } catch {
     return NextResponse.json(
-      { status: 'unhealthy', database: 'unreachable', checks: {} },
+      { status: 'unhealthy', database: 'unreachable', checks: {}, pool: getPoolStats() },
       { status: 503 }
     );
   }

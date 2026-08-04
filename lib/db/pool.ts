@@ -23,6 +23,11 @@ types.setTypeParser(20, (v: string | null) => (v === null ? null : parseInt(v, 1
 
 let _pool: Pool | null = null;
 
+/** Default statement timeout for normal app queries (ms). Override via PG_STATEMENT_TIMEOUT_MS. */
+const STATEMENT_TIMEOUT_MS = Number(process.env.PG_STATEMENT_TIMEOUT_MS || 15_000);
+const LOCK_TIMEOUT_MS = Number(process.env.PG_LOCK_TIMEOUT_MS || 5_000);
+const IDLE_IN_TX_MS = Number(process.env.PG_IDLE_IN_TX_MS || 30_000);
+
 export function getPool(): Pool {
   if (_pool) return _pool;
   const connectionString =
@@ -39,12 +44,26 @@ export function getPool(): Pool {
     max: Number(process.env.PG_POOL_MAX || 10),
     idleTimeoutMillis: 30_000,
     connectionTimeoutMillis: 10_000,
+    // JS-side abort if a query never returns (complements PG statement_timeout).
+    query_timeout: STATEMENT_TIMEOUT_MS,
     // Self-hosted Postgres on the same host / private network: TLS optional.
     ssl:
       process.env.PGSSL === "require"
         ? { rejectUnauthorized: false }
         : undefined,
   });
+
+  _pool.on("connect", (client) => {
+    // Session-level guards so hung SQL / locks cannot pin pool slots forever.
+    void client.query(`SET statement_timeout = '${STATEMENT_TIMEOUT_MS}ms'`);
+    void client.query(`SET lock_timeout = '${LOCK_TIMEOUT_MS}ms'`);
+    void client.query(`SET idle_in_transaction_session_timeout = '${IDLE_IN_TX_MS}ms'`);
+  });
+
+  _pool.on("error", (err) => {
+    console.error("[pg-pool] idle client error", err?.message || err);
+  });
+
   return _pool;
 }
 
@@ -55,4 +74,18 @@ export async function query<T = any>(
   const pool = getPool();
   const res = await pool.query(text, params as any[]);
   return { rows: res.rows as T[], rowCount: res.rowCount ?? 0 };
+}
+
+/** Pool stats for health checks (no secrets). */
+export function getPoolStats() {
+  const pool = _pool;
+  if (!pool) return { initialized: false as const };
+  return {
+    initialized: true as const,
+    total: pool.totalCount,
+    idle: pool.idleCount,
+    waiting: pool.waitingCount,
+    max: Number(process.env.PG_POOL_MAX || 10),
+    statementTimeoutMs: STATEMENT_TIMEOUT_MS,
+  };
 }

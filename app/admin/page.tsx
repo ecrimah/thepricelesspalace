@@ -1,20 +1,21 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { useState, useEffect, useCallback } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { fetchWithTimeout } from '@/lib/fetch-with-timeout';
 
 export default function AdminDashboard() {
-  const [dateRange, setDateRange] = useState('7days'); // logic not implemented for this demo, just UI
+  const [dateRange, setDateRange] = useState('7days'); // UI only for now
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Real Stats
   const [stats, setStats] = useState([
     {
       title: 'Total Revenue',
       value: '₵ 0.00',
-      change: '0%', // Placeholder trend
+      change: '0%',
       trend: 'up',
       icon: 'ri-money-dollar-circle-line',
       color: 'gray'
@@ -28,7 +29,7 @@ export default function AdminDashboard() {
       color: 'blue'
     },
     {
-      title: 'Customers', // This is total active users for us currently
+      title: 'Customers',
       value: '0',
       change: '0%',
       trend: 'up',
@@ -50,157 +51,66 @@ export default function AdminDashboard() {
   const [topProducts, setTopProducts] = useState<any[]>([]);
   const [chartData, setChartData] = useState<any[]>([]);
 
-  useEffect(() => {
-    async function fetchDashboardData() {
-      try {
-        // 1. Fetch ALL Orders for count & customers
-        const { data: allOrdersData, error: ordersError } = await supabase
-          .from('orders')
-          .select('total, status, payment_status, created_at, email');
-
-        if (ordersError) throw ordersError;
-
-        // Only count PAID orders for revenue & avg order value
-        const paidOrders = allOrdersData?.filter((o: any) => o.payment_status === 'paid') || [];
-        const totalRevenue = paidOrders.reduce((sum: any, order: any) => sum + (order.total || 0), 0);
-        const totalOrders = allOrdersData?.length || 0;
-        const paidOrderCount = paidOrders.length;
-        const avgOrderValue = paidOrderCount > 0 ? totalRevenue / paidOrderCount : 0;
-
-        // 2. Fetch Customers Count (approximation using orders unique emails if we don't have user metrics access)
-        // Since we can't query auth.users directly from client, we'll estimate active customers via orders or just keep it 0 if we can't.
-        // Actually, best to just show "Orders" or "Recent Signups" if we had a public profiles table.
-        // We'll use unique emails from orders as a proxy for "Customers"
-        const uniqueCustomers = new Set(allOrdersData?.map((o: any) => o.email)).size;
-
-
-        // Process Chart Data (Last 7 Days) - only count PAID orders as revenue
-        const last7Days = Array.from({ length: 7 }, (_, i) => {
-          const d = new Date();
-          d.setDate(d.getDate() - (6 - i));
-          return d.toISOString().split('T')[0];
-        });
-
-        const chartMap = last7Days.reduce((acc: any, date) => {
-          acc[date] = 0;
-          return acc;
-        }, {});
-
-        paidOrders.forEach((order: any) => {
-          const date = new Date(order.created_at).toISOString().split('T')[0];
-          if (chartMap[date] !== undefined) {
-            chartMap[date] += (order.total || 0);
-          }
-        });
-
-        const processedChartData = Object.keys(chartMap).map(date => ({
-          date: new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-          revenue: chartMap[date]
-        }));
-        setChartData(processedChartData);
-
-        setStats([
-          {
-            title: 'Total Revenue',
-            value: `₵ ${totalRevenue.toFixed(2)}`,
-            change: '+0%', // Dynamic change requires date filtering logic which is complex
-            trend: 'up',
-            icon: 'ri-money-dollar-circle-line',
-            color: 'gray'
-          },
-          {
-            title: 'Orders',
-            value: totalOrders.toString(),
-            change: '+0%',
-            trend: 'up',
-            icon: 'ri-shopping-bag-line',
-            color: 'blue'
-          },
-          {
-            title: 'Customers (Active)',
-            value: uniqueCustomers.toString(), // Proxy
-            change: '+0%',
-            trend: 'up',
-            icon: 'ri-group-line',
-            color: 'purple'
-          },
-          {
-            title: 'Avg Order Value',
-            value: `₵ ${avgOrderValue.toFixed(2)}`,
-            change: '+0%',
-            trend: 'up',
-            icon: 'ri-line-chart-line',
-            color: 'amber'
-          }
-        ]);
-
-        // 3. Fetch Recent Orders (only paid orders)
-        const { data: recentOrdersData } = await supabase
-          .from('orders')
-          .select('id, order_number, user_id, email, created_at, total, status, shipping_address')
-          .eq('payment_status', 'paid')
-          .order('created_at', { ascending: false })
-          .limit(5);
-
-        if (recentOrdersData) {
-          const formattedRecent = recentOrdersData.map((o: any) => {
-            const addr = o.shipping_address || {};
-            const customerName = (addr.firstName && addr.lastName)
-              ? `${addr.firstName.trim()} ${addr.lastName.trim()}`
-              : addr.full_name || addr.firstName || o.email.split('@')[0];
-            return {
-              id: o.id,
-              displayId: o.order_number,
-              customer: customerName,
-              email: o.email,
-              date: new Date(o.created_at).toLocaleDateString(),
-              total: o.total,
-              status: o.status,
-              items: 1
-            };
-          });
-          setRecentOrders(formattedRecent);
-        }
-
-        // 4. Fetch Low Stock Products
-        const { data: lowStockData } = await supabase
-          .from('products')
-          .select('name, quantity')
-          .lt('quantity', 10)
-          .limit(5);
-
-        if (lowStockData) {
-          setLowStockProducts(lowStockData.map((p: any) => ({
-            name: p.name,
-            stock: p.quantity,
-            status: p.quantity === 0 ? 'critical' : 'low'
-          })));
-        }
-
-        // 5. Fetch Top Products (Approximation: High Price or just Random for now, 
-        // real top selling requires aggregation on order_items which is complex for client-side)
-        // real top selling requires aggregation on order_items which is complex for client-side)
-        const { data: productData } = await supabase.from('products').select('*, product_images(url)').limit(4);
-        if (productData) {
-          setTopProducts(productData.map((p: any) => ({
-            id: p.slug, // Use slug for link
-            name: p.name,
-            image: p.product_images?.[0]?.url || '',
-            sales: 0, // Mocked for now
-            revenue: 0, // Mocked for now
-            stock: p.quantity
-          })));
-        }
-
-      } catch (error) {
-        console.error('Error loading dashboard:', error);
-      } finally {
-        setLoading(false);
+  const fetchDashboardData = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetchWithTimeout('/api/admin/dashboard', { credentials: 'include' }, 20_000);
+      const json = await res.json().catch(() => null);
+      if (!res.ok || !json?.success) {
+        throw new Error(json?.error?.message || `Dashboard failed (${res.status})`);
       }
+      const d = json.data;
+      const s = d.stats || {};
+      setStats([
+        {
+          title: 'Total Revenue',
+          value: `₵ ${Number(s.totalRevenue || 0).toFixed(2)}`,
+          change: '+0%',
+          trend: 'up',
+          icon: 'ri-money-dollar-circle-line',
+          color: 'gray'
+        },
+        {
+          title: 'Orders',
+          value: String(s.totalOrders || 0),
+          change: '+0%',
+          trend: 'up',
+          icon: 'ri-shopping-bag-line',
+          color: 'blue'
+        },
+        {
+          title: 'Customers (Active)',
+          value: String(s.uniqueCustomers || 0),
+          change: '+0%',
+          trend: 'up',
+          icon: 'ri-group-line',
+          color: 'purple'
+        },
+        {
+          title: 'Avg Order Value',
+          value: `₵ ${Number(s.avgOrderValue || 0).toFixed(2)}`,
+          change: '+0%',
+          trend: 'up',
+          icon: 'ri-line-chart-line',
+          color: 'amber'
+        }
+      ]);
+      setChartData(d.chartData || []);
+      setRecentOrders(d.recentOrders || []);
+      setLowStockProducts(d.lowStockProducts || []);
+      setTopProducts(d.topProducts || []);
+    } catch (err: unknown) {
+      console.error('Error loading dashboard:', err);
+      setError(err instanceof Error ? err.message : 'Unable to load dashboard');
+    } finally {
+      setLoading(false);
     }
-
-    fetchDashboardData();
   }, []);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, [fetchDashboardData]);
 
   const statusColors: any = {
     'pending': 'bg-amber-100 text-amber-700',
@@ -232,6 +142,21 @@ export default function AdminDashboard() {
 
   if (loading) {
     return <div className="p-8 text-center text-gray-500">Loading Dashboard...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="p-8 max-w-lg mx-auto text-center space-y-4">
+        <p className="text-red-600 font-medium">{error}</p>
+        <button
+          type="button"
+          onClick={() => fetchDashboardData()}
+          className="px-4 py-2 rounded-lg bg-gray-900 text-white text-sm font-semibold hover:bg-gray-800"
+        >
+          Retry
+        </button>
+      </div>
+    );
   }
 
   return (
@@ -421,7 +346,9 @@ export default function AdminDashboard() {
             {topProducts.map((product) => (
               <div key={product.id} className="border border-gray-200 rounded-xl p-4 hover:shadow-md transition-shadow">
                 <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden mb-3">
-                  <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                  {product.image ? (
+                    <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                  ) : null}
                 </div>
                 <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">{product.name}</h3>
                 <div className="mt-3 pt-3 border-t border-gray-200 flex items-center justify-between">

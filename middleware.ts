@@ -70,12 +70,14 @@ async function isMaintenanceModeEnabled(request: NextRequest): Promise<boolean> 
     const base = process.env.NEXT_PUBLIC_SUPABASE_URL || request.nextUrl.origin;
     const url = `${base.replace(/\/+$/, '')}/rest/v1/store_settings?key=eq.maintenance_mode&select=value&limit=1`;
     const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'x';
+    // Hard timeout — a hung REST/DB call must not freeze every storefront navigation.
     const res = await fetch(url, {
       headers: {
         apikey: anon,
         Authorization: `Bearer ${anon}`,
       },
       cache: 'no-store',
+      signal: AbortSignal.timeout(3_000),
     });
     if (!res.ok) return false;
     const data: Array<{ value: unknown }> = await res.json();

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
@@ -27,47 +27,57 @@ export default function AdminLayout({
   // Maintenance mode (super admin only)
   const [maintenanceEnabled, setMaintenanceEnabled] = useState(false);
   const [maintenanceToggling, setMaintenanceToggling] = useState(false);
+  const authCheckedRef = useRef(false);
 
   useEffect(() => {
+    if (pathname === '/admin/login') {
+      setIsLoading(false);
+      return;
+    }
+
+    // Skip re-auth on every admin navigation — middleware already guards the route.
+    if (authCheckedRef.current) {
+      setIsLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+
     async function checkAuth() {
       try {
         const { data: { session } } = await supabase.auth.getSession();
 
-        if (pathname === '/admin/login') {
-          setIsLoading(false);
-          return;
-        }
-
         if (!session) {
-          router.push('/admin/login');
+          if (!cancelled) router.push('/admin/login');
           return;
         }
 
         const accessToken = session?.access_token;
         if (!accessToken || typeof accessToken !== 'string') {
-          router.push('/admin/login');
+          if (!cancelled) router.push('/admin/login');
           return;
         }
 
         const secure = typeof window !== 'undefined' && window.location.protocol === 'https:' ? '; Secure' : '';
         try {
           document.cookie = `sb-access-token=${accessToken}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax${secure}`;
-          // Maintenance bypass cookie — read by middleware to let admins through
-          // when the storefront is in maintenance mode.
           document.cookie = `admin_session=1; path=/; max-age=86400; SameSite=Lax${secure}`;
-        } catch (_) { }
+        } catch (_) { /* ignore cookie write failures */ }
 
         const meRes = await fetch('/api/admin/me', {
           credentials: 'include',
           headers: { Authorization: `Bearer ${accessToken}` },
+          signal: AbortSignal.timeout(12_000),
         });
+
+        if (cancelled) return;
 
         if (!meRes.ok) {
           let errBody: { error?: string } = {};
           try {
             const text = await meRes.text();
             if (text) errBody = JSON.parse(text);
-          } catch (_) { }
+          } catch (_) { /* ignore */ }
           if (meRes.status === 503) router.push('/admin/login?error=config');
           else if (meRes.status === 404) router.push('/admin/login?error=no_profile');
           else if (meRes.status === 403 && errBody?.error === 'Role disabled') router.push('/admin/login?error=role_disabled');
@@ -94,20 +104,29 @@ export default function AdminLayout({
           return;
         }
 
+        if (cancelled) return;
+        authCheckedRef.current = true;
         setUser(session.user);
         setUserRole(role);
         if (Object.keys(permissions).length > 0) setRolePermissions(permissions);
         setIsAuthenticated(true);
-      } catch {
-        router.push('/admin/login');
+      } catch (err) {
+        if (!cancelled) {
+          console.error('[admin/layout] auth check failed', err);
+          router.push('/admin/login');
+        }
       } finally {
-        setIsLoading(false);
+        if (!cancelled) setIsLoading(false);
       }
     }
 
     checkAuth();
+    return () => {
+      cancelled = true;
+    };
+  }, [pathname, router]);
 
-    // Keep cookie in sync when session refreshes
+  useEffect(() => {
     const secure = typeof window !== 'undefined' && window.location.protocol === 'https:' ? '; Secure' : '';
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'TOKEN_REFRESHED' && session) {
@@ -115,14 +134,14 @@ export default function AdminLayout({
         document.cookie = `admin_session=1; path=/; max-age=86400; SameSite=Lax${secure}`;
       }
       if (event === 'SIGNED_OUT') {
+        authCheckedRef.current = false;
         document.cookie = `sb-access-token=; path=/; max-age=0; SameSite=Lax${secure}`;
         document.cookie = `sb-refresh-token=; path=/; max-age=0; SameSite=Lax${secure}`;
         document.cookie = `admin_session=; path=/; max-age=0; SameSite=Lax${secure}`;
       }
     });
-
     return () => subscription.unsubscribe();
-  }, [pathname, router]);
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

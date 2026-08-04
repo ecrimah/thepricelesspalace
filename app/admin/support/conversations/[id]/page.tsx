@@ -17,17 +17,24 @@ export default function ConversationDetailPage({ params }: { params: Promise<{ i
 
   const fetchData = useCallback(async () => {
     setLoading(true);
-    const { data: conv } = await supabase.from('chat_conversations').select('*').eq('id', id).single();
-    setConversation(conv);
+    try {
+      const { data: conv } = await supabase.from('chat_conversations').select('*').eq('id', id).single();
+      setConversation(conv);
 
-    if (conv?.user_id) {
-      const { data: memData } = await supabase.from('ai_memory').select('*').eq('customer_id', conv.user_id).order('created_at', { ascending: false });
-      setMemories(memData || []);
-    } else if (conv?.customer_email) {
-      const { data: memData } = await supabase.from('ai_memory').select('*').eq('customer_email', conv.customer_email).order('created_at', { ascending: false });
-      setMemories(memData || []);
+      if (conv?.user_id) {
+        const { data: memData } = await supabase.from('ai_memory').select('*').eq('customer_id', conv.user_id).order('created_at', { ascending: false });
+        setMemories(memData || []);
+      } else if (conv?.customer_email) {
+        const { data: memData } = await supabase.from('ai_memory').select('*').eq('customer_email', conv.customer_email).order('created_at', { ascending: false });
+        setMemories(memData || []);
+      } else {
+        setMemories([]);
+      }
+    } catch (err) {
+      console.error('Failed to fetch conversation:', err);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }, [id]);
 
   useEffect(() => {

@@ -1,5 +1,5 @@
 /**
- * Compress public heroes + product PNGs to WebP and remove bloated originals.
+ * Compress public heroes, products, logos, and OG images.
  * Run: npm run images:optimize
  */
 import fs from 'fs';
@@ -10,68 +10,89 @@ import sharp from 'sharp';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const pub = path.join(__dirname, '..', 'public');
 const productsDir = path.join(pub, 'products');
+const iconsDir = path.join(pub, 'icons');
 
-async function toWebp(inputPath, outputPath, maxWidth, quality) {
+async function recompressWebp(inputPath, maxWidth, quality) {
   const before = fs.statSync(inputPath).size;
-  await sharp(inputPath)
+  // Read into memory first so OneDrive/Windows locks don't block overwrite.
+  const input = fs.readFileSync(inputPath);
+  const buf = await sharp(input)
     .rotate()
     .resize(maxWidth, maxWidth, { fit: 'inside', withoutEnlargement: true })
-    .webp({ quality, effort: 4 })
-    .toFile(outputPath);
-  const after = fs.statSync(outputPath).size;
-  const name = path.basename(outputPath);
-  console.log(`  ${name}: ${(before / 1024).toFixed(0)}KB → ${(after / 1024).toFixed(0)}KB`);
-  return { before, after };
-}
-
-async function optimizeGlob(globDir, pattern, maxWidth, quality) {
-  if (!fs.existsSync(globDir)) return;
-  const files = fs.readdirSync(globDir).filter((f) => pattern.test(f));
-  let saved = 0;
-  for (const file of files) {
-    const input = path.join(globDir, file);
-    const base = file.replace(/\.(png|jpe?g)$/i, '');
-    const output = path.join(globDir, `${base}.webp`);
-    const { before, after } = await toWebp(input, output, maxWidth, quality);
-    saved += before - after;
-    if (/\.png$/i.test(file)) fs.unlinkSync(input);
+    .webp({ quality, effort: 6, smartSubsample: true })
+    .toBuffer();
+  if (buf.length < before * 0.98) {
+    fs.writeFileSync(inputPath, buf);
+    console.log(
+      `  ${path.basename(inputPath)}: ${(before / 1024).toFixed(1)}KB → ${(buf.length / 1024).toFixed(1)}KB`
+    );
+    return before - buf.length;
   }
-  return saved;
+  console.log(`  ${path.basename(inputPath)}: ${(before / 1024).toFixed(1)}KB (kept)`);
+  return 0;
 }
 
-async function optimizeHeroes() {
-  console.log('Hero images → WebP (max 1600px):');
-  const files = fs.readdirSync(pub).filter((f) => /^hero-.*\.(png|jpe?g)$/i.test(f));
-  let saved = 0;
-  for (const file of files) {
-    const input = path.join(pub, file);
-    const base = file.replace(/\.(png|jpe?g)$/i, '');
-    const output = path.join(pub, `${base}.webp`);
-    const { before, after } = await toWebp(input, output, 1600, 82);
-    saved += before - after;
-    fs.unlinkSync(input);
+async function recompressPng(inputPath, maxWidth, { quality = 80, palette = false } = {}) {
+  const before = fs.statSync(inputPath).size;
+  const input = fs.readFileSync(inputPath);
+  // Avoid palette:true on logos — it can flatten transparent white marks to black.
+  const buf = await sharp(input)
+    .rotate()
+    .resize(maxWidth, maxWidth, { fit: 'inside', withoutEnlargement: true })
+    .png({
+      quality,
+      compressionLevel: 9,
+      adaptiveFiltering: true,
+      ...(palette ? { palette: true } : {}),
+    })
+    .toBuffer();
+  if (buf.length < before * 0.98) {
+    fs.writeFileSync(inputPath, buf);
+    console.log(
+      `  ${path.basename(inputPath)}: ${(before / 1024).toFixed(1)}KB → ${(buf.length / 1024).toFixed(1)}KB`
+    );
+    return before - buf.length;
   }
-  return saved;
-}
-
-async function optimizePlaceholder() {
-  const input = path.join(pub, 'placeholder-product.png');
-  if (!fs.existsSync(input)) return 0;
-  console.log('Placeholder product:');
-  const output = path.join(pub, 'placeholder-product.webp');
-  const { before, after } = await toWebp(input, output, 800, 80);
-  fs.unlinkSync(input);
-  return before - after;
+  console.log(`  ${path.basename(inputPath)}: ${(before / 1024).toFixed(1)}KB (kept)`);
+  return 0;
 }
 
 async function main() {
   console.log('Optimizing public images...\n');
-  let totalSaved = 0;
-  totalSaved += (await optimizeHeroes()) || 0;
-  console.log('\nProduct images → WebP (max 900px):');
-  totalSaved += (await optimizeGlob(productsDir, /\.(png|jpe?g)$/i, 900, 80)) || 0;
-  totalSaved += await optimizePlaceholder();
-  console.log(`\nDone. Saved ~${(totalSaved / 1024 / 1024).toFixed(1)} MB total.`);
+  let saved = 0;
+
+  console.log('Hero WebP (max 1600px, q72):');
+  for (const f of fs.readdirSync(pub).filter((n) => /^hero-.*\.webp$/i.test(n))) {
+    saved += await recompressWebp(path.join(pub, f), 1600, 72);
+  }
+
+  if (fs.existsSync(productsDir)) {
+    console.log('\nProduct WebP (max 900px, q75):');
+    for (const f of fs.readdirSync(productsDir).filter((n) => /\.webp$/i.test(n))) {
+      saved += await recompressWebp(path.join(productsDir, f), 900, 75);
+    }
+  }
+
+  console.log('\nLogos / favicons (PNG, no palette):');
+  for (const name of ['logo.png', 'logo-white.png', 'favicon.png', 'apple-touch-icon.png']) {
+    const p = path.join(pub, name);
+    if (fs.existsSync(p)) saved += await recompressPng(p, 512, { quality: 80, palette: false });
+  }
+
+  console.log('\nOG / Twitter (PNG):');
+  for (const name of ['og-image.png', 'twitter-image.png']) {
+    const p = path.join(pub, name);
+    if (fs.existsSync(p)) saved += await recompressPng(p, 1200, { quality: 80, palette: false });
+  }
+
+  if (fs.existsSync(iconsDir)) {
+    console.log('\nPWA icons (PNG, no palette):');
+    for (const f of fs.readdirSync(iconsDir).filter((n) => /\.png$/i.test(n))) {
+      saved += await recompressPng(path.join(iconsDir, f), 512, { quality: 80, palette: false });
+    }
+  }
+
+  console.log(`\nDone. Saved ~${(saved / 1024).toFixed(0)} KB on disk.`);
 }
 
 main().catch((err) => {

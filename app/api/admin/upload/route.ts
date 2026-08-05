@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
+import { compressImageUpload } from '@/lib/compress-image';
 
 function getAccessToken(request: Request): string | null {
   const authHeader = request.headers.get('authorization');
@@ -68,12 +69,20 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Missing file' }, { status: 400 });
     }
 
-    const ext = file.name.split('.').pop() || 'jpg';
-    const path = `cat-${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+    const rawBytes = Buffer.from(await file.arrayBuffer());
+    const compressed = file.type?.startsWith('image/')
+      ? await compressImageUpload(rawBytes)
+      : null;
 
-    const { error } = await supabaseAdmin.storage.from(bucket).upload(path, file, {
-      cacheControl: '3600',
+    const ext = compressed?.extension || file.name.split('.').pop() || 'jpg';
+    const path = `cat-${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+    const body = compressed?.buffer || rawBytes;
+    const contentType = compressed?.contentType || file.type || 'application/octet-stream';
+
+    const { error } = await supabaseAdmin.storage.from(bucket).upload(path, body, {
+      cacheControl: '31536000',
       upsert: false,
+      contentType,
     });
 
     if (error) {
@@ -81,7 +90,11 @@ export async function POST(request: Request) {
     }
 
     const { data: { publicUrl } } = supabaseAdmin.storage.from(bucket).getPublicUrl(path);
-    return NextResponse.json({ url: publicUrl });
+    return NextResponse.json({
+      url: publicUrl,
+      compressed: Boolean(compressed),
+      bytes: body.length,
+    });
   } catch (e: any) {
     return NextResponse.json({ error: e?.message || 'Upload failed' }, { status: 500 });
   }

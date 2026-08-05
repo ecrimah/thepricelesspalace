@@ -7,6 +7,7 @@ const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'hello@thepricelesspalace.com';
 const EMAIL_FROM = process.env.EMAIL_FROM || 'The Priceless Palace <noreply@thepricelesspalace.com>';
 const BRAND = {
     name: 'The Priceless Palace',
+    shortName: 'Priceless Palace',
     color: '#1e40af',
     colorLight: '#f9fafb',
     colorDark: '#262626',
@@ -157,17 +158,23 @@ export async function sendSMS({ to, message }: { to: string; message: string }) 
             })
         }).finally(() => clearTimeout(timer));
 
-        const contentType = response.headers.get('content-type') || '';
-        if (!contentType.includes('application/json')) {
-            const text = await response.text();
+        const text = await response.text();
+        let result: any = null;
+        try {
+            result = JSON.parse(text);
+        } catch {
             console.error('[SMS] Non-JSON response:', text.slice(0, 200));
             return { status: 0, error: text.slice(0, 200) };
         }
 
-        const result = await response.json();
         console.log('[SMS] Result:', result.status === 1 ? 'Success' : 'Failed', '| Code:', result.code);
         if (result.status !== 1) {
-            console.log('[SMS] Full Response:', JSON.stringify(result, null, 2));
+            console.error(
+                '[SMS] Failed:',
+                result.message || result.code || 'unknown',
+                '| senderid:',
+                process.env.SMS_SENDER_ID || 'NEWPROJ'
+            );
         }
         return result;
     } catch (error: any) {
@@ -316,8 +323,8 @@ ${emailButton('View Order in Admin', `${baseUrl}/admin/orders/${id}`)}
     // 3. SMS to Customer (if phone exists)
     if (phone) {
         const smsMessage = trackingNumber
-            ? `Hi ${name}, your order #${order_number || id} is confirmed! Tracking: ${trackingNumber}. Track here: ${trackingUrl}${shippingNotesSms}`
-            : `Hi ${name}, your order #${order_number || id} at New Project is confirmed! Track here: ${trackingUrl}${shippingNotesSms}`;
+            ? `Hi ${name}, your order #${order_number || id} at ${BRAND.shortName} is confirmed! Tracking: ${trackingNumber}. Track: ${trackingUrl}${shippingNotesSms}`
+            : `Hi ${name}, your order #${order_number || id} at ${BRAND.shortName} is confirmed! Track: ${trackingUrl}${shippingNotesSms}`;
         
         await sendSMS({
             to: phone,

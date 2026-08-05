@@ -173,7 +173,7 @@ export default function Home() {
                 fill
                 priority={index === 0}
                 sizes="100vw"
-                unoptimized
+                quality={70}
                 className="object-cover"
                 style={{
                   objectPosition: slide.position,

@@ -14,20 +14,16 @@ interface LazyImageProps {
   sizes?: string;
 }
 
-/** Serve same-origin images directly — skip /_next/image (avoids sharp/cache blanks). */
+/**
+ * Bypass /_next/image only for disk-storage uploads (known sharp/cache blanks).
+ * Static /public heroes & logos go through the optimizer for responsive srcset.
+ */
 function shouldBypassOptimizer(src: string) {
   try {
     const pathname = src.startsWith('http')
       ? new URL(src).pathname
       : src.split('?')[0];
-    if (pathname.startsWith('/storage/') || pathname.startsWith('/uploads/')) {
-      return true;
-    }
-    return (
-      pathname.startsWith('/products/') ||
-      pathname.startsWith('/hero-') ||
-      (pathname.startsWith('/') && /\.(webp|png|jpe?g|avif|gif)$/i.test(pathname))
-    );
+    return pathname.startsWith('/storage/') || pathname.startsWith('/uploads/');
   } catch {
     return false;
   }
@@ -97,7 +93,7 @@ export default function LazyImage({
         onLoad={handleLoad}
         onError={handleError}
         priority={priority}
-        quality={unoptimized ? undefined : 70}
+        quality={unoptimized ? undefined : 65}
         unoptimized={unoptimized}
       />
     </div>

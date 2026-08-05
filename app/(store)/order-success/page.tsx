@@ -4,14 +4,44 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Suspense, useState, useEffect } from 'react';
 
+const PENDING_ORDER_KEY = 'palace_pending_order';
+
+function readPendingEmail(orderNumber: string | null): string {
+  if (!orderNumber || typeof window === 'undefined') return '';
+  try {
+    const raw = sessionStorage.getItem(PENDING_ORDER_KEY);
+    if (!raw) return '';
+    const parsed = JSON.parse(raw);
+    if (parsed?.orderNumber === orderNumber && typeof parsed?.email === 'string') {
+      return parsed.email.trim().toLowerCase();
+    }
+  } catch {
+    /* ignore */
+  }
+  return '';
+}
+
 function OrderSuccessContent() {
   const searchParams = useSearchParams();
   const orderNumber = searchParams.get('order');
   const paymentSuccess = searchParams.get('payment_success');
+  const emailFromQuery = (searchParams.get('email') || '').trim().toLowerCase();
   const [order, setOrder] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [showConfetti, setShowConfetti] = useState(true);
   const [verifying, setVerifying] = useState(false);
+  const [lookupEmail, setLookupEmail] = useState('');
+  const [emailNeeded, setEmailNeeded] = useState(false);
+  const [lookupError, setLookupError] = useState<string | null>(null);
+
+  const loadOrder = async (orderNum: string, email: string) => {
+    const res = await fetch(
+      `/api/storefront/orders/${encodeURIComponent(orderNum)}?email=${encodeURIComponent(email)}`
+    );
+    const json = await res.json();
+    if (!res.ok) throw new Error(json.error || 'Order not found');
+    return json.order;
+  };
 
   useEffect(() => {
     async function fetchOrder() {
@@ -20,12 +50,23 @@ function OrderSuccessContent() {
         return;
       }
 
+      const email = emailFromQuery || readPendingEmail(orderNumber);
+      if (!email) {
+        setEmailNeeded(true);
+        setLoading(false);
+        return;
+      }
+
+      setLookupEmail(email);
       try {
-        const res = await fetch(`/api/storefront/orders/${encodeURIComponent(orderNumber)}`);
-        const json = await res.json();
-        if (!res.ok) throw new Error(json.error || 'Order not found');
-        const orderData = json.order;
+        const orderData = await loadOrder(orderNumber, email);
         setOrder(orderData);
+        setEmailNeeded(false);
+        try {
+          sessionStorage.removeItem(PENDING_ORDER_KEY);
+        } catch {
+          /* ignore */
+        }
 
         // If redirected from payment and order is still pending, try to verify
         if (paymentSuccess === 'true' && orderData && orderData.payment_status !== 'paid') {
@@ -33,21 +74,28 @@ function OrderSuccessContent() {
         }
       } catch (err) {
         console.error('Error fetching order:', err);
+        setEmailNeeded(true);
+        setLookupError('We could not load this order with that email. Please try again.');
       } finally {
         setLoading(false);
       }
     }
     fetchOrder();
-  }, [orderNumber, paymentSuccess]);
+  }, [orderNumber, paymentSuccess, emailFromQuery]);
 
   // Payment verification - called when user is redirected from Moolre with payment_success=true
   const verifyPayment = async (orderNum: string, _initialOrder: any) => {
     setVerifying(true);
 
     const refreshOrder = async () => {
-      const r = await fetch(`/api/storefront/orders/${encodeURIComponent(orderNum)}`);
-      const j = await r.json();
-      return j.order;
+      const email =
+        lookupEmail ||
+        emailFromQuery ||
+        readPendingEmail(orderNum) ||
+        _initialOrder?.email ||
+        '';
+      if (!email) return null;
+      return loadOrder(orderNum, email).catch(() => null);
     };
 
     // Retry loop: check every 3s for up to 30s to give the webhook time to fire
@@ -109,15 +157,69 @@ function OrderSuccessContent() {
     );
   }
 
-  // Use a fallback or nice error if order not found
+  // Payment return often loses context — ask for the checkout email to load the receipt
   if (!order) {
     return (
-      <main className="min-h-screen flex items-center justify-center bg-white">
-        <div className="text-center">
-          <i className="ri-error-warning-line text-4xl text-[#FF6666] mb-4 block"></i>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Order Not Found</h1>
-          <p className="text-gray-600 mb-6">We couldn't locate the order details.</p>
-          <Link href="/shop" className="text-gray-900 font-semibold hover:underline">
+      <main className="min-h-screen flex items-center justify-center bg-white px-4">
+        <div className="w-full max-w-md text-center">
+          <i className="ri-mail-check-line text-4xl text-[#2563eb] mb-4 block"></i>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            {orderNumber ? 'Confirm your email' : 'Order Not Found'}
+          </h1>
+          <p className="text-gray-600 mb-6">
+            {orderNumber
+              ? 'Enter the email you used at checkout to view your order confirmation.'
+              : "We couldn't locate the order details."}
+          </p>
+          {orderNumber && (
+            <form
+              className="space-y-3 text-left"
+              onSubmit={async (e) => {
+                e.preventDefault();
+                const email = lookupEmail.trim().toLowerCase();
+                if (!email.includes('@')) {
+                  setLookupError('Please enter a valid email address.');
+                  return;
+                }
+                setLookupError(null);
+                setLoading(true);
+                try {
+                  const orderData = await loadOrder(orderNumber, email);
+                  setOrder(orderData);
+                  setEmailNeeded(false);
+                  if (paymentSuccess === 'true' && orderData.payment_status !== 'paid') {
+                    verifyPayment(orderNumber, orderData);
+                  }
+                } catch {
+                  setLookupError('No order found for that email. Check and try again.');
+                } finally {
+                  setLoading(false);
+                }
+              }}
+            >
+              {orderNumber && (
+                <p className="text-sm text-gray-500 mb-1">
+                  Order <span className="font-semibold text-gray-800">{orderNumber}</span>
+                </p>
+              )}
+              <input
+                type="email"
+                required
+                value={lookupEmail}
+                onChange={(e) => setLookupEmail(e.target.value)}
+                placeholder="you@example.com"
+                className="w-full rounded-xl border border-gray-300 px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#2563eb]/40"
+              />
+              {lookupError && <p className="text-sm text-[#b91c1c]">{lookupError}</p>}
+              <button
+                type="submit"
+                className="w-full rounded-xl bg-[#2563eb] text-white py-3 font-semibold hover:bg-[#1d4ed8] transition-colors"
+              >
+                View order
+              </button>
+            </form>
+          )}
+          <Link href="/shop" className="inline-block mt-6 text-gray-900 font-semibold hover:underline">
             Return to Shop
           </Link>
         </div>

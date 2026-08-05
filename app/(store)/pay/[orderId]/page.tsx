@@ -107,6 +107,18 @@ export default function PaymentPage() {
         throw new Error(paymentResult.message || 'Payment initialization failed');
       }
 
+      try {
+        sessionStorage.setItem(
+          'palace_pending_order',
+          JSON.stringify({
+            orderNumber: order.order_number,
+            email: String(order.email || '').trim().toLowerCase(),
+          })
+        );
+      } catch {
+        /* ignore */
+      }
+
       window.location.href = paymentResult.url;
 
     } catch (err: any) {

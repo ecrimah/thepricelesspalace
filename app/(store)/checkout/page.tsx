@@ -202,6 +202,19 @@ export default function CheckoutPage() {
             throw new Error(paymentResult.message || 'Payment initialization failed');
           }
 
+          // Persist email so /order-success can load the receipt after Moolre redirect
+          try {
+            sessionStorage.setItem(
+              'palace_pending_order',
+              JSON.stringify({
+                orderNumber,
+                email: String(shippingData.email || '').trim().toLowerCase(),
+              })
+            );
+          } catch {
+            /* ignore */
+          }
+
           // Clear cart before redirecting
           clearCart();
 

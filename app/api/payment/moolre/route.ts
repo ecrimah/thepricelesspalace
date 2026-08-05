@@ -88,7 +88,9 @@ export async function POST(req: Request) {
             console.error('[Moolre] MOOLRE_CALLBACK_SECRET is required');
             return NextResponse.json({ success: false, message: 'Payment gateway configuration error' }, { status: 500 });
         }
-        const redirectUrl = `${baseUrl}/order-success?order=${orderRef}&payment_success=true`;
+        // Include email so /order-success can load the receipt (API requires email).
+        const emailParam = email ? `&email=${encodeURIComponent(email)}` : '';
+        const redirectUrl = `${baseUrl}/order-success?order=${encodeURIComponent(orderRef)}&payment_success=true${emailParam}`;
 
         console.log('[Moolre] Initializing for order:', orderRef, '| Amount:', amount, 'GHS', '| Ref:', uniqueRef);
 

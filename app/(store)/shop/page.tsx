@@ -8,6 +8,7 @@ import { getColorHex } from '@/components/ProductCard';
 import { supabase } from '@/lib/supabase';
 import { cachedQuery } from '@/lib/query-cache';
 import PageHero from '@/components/PageHero';
+import { firstCatalogImageUrl } from '@/lib/product-media';
 
 function ShopContent() {
   usePageTitle('Shop Products');
@@ -167,7 +168,7 @@ function ShopContent() {
               name: p.name,
               price: p.price,
               originalPrice: p.compare_at_price,
-              image: p.product_images?.[0]?.url || '',
+              image: firstCatalogImageUrl(p.product_images),
               rating: p.rating_avg || 0,
               reviewCount: 0, // Need to implement reviews relation
               badge: p.compare_at_price > p.price ? 'Sale' : undefined,
@@ -181,7 +182,7 @@ function ShopContent() {
               minVariantPrice,
               colorVariants,
             };
-          });
+          }).filter((p: { image?: string }) => !!p.image);
           setProducts(prev => {
             if (isFirstPage) return formattedProducts;
             // Append while de-duping by id (guards against overlapping refetches)

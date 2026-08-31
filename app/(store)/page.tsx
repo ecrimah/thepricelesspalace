@@ -12,6 +12,7 @@ import ProductCard, {
 import AnimatedSection, { AnimatedGrid } from '@/components/AnimatedSection';
 import { usePageTitle } from '@/hooks/usePageTitle';
 import { BRAND } from '@/lib/brand';
+import { firstCatalogImageUrl } from '@/lib/product-media';
 
 type ProductRow = {
   id: string;
@@ -74,7 +75,10 @@ export default function Home() {
         ]);
 
         if (!productsResult.error) {
-          setFeaturedProducts((productsResult.data as ProductRow[]) || []);
+          const rows = ((productsResult.data as ProductRow[]) || []).filter(
+            (p) => firstCatalogImageUrl(p.product_images)
+          );
+          setFeaturedProducts(rows);
         }
         if (!categoriesResult.error) {
           setFeaturedCategories((categoriesResult.data as CategoryRow[]) || []);
@@ -357,7 +361,7 @@ export default function Home() {
                     name={product.name}
                     price={product.price}
                     originalPrice={product.compare_at_price}
-                    image={product.product_images?.[0]?.url || ''}
+                    image={firstCatalogImageUrl(product.product_images)}
                     rating={product.rating_avg || 5}
                     reviewCount={product.review_count || 0}
                     badge={product.featured ? 'Featured' : 'Trending'}
